@@ -1,0 +1,317 @@
+let animatedValue = -0.1;
+
+let selectedCard;
+let cards = [];
+
+let touchTargets = [];
+
+// this controls the limits of within which cards can move on posX
+const EASE_IN_FACTOR_DISPERSE_LEFT_LIMIT = -100;
+const EASE_IN_FACTOR_DISPERSE_RIGHT_LIMIT = 100;
+
+// this controls the limits of within which cards can move on posY
+const POSY_OFFSET_DISPERSE_LEFT_LIMIT = -10;
+const POSY_OFFSET_DISPERSE_RIGHT_LIMIT = 10;
+
+// position for the initial card starting the game
+let POSY_INITIAL_CARD;
+let POSX_INITIAL_CARD;
+
+function setup() {
+    createCanvas(600, 800);
+
+    cards.push(new Card(1,(width/2) + 4, height+13, random(-1, - 0.9), random(-1, -0.6)));
+    cards.push(new Card(2, (width/2) + 2, height+10, random(1, 0.8), random(0.6, 1)));
+    cards.push(new Card(3, width/2, height+7)); // middle card
+    cards.push(new Card(4, (width/2) - 2, height+4, random(0.5, -0.3), random(-0.5, 0.2)));
+    cards.push(new Card(5, (width/2) - 4, height+1, random(-0.7, -0.1), random(1, 0.6)));
+    cards.push(new Card(6, (width/2) - 6, height-2, random(1, 0.5), random(-1, -0.6)));
+
+
+
+    touchTargets.push(new TouchTarget());
+
+    POSX_INITIAL_CARD = width/2;
+    POSY_INITIAL_CARD = 300;
+}
+
+function draw() {
+    background(220);
+    stroke(1);
+
+    // ------- initial card placeholders
+    rectMode(CENTER);
+    fill(200);
+    rect(POSX_INITIAL_CARD, POSY_INITIAL_CARD, 56, 106);
+    // ----------------------------------
+
+    // support for touch and desktop.
+    if (touches.length == 0) {
+        touchTargets[0].x=mouseX;
+        touchTargets[0].y=mouseY;
+    } else {
+        touchTargets[0].x=touches[0].x;
+        touchTargets[0].y=touches[0].y;
+    }
+
+    // initialize and display the cards.
+    for (let i = 0; i < cards.length; i++) {
+        let activeCard = cards[i];
+        if (!activeCard.initialized){
+            activeCard.initialize();
+        } else if (!activeCard.dispersed){
+            activeCard.disperse();
+        } else {
+            activeCard.draw();
+        }
+    }
+
+    // DEBUG - display FPS
+    let fps = frameRate(); // Get the current frames per second
+    fill(0);
+    textSize(16);
+    text("FPS: " + fps.toFixed(2), 20, 20);
+
+}
+
+function touchStarted() {
+    // decide order of the cards based on mouseposition ------
+    if (selectedCard == undefined) {
+        for (let i = 0; i < cards.length; i++) {
+            let activeCard = cards[i];
+            if (activeCard.isActive(touchTargets[0].x, touchTargets[0].y)) {
+                cards.splice(i, 1);
+                cards.push(activeCard);
+                selectedCard = activeCard;
+                // straighten the selected card
+                selectedCard.resetRotation(true);
+                break;
+            }
+        }
+    }
+
+}
+
+// desktop support
+function mousePressed() {
+    touchStarted();
+}
+
+function touchEnded() {
+    for (let i = 0; i < cards.length; i++) {
+        cards[i].resetRotation(false);
+    }
+    selectedCard = undefined; // clear any selections
+}
+
+function mouseReleased() {
+    touchEnded();
+}
+
+function touchMoved(){
+    touchStarted();
+    if (selectedCard != undefined) {
+        selectedCard.posx = touchTargets[0].x;
+        selectedCard.posy = touchTargets[0].y;
+    }
+}
+
+function mouseDragged() {
+    touchMoved();
+}
+
+
+
+
+class TouchTarget {
+    constructor() {
+        this.x = 0;
+        this.y = 0;
+    }
+}
+
+class Card {
+
+    // disperseX(-1, 1)
+    // disperseY(-1, 1)
+    constructor(id, posx, posy, disperseX, disperseY) {
+        this.id = id;
+        this.posx = posx;
+        this.posy = posy;
+        this.width = 50;
+        this.height = 100;
+
+        this.initialPosY = posy;
+        this.initialPosX = posx;
+        this.initialized = false;
+        this.dispersed = false;
+        this.animatedValueInitialization = -0.1; // helper for initialization animation.
+        this.animatedValueDisperse = -0.1; // helper for disperse animation.
+        this.rotationAngle = random(5, 25); // rotation of the card at the disperse action.
+        this.rotationDirectionClockwise = random() > 0.5; // randomize the rotation direction.
+
+        this.easeInFactorInitialization = 150; // how far the card moves at the initialization.
+
+        // this.easeInFactorDisperse = random(-150, 150); // how far the card moves posX after disperse.
+        // this.posyOffsetDisperse = random(-6, 6); // how far the card moves posY after disperse
+        if (disperseX != undefined && disperseY != undefined){
+            this.easeInFactorDisperse = map(disperseX, -1, 1, EASE_IN_FACTOR_DISPERSE_LEFT_LIMIT, EASE_IN_FACTOR_DISPERSE_RIGHT_LIMIT); // how far the card moves posX after disperse.
+            this.posyOffsetDisperse = map(disperseY, -1, 1, POSY_OFFSET_DISPERSE_LEFT_LIMIT, POSY_OFFSET_DISPERSE_RIGHT_LIMIT); // how far the card moves posY after disperse
+        }
+
+        this.currentRotationAngle = 0.01; // helper for disperse rotation animation.
+        this.temporaryRotationAngle = 0.01; // helper to keep original rotation angle.
+        this.scaleFactor = 1;
+        this.ROTATION_ACCELERATION = 1.15; // rotation increment factor for animation.
+
+    }
+
+    initialize() {
+        // animate card entering.
+        if (!this.initialized) {
+            this.animatedValueInitialization += 0.005;
+            let easedValue = this.easeInOutQuint(this.animatedValueInitialization);
+            this.posy = this.initialPosY - easedValue * this.easeInFactorInitialization;
+            if (easedValue >= 1.0) {
+                this.initialized = true;
+                this.initialPosY = this.posy;
+            }
+        }
+        this.draw();
+    }
+
+
+    disperse() {
+        if (this.easeInFactorDisperse == undefined && this.posyOffsetDisperse == undefined){
+            this.moveToStartingPoint();
+        } else {
+            this.scatter();
+        }
+    }
+
+    // move card to starting position.
+    moveToStartingPoint(){
+        if (!this.dispersed) {
+            this.animatedValueDisperse += 0.01;
+            let easedValue = this.easeInOutQuint(this.animatedValueDisperse);
+
+            this.posy = this.initialPosY - easedValue * (this.initialPosY - POSY_INITIAL_CARD);
+
+            if (easedValue >= 1.0) { // finish disperse animation.
+                this.dispersed = true;
+            }
+        }
+
+        this.draw();
+    }
+
+    // "randomly" scatter the card.
+    scatter() {
+        if (!this.dispersed) {
+            this.animatedValueDisperse += 0.01;
+            let easedValue = this.easeInOutQuint(this.animatedValueDisperse);
+
+            // modify posy only in the middle of the posx animation in order to avoid snappy behavior.
+            if (easedValue > 0.2 && easedValue < 0.8) {
+                this.posy = this.posy + (this.posyOffsetDisperse * (1 - easedValue));
+            }
+
+            this.posx = this.initialPosX - easedValue * this.easeInFactorDisperse;
+
+            if (easedValue >= 1.0) { // finish disperse animation.
+                this.dispersed = true;
+            }
+        }
+
+        //------ ROTATION
+        // rotate card during disperse animation.
+        if (this.rotationDirectionClockwise) {
+            if (this.currentRotationAngle < this.rotationAngle) {
+                this.currentRotationAngle = this.currentRotationAngle * this.ROTATION_ACCELERATION;
+            }
+        } else {
+            if (this.currentRotationAngle > this.rotationAngle * -1) {
+                if (this.currentRotationAngle > 0) {
+                    this.currentRotationAngle *= -1;
+                }
+                this.currentRotationAngle = this.currentRotationAngle * this.ROTATION_ACCELERATION;
+            }
+        }
+        this.temporaryRotationAngle = this.currentRotationAngle;
+        //---------------
+
+        this.draw();
+    }
+
+    draw() {
+        push();
+        fill(255);
+        rectMode(CENTER);
+        translate(this.posx, this.posy);
+
+        // -------- scale image when active
+        if(this.isActive(touchTargets[0].x, touchTargets[0].y)){
+            if (this.scaleFactor < 2) {
+                this.scaleFactor += 0.1;
+            }
+        } else {
+            if (this.scaleFactor > 1) {
+                this.scaleFactor -= 0.1;
+            }
+        }
+        //------
+
+        scale(this.scaleFactor);
+        rotate(radians(this.currentRotationAngle));
+        rect(0, 0, this.width, this.height);
+        fill(0);
+        text(this.id, 0, 0);
+        pop();
+    }
+
+    // check if mouse given positions are within the drawing dimensions of the card.
+    isActive(positionX, positionY) {
+        if((positionX > this.posx-(this.width/2) && positionX < this.posx+(this.width/2))
+            && (positionY > this.posy-(this.height/2) && positionY < this.posy+(this.height/2))){
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    resetRotation(isStraight) {
+        if (isStraight) {
+            this.currentRotationAngle = 0;
+        } else {
+            this.currentRotationAngle = this.temporaryRotationAngle;
+        }
+    }
+
+    easeInOutQuint(progress) {
+        if (progress < 0.5) {
+            return 16 * Math.pow(progress, 5);
+        } else {
+            return 1 - Math.pow(-2 * progress + 2, 5) / 2;
+        }
+    }
+
+    easeOutQuad(progress) {
+        return 1 - (1 - progress) * (1 - progress);
+    }
+
+}
+
+document.addEventListener("gesturestart", function (e) {
+    e.preventDefault();
+    document.body.style.zoom = 0.99;
+});
+
+document.addEventListener("gesturechange", function (e) {
+    e.preventDefault();
+
+    document.body.style.zoom = 0.99;
+});
+document.addEventListener("gestureend", function (e) {
+    e.preventDefault();
+    document.body.style.zoom = 1;
+});
