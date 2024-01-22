@@ -8,17 +8,39 @@ let placeholders = [];
 
 let touchTargets = [];
 
+let undiscoveredCardIds = new Set();
+let discoveredPlaceholders = new Set();
+
 // this controls the limits of within which cards can move on posX
-const EASE_IN_FACTOR_DISPERSE_LEFT_LIMIT = -100;
-const EASE_IN_FACTOR_DISPERSE_RIGHT_LIMIT = 100;
+const EASE_IN_FACTOR_DISPERSE_LEFT_LIMIT = -150;
+const EASE_IN_FACTOR_DISPERSE_RIGHT_LIMIT = 150;
 
 // this controls the limits of within which cards can move on posY
-const POSY_OFFSET_DISPERSE_LEFT_LIMIT = -10;
+const POSY_OFFSET_DISPERSE_LEFT_LIMIT = -15;
 const POSY_OFFSET_DISPERSE_RIGHT_LIMIT = 10;
 
 // position for the initial card starting the game
 let POSY_INITIAL_CARD;
 let POSX_INITIAL_CARD;
+
+
+// POP-UP variables --------------
+let displayPopUp = false;
+let showPopUpPropertiesInitialized = false;
+let hidePopUpPropertiesInitialized = false;
+
+
+let currentSize = 0;
+let position = 0;
+let velocity = 2;
+let targetRadius = 30;
+let elasticity = 0.07;
+let dynamicRadius = 0;
+let inc = 3;
+
+let placeholderForPopUp = -1;
+// -------------------------------
+
 
 function setup() {
     createCanvas(600, 800);
@@ -28,31 +50,35 @@ function setup() {
 
     cards.push(new Card(1,(width/2) + 4, height+13, random(-1, - 0.9), random(-1, -0.6)));
     cards.push(new Card(2, (width/2) + 2, height+10, random(1, 0.8), random(0.6, 1)));
-    cards.push(new Card(3, width/2, height+7)); // middle card
-    cards.push(new Card(4, (width/2) - 2, height+4, random(0.5, -0.3), random(-0.5, 0.2)));
-    cards.push(new Card(5, (width/2) - 4, height+1, random(-0.7, -0.1), random(1, 0.6)));
+    cards.push(new Card(3, width/2, height+7, )); // middle card
+    cards.push(new Card(4, (width/2) - 2, height+4, random(-0.5, -0.3), random(0.5, 0.9)));
+    cards.push(new Card(5, (width/2) - 4, height+1, random(-0.2, 0.7), random(1, 0.6)));
     cards.push(new Card(6, (width/2) - 6, height-2, random(1, 0.5), random(-1, -0.6)));
+    cards.push(new Card(7, (width/2) - 6, height-2, random(0.0, 0.0), random(-1, 0)));
 
+    // initialize the set of undiscovered cards. this is used in displaying pop-ups.
+    for (let i=0; i<cards.length; i++) {
+        undiscoveredCardIds.add(cards[i].id);
+    }
 
-    placeholders.push(new Placeholder(3, POSX_INITIAL_CARD, POSY_INITIAL_CARD, 56, 106, 3));
-    placeholders.push(new Placeholder(2, POSX_INITIAL_CARD - 60, POSY_INITIAL_CARD, 56, 106, 2));
-    placeholders.push(new Placeholder(1, POSX_INITIAL_CARD - 120, POSY_INITIAL_CARD, 56, 106, 1));
-    placeholders.push(new Placeholder(4, POSX_INITIAL_CARD + 60, POSY_INITIAL_CARD, 56, 106, 4));
-    placeholders.push(new Placeholder(5, POSX_INITIAL_CARD + 120, POSY_INITIAL_CARD, 56, 106, 5));
-    placeholders.push(new Placeholder(6, POSX_INITIAL_CARD + 180, POSY_INITIAL_CARD, 56, 106, 6));
+    placeholders.push(new Placeholder(7, POSX_INITIAL_CARD - 180, POSY_INITIAL_CARD, 56, 106, 7, 1978, "info card 7"));
+    placeholders.push(new Placeholder(1, POSX_INITIAL_CARD - 120, POSY_INITIAL_CARD, 56, 106, 1, 1981, "info card 1"));
+    placeholders.push(new Placeholder(2, POSX_INITIAL_CARD - 60, POSY_INITIAL_CARD, 56, 106, 2, 1982, "info card 2"));
+    placeholders.push(new Placeholder(3, POSX_INITIAL_CARD, POSY_INITIAL_CARD, 56, 106, 3, 1983, "info card 3"));
+    placeholders.push(new Placeholder(4, POSX_INITIAL_CARD + 60, POSY_INITIAL_CARD, 56, 106, 4, 1984, "info card 4"));
+    placeholders.push(new Placeholder(5, POSX_INITIAL_CARD + 120, POSY_INITIAL_CARD, 56, 106, 5, 1985, "info card 5"));
+    placeholders.push(new Placeholder(6, POSX_INITIAL_CARD + 180, POSY_INITIAL_CARD, 56, 106, 6, 1986, "info card 6"));
 
     touchTargets.push(new TouchTarget());
 }
 
-function draw() {
-    background(220);
-    stroke(1);
-
-    // ------- initial card placeholders and card placement check
+function checkPlaceholderCards() {
     // reset cards active placeholders and set them later together with the placeholder settings.
     for (let i = 0; i < cards.length; i++) {
         cards[i].activePlaceholder = undefined;
     }
+
+    errors = 0;
     for (let i = 0; i < placeholders.length; i++) {
         let currentPlaceholder = placeholders[i];
         currentPlaceholder.activeCard = undefined;
@@ -62,21 +88,110 @@ function draw() {
         for (let i = 0; i < cards.length; i++) {
             let currentCard = cards[i];
             if (currentPlaceholder.isCardOver(currentCard) && currentPlaceholder.activeCard === undefined) {
+                // set active card and placeholder to each other.
                 currentPlaceholder.activeCard = currentCard;
                 currentCard.activePlaceholder = currentPlaceholder;
+
+                // if a card has been discovered AND is correct, display pop-up and remove it from the undiscovered set.
+                // this prevents repeated displays of pop-ups over already discovered cards.
+                if (!isAnySelectedCard() && currentPlaceholder.activeCard.id === currentPlaceholder.correctCardId
+                    && undiscoveredCardIds.has(currentCard.id)) {
+                    undiscoveredCardIds.delete(currentCard.id);
+                    discoveredPlaceholders.add(currentPlaceholder);
+                    initShowPopUp(currentPlaceholder);
+                }
             }
         }
+
+        // counter errors.
+        if (!isAnySelectedCard() && currentPlaceholder.activeCard !== undefined && currentPlaceholder.activeCard.id != currentPlaceholder.correctCardId) {
+            errors++;
+        }
     }
-    // for (let i = 0; i < placeholders.length; i++) {
-    //     if (placeholders[i].activeCard !== undefined){
-    //         print(placeholders[i].id + "::" + placeholders[i].activeCard.id);
-    //     }
-    // }
-    // for (let i = 0; i < cards.length; i++) {
-    //     if (cards[i].activePlaceholder !== undefined){
-    //         print(placeholders[i].id + "::" + placeholders[i].activeCard.id);
-    //     }
-    // }
+
+
+}
+
+
+function drawPopUp() {
+    if (displayPopUp) {
+        if (dynamicRadius <= 50) {
+            dynamicRadius += inc;
+        }
+
+        // Apply elastic force
+        let force = (targetRadius - currentSize) * elasticity;
+        velocity += force;
+        position += velocity;
+
+        // Update the size
+        currentSize = max(0, position) + dynamicRadius;
+        let scaleRatio = map(currentSize, 0, 52, 0, 0.5);
+
+
+        push();
+        noStroke();
+        fill(255);
+        translate(placeholderForPopUp.posx, placeholderForPopUp.posy - placeholderForPopUp.height - 20);
+        scale(scaleRatio);
+        rectMode(CENTER);
+        rect(0, 0, 400, 200, 30);
+        // stroke(1);
+        triangle(-40, 75, 0, 125, 40, 75);
+        pop();
+
+        if (scaleRatio == 0) {
+            displayPopUp = false;
+        }
+    }
+}
+
+function initShowPopUp(placeholder) {
+    if (!showPopUpPropertiesInitialized) {
+        placeholderForPopUp = placeholder;
+        currentSize = 0;
+        position = 0;
+        velocity = 2;
+        targetRadius = 30;
+        elasticity = 0.07;
+        dynamicRadius = 0;
+        inc = 3;
+
+        showPopUpPropertiesInitialized = true;
+        hidePopUpPropertiesInitialized = false;
+        displayPopUp = true;
+    }
+}
+
+function initHidePopUp() {
+    if (!hidePopUpPropertiesInitialized) {
+        currentSize = 0;
+        position = 20;
+        velocity = 12;
+        targetRadius = 10;
+        elasticity = 0.05;
+        dynamicRadius = 0;
+        inc = 0;
+
+        hidePopUpPropertiesInitialized = true;
+        showPopUpPropertiesInitialized = false;
+    }
+}
+
+function drawDiscoveredYears() {
+    for (let item of discoveredPlaceholders) {
+        fill(0);
+        text(item.year, item.posx - 18, item.posy + item.height/2 + 20);
+    }
+}
+
+function draw() {
+    background(220);
+    stroke(1);
+
+    // ------- initial card placeholders and card placement check
+    checkPlaceholderCards();
+    drawDiscoveredYears();
     // ----------------------------------
 
     // support for touch and desktop.
@@ -102,7 +217,10 @@ function draw() {
         }
     }
 
+    // display pop-ups +++++++++++++++++++++++++++++++++++
+    drawPopUp();
     // +++++++++++++++++++++++++++++++++++++++
+
     // DEBUG - display FPS
     if (random() > 0.9) {
         fps = (fps + frameRate())/2; // Get the current frames per second
@@ -110,7 +228,11 @@ function draw() {
     textSize(16);
     fill(0);
     text("FPS: " + fps.toFixed(0), 20, 20);
+    text("ERRORS: " + errors, 20, 40);
 }
+
+
+
 
 function isAnySelectedCard() {
     return selectedCard !== undefined;
@@ -134,6 +256,9 @@ function touchStarted() {
                 // break;
             }
         }
+
+        // clear active pop-up if any.
+        initHidePopUp();
     }
 
 }
@@ -183,8 +308,10 @@ class Placeholder {
     * @param width - dimensions of the placeholder
     * @param height - dimensions of the placeholder
     * @param cardId - the correct card id to be associated with the placeholder.
+    * @param year - year associated with the card of the placeholder.
+    * @param info - the correct card id to be associated with the placeholder.
      */
-    constructor(id, posx, posy, width, height, cardId) {
+    constructor(id, posx, posy, width, height, cardId, year, info) {
         this.id = id;
         this.posx = posx;
         this.posy = posy;
@@ -193,6 +320,10 @@ class Placeholder {
         this.correctCardId = cardId; // correct card id.
 
         this.activeCard = 0; // actively associated card.
+
+        // INFO
+        this.year = year;
+        this.info = info;
     }
 
     isCardOver(activeCard) {
@@ -222,7 +353,7 @@ class Card {
     * @param disperseX - range (-1, 1)
     * @param disperseY - range (-1, 1)
      */
-    constructor(id, posx, posy, disperseX, disperseY, year, info) {
+    constructor(id, posx, posy, disperseX, disperseY) {
         this.id = id;
         this.posx = posx;
         this.posy = posy;
@@ -252,11 +383,6 @@ class Card {
         this.originalRotationAngle = 0.01; // helper to keep original rotation angle.
         this.scaleFactor = 1;
         this.ROTATION_ACCELERATION = 1.15; // rotation increment factor for animation.
-
-        // INFO
-        this.year = year;
-        this.info = info;
-
     }
 
     initialize() {
