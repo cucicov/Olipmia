@@ -1,7 +1,10 @@
 let animatedValue = -0.1;
+let fps = 0;
+let errors = 0;
 
 let selectedCard;
 let cards = [];
+let placeholders = [];
 
 let touchTargets = [];
 
@@ -20,6 +23,9 @@ let POSX_INITIAL_CARD;
 function setup() {
     createCanvas(600, 800);
 
+    POSX_INITIAL_CARD = width/2;
+    POSY_INITIAL_CARD = 300;
+
     cards.push(new Card(1,(width/2) + 4, height+13, random(-1, - 0.9), random(-1, -0.6)));
     cards.push(new Card(2, (width/2) + 2, height+10, random(1, 0.8), random(0.6, 1)));
     cards.push(new Card(3, width/2, height+7)); // middle card
@@ -28,21 +34,49 @@ function setup() {
     cards.push(new Card(6, (width/2) - 6, height-2, random(1, 0.5), random(-1, -0.6)));
 
 
+    placeholders.push(new Placeholder(3, POSX_INITIAL_CARD, POSY_INITIAL_CARD, 56, 106, 3));
+    placeholders.push(new Placeholder(2, POSX_INITIAL_CARD - 60, POSY_INITIAL_CARD, 56, 106, 2));
+    placeholders.push(new Placeholder(1, POSX_INITIAL_CARD - 120, POSY_INITIAL_CARD, 56, 106, 1));
+    placeholders.push(new Placeholder(4, POSX_INITIAL_CARD + 60, POSY_INITIAL_CARD, 56, 106, 4));
+    placeholders.push(new Placeholder(5, POSX_INITIAL_CARD + 120, POSY_INITIAL_CARD, 56, 106, 5));
+    placeholders.push(new Placeholder(6, POSX_INITIAL_CARD + 180, POSY_INITIAL_CARD, 56, 106, 6));
 
     touchTargets.push(new TouchTarget());
-
-    POSX_INITIAL_CARD = width/2;
-    POSY_INITIAL_CARD = 300;
 }
 
 function draw() {
     background(220);
     stroke(1);
 
-    // ------- initial card placeholders
-    rectMode(CENTER);
-    fill(200);
-    rect(POSX_INITIAL_CARD, POSY_INITIAL_CARD, 56, 106);
+    // ------- initial card placeholders and card placement check
+    // reset cards active placeholders and set them later together with the placeholder settings.
+    for (let i = 0; i < cards.length; i++) {
+        cards[i].activePlaceholder = undefined;
+    }
+    for (let i = 0; i < placeholders.length; i++) {
+        let currentPlaceholder = placeholders[i];
+        currentPlaceholder.activeCard = undefined;
+        currentPlaceholder.draw();
+
+        // check if card should be snapped into placeholder.
+        for (let i = 0; i < cards.length; i++) {
+            let currentCard = cards[i];
+            if (currentPlaceholder.isCardOver(currentCard) && currentPlaceholder.activeCard === undefined) {
+                currentPlaceholder.activeCard = currentCard;
+                currentCard.activePlaceholder = currentPlaceholder;
+            }
+        }
+    }
+    // for (let i = 0; i < placeholders.length; i++) {
+    //     if (placeholders[i].activeCard !== undefined){
+    //         print(placeholders[i].id + "::" + placeholders[i].activeCard.id);
+    //     }
+    // }
+    // for (let i = 0; i < cards.length; i++) {
+    //     if (cards[i].activePlaceholder !== undefined){
+    //         print(placeholders[i].id + "::" + placeholders[i].activeCard.id);
+    //     }
+    // }
     // ----------------------------------
 
     // support for touch and desktop.
@@ -56,27 +90,39 @@ function draw() {
 
     // initialize and display the cards.
     for (let i = 0; i < cards.length; i++) {
-        let activeCard = cards[i];
-        if (!activeCard.initialized){
-            activeCard.initialize();
-        } else if (!activeCard.dispersed){
-            activeCard.disperse();
+        let currentCard = cards[i];
+
+        if (!currentCard.initialized){
+            currentCard.initialize();
+        } else if (!currentCard.dispersed){
+            currentCard.disperse();
         } else {
-            activeCard.draw();
+            // display card
+            currentCard.draw();
         }
     }
 
+    // +++++++++++++++++++++++++++++++++++++++
     // DEBUG - display FPS
-    let fps = frameRate(); // Get the current frames per second
-    fill(0);
+    if (random() > 0.9) {
+        fps = (fps + frameRate())/2; // Get the current frames per second
+    }
     textSize(16);
-    text("FPS: " + fps.toFixed(2), 20, 20);
+    fill(0);
+    text("FPS: " + fps.toFixed(0), 20, 20);
+}
 
+function isAnySelectedCard() {
+    return selectedCard !== undefined;
+}
+
+function clearSelectedCard() {
+    selectedCard = undefined;
 }
 
 function touchStarted() {
     // decide order of the cards based on mouseposition ------
-    if (selectedCard == undefined) {
+    if (!isAnySelectedCard()) {
         for (let i = 0; i < cards.length; i++) {
             let activeCard = cards[i];
             if (activeCard.isActive(touchTargets[0].x, touchTargets[0].y)) {
@@ -85,13 +131,12 @@ function touchStarted() {
                 selectedCard = activeCard;
                 // straighten the selected card
                 selectedCard.resetRotation(true);
-                break;
+                // break;
             }
         }
     }
 
 }
-
 // desktop support
 function mousePressed() {
     touchStarted();
@@ -101,7 +146,7 @@ function touchEnded() {
     for (let i = 0; i < cards.length; i++) {
         cards[i].resetRotation(false);
     }
-    selectedCard = undefined; // clear any selections
+    clearSelectedCard();
 }
 
 function mouseReleased() {
@@ -110,7 +155,7 @@ function mouseReleased() {
 
 function touchMoved(){
     touchStarted();
-    if (selectedCard != undefined) {
+    if (isAnySelectedCard()) {
         selectedCard.posx = touchTargets[0].x;
         selectedCard.posy = touchTargets[0].y;
     }
@@ -121,7 +166,7 @@ function mouseDragged() {
 }
 
 
-
+//// CLASSES <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 class TouchTarget {
     constructor() {
@@ -130,11 +175,54 @@ class TouchTarget {
     }
 }
 
+class Placeholder {
+    /*
+    * @param id - unique id of the placeholder
+    * @param posx - position of the placeholder
+    * @param posy - position of the placeholder
+    * @param width - dimensions of the placeholder
+    * @param height - dimensions of the placeholder
+    * @param cardId - the correct card id to be associated with the placeholder.
+     */
+    constructor(id, posx, posy, width, height, cardId) {
+        this.id = id;
+        this.posx = posx;
+        this.posy = posy;
+        this.width = width;
+        this.height = height;
+        this.correctCardId = cardId; // correct card id.
+
+        this.activeCard = 0; // actively associated card.
+    }
+
+    isCardOver(activeCard) {
+        if (this.posx > (activeCard.posx - activeCard.width/2) &&
+            this.posx < (activeCard.posx + activeCard.width/2) &&
+            this.posy > (activeCard.posy - activeCard.height/2) &&
+            this.posy < (activeCard.posy + activeCard.height/2)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    draw() {
+        rectMode(CENTER);
+        fill(200);
+        rect(this.posx, this.posy, this.width, this.height);
+    }
+}
+
 class Card {
 
-    // disperseX(-1, 1)
-    // disperseY(-1, 1)
-    constructor(id, posx, posy, disperseX, disperseY) {
+    /*
+    * @param id - unique id of the card
+    * @param posx - initial position of the card
+    * @param posy - initial position of the card
+    * @param disperseX - range (-1, 1)
+    * @param disperseY - range (-1, 1)
+     */
+    constructor(id, posx, posy, disperseX, disperseY, year, info) {
         this.id = id;
         this.posx = posx;
         this.posy = posy;
@@ -145,6 +233,7 @@ class Card {
         this.initialPosX = posx;
         this.initialized = false;
         this.dispersed = false;
+        this.activePlaceholder = undefined; // id of the actively associated placeholder the card is on.
         this.animatedValueInitialization = -0.1; // helper for initialization animation.
         this.animatedValueDisperse = -0.1; // helper for disperse animation.
         this.rotationAngle = random(5, 25); // rotation of the card at the disperse action.
@@ -154,15 +243,19 @@ class Card {
 
         // this.easeInFactorDisperse = random(-150, 150); // how far the card moves posX after disperse.
         // this.posyOffsetDisperse = random(-6, 6); // how far the card moves posY after disperse
-        if (disperseX != undefined && disperseY != undefined){
+        if (disperseX !== undefined && disperseY !== undefined){
             this.easeInFactorDisperse = map(disperseX, -1, 1, EASE_IN_FACTOR_DISPERSE_LEFT_LIMIT, EASE_IN_FACTOR_DISPERSE_RIGHT_LIMIT); // how far the card moves posX after disperse.
             this.posyOffsetDisperse = map(disperseY, -1, 1, POSY_OFFSET_DISPERSE_LEFT_LIMIT, POSY_OFFSET_DISPERSE_RIGHT_LIMIT); // how far the card moves posY after disperse
         }
 
         this.currentRotationAngle = 0.01; // helper for disperse rotation animation.
-        this.temporaryRotationAngle = 0.01; // helper to keep original rotation angle.
+        this.originalRotationAngle = 0.01; // helper to keep original rotation angle.
         this.scaleFactor = 1;
         this.ROTATION_ACCELERATION = 1.15; // rotation increment factor for animation.
+
+        // INFO
+        this.year = year;
+        this.info = info;
 
     }
 
@@ -182,15 +275,15 @@ class Card {
 
 
     disperse() {
-        if (this.easeInFactorDisperse == undefined && this.posyOffsetDisperse == undefined){
+        if (this.easeInFactorDisperse === undefined && this.posyOffsetDisperse === undefined){ // this is initial card.
             this.moveToStartingPoint();
-        } else {
+        } else { // this is a normal card.
             this.scatter();
         }
     }
 
     // move card to starting position.
-    moveToStartingPoint(){
+    moveToStartingPoint() {
         if (!this.dispersed) {
             this.animatedValueDisperse += 0.01;
             let easedValue = this.easeInOutQuint(this.animatedValueDisperse);
@@ -237,7 +330,7 @@ class Card {
                 this.currentRotationAngle = this.currentRotationAngle * this.ROTATION_ACCELERATION;
             }
         }
-        this.temporaryRotationAngle = this.currentRotationAngle;
+        this.originalRotationAngle = this.currentRotationAngle;
         //---------------
 
         this.draw();
@@ -250,16 +343,12 @@ class Card {
         translate(this.posx, this.posy);
 
         // -------- scale image when active
-        if(this.isActive(touchTargets[0].x, touchTargets[0].y)){
-            if (this.scaleFactor < 2) {
-                this.scaleFactor += 0.1;
-            }
-        } else {
-            if (this.scaleFactor > 1) {
-                this.scaleFactor -= 0.1;
-            }
-        }
+        this.scaleImageWhenActive();
         //------
+
+        // --------- straighten the card if there is any active placeholder
+        this.processActivePlaceholder();
+        // --------------
 
         scale(this.scaleFactor);
         rotate(radians(this.currentRotationAngle));
@@ -269,7 +358,33 @@ class Card {
         pop();
     }
 
-    // check if mouse given positions are within the drawing dimensions of the card.
+    processActivePlaceholder() {
+        if (this.activePlaceholder !== undefined) {
+            this.resetRotation(true);
+
+            // check if this is the currently selected card in which case do not snap as the user still drags it.
+            if (!isAnySelectedCard()) {
+                this.posx = this.activePlaceholder.posx;
+                this.posy = this.activePlaceholder.posy;
+            }
+        } else {
+            this.resetRotation(false);
+        }
+    }
+
+    scaleImageWhenActive() {
+        if (this.isActive(touchTargets[0].x, touchTargets[0].y)) {
+            if (this.scaleFactor < 2) {
+                this.scaleFactor += 0.1;
+            }
+        } else {
+            if (this.scaleFactor > 1) {
+                this.scaleFactor -= 0.1;
+            }
+        }
+    }
+
+// check if mouse given positions are within the drawing dimensions of the card.
     isActive(positionX, positionY) {
         if((positionX > this.posx-(this.width/2) && positionX < this.posx+(this.width/2))
             && (positionY > this.posy-(this.height/2) && positionY < this.posy+(this.height/2))){
@@ -283,7 +398,7 @@ class Card {
         if (isStraight) {
             this.currentRotationAngle = 0;
         } else {
-            this.currentRotationAngle = this.temporaryRotationAngle;
+            this.currentRotationAngle = this.originalRotationAngle;
         }
     }
 
