@@ -108,8 +108,9 @@ function checkPlaceholderCards() {
         // counter errors.
         if (!isAnySelectedCard() && currentPlaceholder.activeCard !== undefined && currentPlaceholder.activeCard.id !== currentPlaceholder.correctCardId) {
             errors++;
-            currentPlaceholder.activeCard.posx = currentPlaceholder.activeCard.initialPosXAfterScatter;
-            currentPlaceholder.activeCard.posy = currentPlaceholder.activeCard.initialPosYAfterScatter;
+            currentPlaceholder.activeCard.shouldBeReturned = true;
+            // currentPlaceholder.activeCard.posx = currentPlaceholder.activeCard.initialPosXAfterScatter;
+            // currentPlaceholder.activeCard.posy = currentPlaceholder.activeCard.initialPosYAfterScatter;
             currentPlaceholder.activeCard.activePlaceholder = undefined;
             currentPlaceholder.activeCard = undefined;
         }
@@ -226,8 +227,10 @@ function draw() {
 
         if (!currentCard.initialized){
             currentCard.initialize();
-        } else if (!currentCard.dispersed){
+        } else if (!currentCard.dispersed) {
             currentCard.disperse();
+        } else if (currentCard.shouldBeReturned) {
+            currentCard.returnToScatteredPosition();
         } else {
             // display card
             currentCard.draw();
@@ -383,6 +386,7 @@ class Card {
         this.initialPosXAfterScatter = posx;
         this.initialized = false;
         this.dispersed = false;
+        this.shouldBeReturned = false; // flag for controlling the return to initial position card animation.
         this.activePlaceholder = undefined; // id of the actively associated placeholder the card is on.
         this.animatedValueInitialization = -0.1; // helper for initialization animation.
         this.animatedValueDisperse = -0.1; // helper for disperse animation.
@@ -444,7 +448,24 @@ class Card {
     }
 
     returnToScatteredPosition() {
-        //TODO:
+        if (this.shouldBeReturned) {
+            this.animatedValueDisperse += 0.01;
+            let easedValue = this.easeInOutQuint(this.animatedValueDisperse);
+
+            // modify posy only in the middle of the posx animation in order to avoid snappy behavior.
+            // if (easedValue > 0.2 && easedValue < 0.8) {
+            this.posy = POSY_INITIAL_CARD + easedValue * (this.initialPosYAfterScatter - POSY_INITIAL_CARD);
+            print((this.initialPosYAfterScatter - POSY_INITIAL_CARD));
+            // }
+
+            // this.posx = this.initialPosX - easedValue * this.easeInFactorDisperse;
+
+            if (easedValue >= 1.0) { // finish disperse animation.
+                this.shouldBeReturned = false;
+                this.animatedValueDisperse = -0.1; // reset to be used in subsequent returns.
+            }
+        }
+        this.draw();
     }
 
     // "randomly" scatter the card.
@@ -462,6 +483,7 @@ class Card {
 
             if (easedValue >= 1.0) { // finish disperse animation.
                 this.dispersed = true;
+                this.animatedValueDisperse = -0.1; // reset to be used in subsequent returns for returnToScatteredPosition().
             }
             this.initialPosYAfterScatter = this.posy;
             this.initialPosXAfterScatter = this.posx;
