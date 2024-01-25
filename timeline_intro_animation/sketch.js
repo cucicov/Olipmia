@@ -1,6 +1,8 @@
 let animatedValue = -0.1;
 let fps = 0;
 let errors = 0;
+let persistentErrors = -1;
+let historyErrors = -1;
 
 let selectedCard;
 let cards = [];
@@ -104,11 +106,17 @@ function checkPlaceholderCards() {
         }
 
         // counter errors.
-        if (!isAnySelectedCard() && currentPlaceholder.activeCard !== undefined && currentPlaceholder.activeCard.id != currentPlaceholder.correctCardId) {
+        if (!isAnySelectedCard() && currentPlaceholder.activeCard !== undefined && currentPlaceholder.activeCard.id !== currentPlaceholder.correctCardId) {
             errors++;
+            currentPlaceholder.activeCard.posx = currentPlaceholder.activeCard.initialPosXAfterScatter;
+            currentPlaceholder.activeCard.posy = currentPlaceholder.activeCard.initialPosYAfterScatter;
+            currentPlaceholder.activeCard.activePlaceholder = undefined;
+            currentPlaceholder.activeCard = undefined;
         }
     }
 
+    // this keeps track of real errors during the whole game.
+    countPersistentErrors();
 
 }
 
@@ -185,6 +193,15 @@ function drawDiscoveredYears() {
     }
 }
 
+function countPersistentErrors() {
+    if (errors !== persistentErrors && !isAnySelectedCard()) {
+        if (errors > persistentErrors) {
+            historyErrors++;
+        }
+        persistentErrors = errors;
+    }
+}
+
 function draw() {
     background(220);
     stroke(1);
@@ -228,7 +245,7 @@ function draw() {
     textSize(16);
     fill(0);
     text("FPS: " + fps.toFixed(0), 20, 20);
-    text("ERRORS: " + errors, 20, 40);
+    text("ERRORS: " + historyErrors, 20, 40);
 }
 
 
@@ -361,7 +378,9 @@ class Card {
         this.height = 100;
 
         this.initialPosY = posy;
+        this.initialPosYAfterScatter = posy;
         this.initialPosX = posx;
+        this.initialPosXAfterScatter = posx;
         this.initialized = false;
         this.dispersed = false;
         this.activePlaceholder = undefined; // id of the actively associated placeholder the card is on.
@@ -424,6 +443,10 @@ class Card {
         this.draw();
     }
 
+    returnToScatteredPosition() {
+        //TODO:
+    }
+
     // "randomly" scatter the card.
     scatter() {
         if (!this.dispersed) {
@@ -440,6 +463,8 @@ class Card {
             if (easedValue >= 1.0) { // finish disperse animation.
                 this.dispersed = true;
             }
+            this.initialPosYAfterScatter = this.posy;
+            this.initialPosXAfterScatter = this.posx;
         }
 
         //------ ROTATION
@@ -470,7 +495,7 @@ class Card {
 
         // -------- scale image when active
         this.scaleImageWhenActive();
-        //------
+        //---------------
 
         // --------- straighten the card if there is any active placeholder
         this.processActivePlaceholder();
