@@ -74,6 +74,56 @@ function setup() {
     touchTargets.push(new TouchTarget());
 }
 
+
+function draw() {
+    background(220);
+    stroke(1);
+
+    // ------- initial card placeholders and card placement check
+    checkPlaceholderCards();
+    drawDiscoveredYears();
+    // ----------------------------------
+
+    // support for touch and desktop.
+    if (touches.length == 0) {
+        touchTargets[0].x=mouseX;
+        touchTargets[0].y=mouseY;
+    } else {
+        touchTargets[0].x=touches[0].x;
+        touchTargets[0].y=touches[0].y;
+    }
+
+    // initialize and display the cards.
+    for (let i = 0; i < cards.length; i++) {
+        let currentCard = cards[i];
+
+        if (!currentCard.initialized){
+            currentCard.initialize();
+        } else if (!currentCard.dispersed) {
+            currentCard.disperse();
+        } else if (currentCard.shouldBeReturned) {
+            currentCard.returnToScatteredPosition();
+        } else {
+            // display card
+            currentCard.draw();
+        }
+    }
+
+    // display pop-ups +++++++++++++++++++++++++++++++++++
+    drawPopUp();
+    // +++++++++++++++++++++++++++++++++++++++
+
+    // DEBUG - display FPS
+    if (random() > 0.9) {
+        fps = (fps + frameRate())/2; // Get the current frames per second
+    }
+    textSize(16);
+    fill(0);
+    text("FPS: " + fps.toFixed(0), 20, 20);
+    text("ERRORS: " + historyErrors, 20, 40);
+}
+
+
 function checkPlaceholderCards() {
     // reset cards active placeholders and set them later together with the placeholder settings.
     for (let i = 0; i < cards.length; i++) {
@@ -109,6 +159,7 @@ function checkPlaceholderCards() {
         if (!isAnySelectedCard() && currentPlaceholder.activeCard !== undefined && currentPlaceholder.activeCard.id !== currentPlaceholder.correctCardId) {
             errors++;
             currentPlaceholder.activeCard.shouldBeReturned = true;
+            currentPlaceholder.showWrongCardAnimation();
             // currentPlaceholder.activeCard.posx = currentPlaceholder.activeCard.initialPosXAfterScatter;
             // currentPlaceholder.activeCard.posy = currentPlaceholder.activeCard.initialPosYAfterScatter;
             currentPlaceholder.activeCard.activePlaceholder = undefined;
@@ -203,56 +254,6 @@ function countPersistentErrors() {
     }
 }
 
-function draw() {
-    background(220);
-    stroke(1);
-
-    // ------- initial card placeholders and card placement check
-    checkPlaceholderCards();
-    drawDiscoveredYears();
-    // ----------------------------------
-
-    // support for touch and desktop.
-    if (touches.length == 0) {
-        touchTargets[0].x=mouseX;
-        touchTargets[0].y=mouseY;
-    } else {
-        touchTargets[0].x=touches[0].x;
-        touchTargets[0].y=touches[0].y;
-    }
-
-    // initialize and display the cards.
-    for (let i = 0; i < cards.length; i++) {
-        let currentCard = cards[i];
-
-        if (!currentCard.initialized){
-            currentCard.initialize();
-        } else if (!currentCard.dispersed) {
-            currentCard.disperse();
-        } else if (currentCard.shouldBeReturned) {
-            currentCard.returnToScatteredPosition();
-        } else {
-            // display card
-            currentCard.draw();
-        }
-    }
-
-    // display pop-ups +++++++++++++++++++++++++++++++++++
-    drawPopUp();
-    // +++++++++++++++++++++++++++++++++++++++
-
-    // DEBUG - display FPS
-    if (random() > 0.9) {
-        fps = (fps + frameRate())/2; // Get the current frames per second
-    }
-    textSize(16);
-    fill(0);
-    text("FPS: " + fps.toFixed(0), 20, 20);
-    text("ERRORS: " + historyErrors, 20, 40);
-}
-
-
-
 
 function isAnySelectedCard() {
     return selectedCard !== undefined;
@@ -344,6 +345,17 @@ class Placeholder {
         // INFO
         this.year = year;
         this.info = info;
+
+        // UTILITIES
+        this.showWrongAnimation = false;
+        this.wrongAnimationAmplitude = 50;
+        this.wrongAnimationFrequency = 0.07;
+        this.initialPosy = posy; // keep original position for wrong animation.
+        this.internalFrameCount = 0;
+        this.GRAY_COLOR_TINT = 200;
+        this.rectColorR = this.GRAY_COLOR_TINT;
+        this.rectColorG = this.GRAY_COLOR_TINT;
+        this.rectColorB = this.GRAY_COLOR_TINT;
     }
 
     isCardOver(activeCard) {
@@ -358,9 +370,39 @@ class Placeholder {
     }
 
     draw() {
+        // check if should display wrong card animation on placeholder.
+        this.checkWrongCardAnimation();
+
         rectMode(CENTER);
-        fill(200);
+        fill(this.rectColorR, this.rectColorG, this.rectColorB);
         rect(this.posx, this.posy, this.width, this.height);
+    }
+
+    showWrongCardAnimation() {
+        this.showWrongAnimation = true;
+    }
+
+    checkWrongCardAnimation() {
+        this.internalFrameCount++;
+        if (this.showWrongAnimation) {
+            if (this.internalFrameCount > 0) {
+                let sinParam = sin(this.internalFrameCount * this.wrongAnimationFrequency);
+
+                // modify also placeholder fill value.
+                this.rectColorR = this.GRAY_COLOR_TINT + sinParam * 50;
+                this.rectColorG = this.GRAY_COLOR_TINT - sinParam * 100;
+                this.rectColorB = this.GRAY_COLOR_TINT - sinParam * 100;
+
+                this.posy = this.initialPosy + this.wrongAnimationAmplitude * sinParam;
+
+                if (this.internalFrameCount * this.wrongAnimationFrequency >= PI) {
+                    this.showWrongAnimation = false; // Stop the animation when it completes one full cycle
+                    this.posy = this.initialPosy;
+                }
+            }
+        } else {
+            this.internalFrameCount = -25; // delay before starting the wrong animation.
+        }
     }
 }
 
@@ -455,7 +497,6 @@ class Card {
             // modify posy only in the middle of the posx animation in order to avoid snappy behavior.
             // if (easedValue > 0.2 && easedValue < 0.8) {
             this.posy = POSY_INITIAL_CARD + easedValue * (this.initialPosYAfterScatter - POSY_INITIAL_CARD);
-            print((this.initialPosYAfterScatter - POSY_INITIAL_CARD));
             // }
 
             // this.posx = this.initialPosX - easedValue * this.easeInFactorDisperse;
