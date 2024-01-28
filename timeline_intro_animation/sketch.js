@@ -41,7 +41,19 @@ let dynamicRadius = 0;
 let inc = 3;
 
 let placeholderForPopUp = -1;
+let placeholderForWinAnimation = -1;
 // -------------------------------
+
+// win animation variables
+let winParticles = [];
+let finalWinParticles = [];
+let shouldDisplayWinParticles = false;
+const WIN_PARTICLE_ANIMATION_DURATION = 2;
+let winParticleAnimationDuration = WIN_PARTICLE_ANIMATION_DURATION;
+let finalWin = false;
+let finalWinAnimationPosx;
+let finalWinAnimationPosy;
+let timeoutTillStart = 30;
 
 
 function setup() {
@@ -72,12 +84,49 @@ function setup() {
     placeholders.push(new Placeholder(6, POSX_INITIAL_CARD + 180, POSY_INITIAL_CARD, 56, 106, 6, 1986, "info card 6"));
 
     touchTargets.push(new TouchTarget());
+
+    //initialize finalWinAnimationPosy with the position of the first placeholder.
+    finalWinAnimationPosx = placeholders[0].posx;
+    finalWinAnimationPosy = placeholders[0].posy;
 }
 
 
 function draw() {
     background(220);
     stroke(1);
+
+
+    // display final win animation behind all cards.
+    // check if all cards have been disclosed
+    finalWin = undiscoveredCardIds.size === 0
+        && finalWinAnimationPosx < placeholders[placeholders.length-1].posx + 10
+        && winParticles.length === 0;
+    // in final animation, display win animation for all placeholders and gradually remove them from the discovered set.
+    if (finalWin) {
+        timeoutTillStart--;
+        if (timeoutTillStart < 0) {
+
+            // change rect colors progressively as the particles move
+            for (let j=0; j < placeholders.length; j++) {
+                if (finalWinAnimationPosx == placeholders[j].posx) {
+                    placeholders[j].rectColorR = 0;
+                    placeholders[j].rectColorG = 206;
+                    placeholders[j].rectColorB = 209;
+                    placeholders[j].activeCard.scaleFactor = 2;
+                    break;
+                }
+            }
+
+            finalWinAnimationPosx += 2;
+        }
+    }
+    if (undiscoveredCardIds.size === 0 && timeoutTillStart < 0) {
+        createFinalWinParticlesAnimation(finalWinAnimationPosx, placeholders[placeholders.length - 1].posx + 10);
+        stroke(1);
+
+    }
+    // -------- END final win animation
+
 
     // ------- initial card placeholders and card placement check
     checkPlaceholderCards();
@@ -93,6 +142,8 @@ function draw() {
         touchTargets[0].y=touches[0].y;
     }
 
+
+    let winCard = undefined;
     // initialize and display the cards.
     for (let i = 0; i < cards.length; i++) {
         let currentCard = cards[i];
@@ -105,9 +156,27 @@ function draw() {
             currentCard.returnToScatteredPosition();
         } else {
             // display card
-            currentCard.draw();
+            if (placeholderForPopUp !== undefined && placeholderForPopUp.activeCard !== undefined && placeholderForPopUp.activeCard.id === currentCard.id) {
+                winCard = currentCard; // draw this card later, after particles win animation.
+            } else {
+                currentCard.draw();
+            }
         }
     }
+
+    // if any win condition, draw win animation particles.
+
+    //  ^^^^^^ WIN ANIMATIONS ^^^^^^^^^^^
+    if (winCard !== undefined) {
+        // easeInFactorDisperse checks in order to avoid win animation on the first card that is already positioned on the right spot.
+        if (winCard.easeInFactorDisperse !== undefined){
+            generateWinParticles();
+        }
+        stroke(1);
+        winCard.draw();
+    }
+    // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 
     // display pop-ups +++++++++++++++++++++++++++++++++++
     drawPopUp();
@@ -121,6 +190,58 @@ function draw() {
     fill(0);
     text("FPS: " + fps.toFixed(0), 20, 20);
     text("ERRORS: " + historyErrors, 20, 40);
+}
+
+function createFinalWinParticlesAnimation(posx, finalPosx) {
+    if (posx < finalPosx) {
+        for (let i = 0; i < 1; i++) {
+            let particle = new Particle(posx, finalWinAnimationPosy, true);
+            finalWinParticles.push(particle);
+        }
+    }
+
+    // Update and display each particle
+    for (let i = finalWinParticles.length - 1; i >= 0; i--) {
+        finalWinParticles[i].update();
+        finalWinParticles[i].display();
+
+        // Remove particles that are no longer visible
+        if (finalWinParticles[i].isOffScreen()) {
+            finalWinParticles.splice(i, 1);
+        }
+    }
+}
+
+function displayWinParticles(placeholder) {
+    shouldDisplayWinParticles = true;
+    placeholderForWinAnimation = placeholder;
+
+}
+
+function generateWinParticles() {
+    if (shouldDisplayWinParticles) {
+        winParticleAnimationDuration--;
+        for (let i = 0; i < 15; i++) {
+            let particle = new Particle(placeholderForWinAnimation.posx, placeholderForWinAnimation.posy);
+            winParticles.push(particle);
+        }
+
+        if (winParticleAnimationDuration < 0) {
+            shouldDisplayWinParticles = false;
+            winParticleAnimationDuration = WIN_PARTICLE_ANIMATION_DURATION;
+        }
+    }
+
+    // Update and display each particle
+    for (let i = winParticles.length - 1; i >= 0; i--) {
+        winParticles[i].update();
+        winParticles[i].display();
+
+        // Remove particles that are no longer visible
+        if (winParticles[i].isOffScreen()) {
+            winParticles.splice(i, 1);
+        }
+    }
 }
 
 
@@ -151,6 +272,7 @@ function checkPlaceholderCards() {
                     undiscoveredCardIds.delete(currentCard.id);
                     discoveredPlaceholders.add(currentPlaceholder);
                     initShowPopUp(currentPlaceholder);
+                    displayWinParticles(currentPlaceholder); // display win animation particles.
                 }
             }
         }
@@ -203,6 +325,37 @@ function drawPopUp() {
         if (scaleRatio == 0) {
             displayPopUp = false;
         }
+    }
+}
+
+function drawInfoPopUp() {
+    if (dynamicRadius <= 50) {
+        dynamicRadius += inc;
+    }
+
+    // Apply elastic force
+    let force = (targetRadius - currentSize) * elasticity;
+    velocity += force;
+    position += velocity;
+
+    // Update the size
+    currentSize = max(0, position) + dynamicRadius;
+    let scaleRatio = map(currentSize, 0, 52, 0, 0.5);
+
+
+    push();
+    noStroke();
+    fill(255);
+    translate(placeholderForPopUp.posx, placeholderForPopUp.posy - placeholderForPopUp.height - 20);
+    scale(scaleRatio);
+    rectMode(CENTER);
+    rect(0, 0, 400, 200, 30);
+    // stroke(1);
+    triangle(-40, 75, 0, 125, 40, 75);
+    pop();
+
+    if (scaleRatio == 0) {
+        displayPopUp = false;
     }
 }
 
@@ -406,6 +559,66 @@ class Placeholder {
     }
 }
 
+class Particle {
+    constructor(x, y, multicolor) {
+        this.x = x;
+        this.y = y;
+        this.alpha = 255;
+        if (multicolor) {
+            this.color = color(random(0, 120), random(80, 220), random(180, 255));
+            this.vx = random(-7, 7);
+            this.vy = random(-7, 7);
+            this.scaleFactor = 0.01;
+            this.size = random(7, 15);
+            this.alphaFactor = 3;
+            this.gravity = 0; // Gravity force
+        } else {
+            this.color = color(random([[255, 236, 139], [255, 215, 0], [184, 134, 11], [218, 165, 32], [238, 232, 170]]));
+            this.vx = random(-7, 7);
+            this.vy = random(-7, 7);
+            this.scaleFactor = 0.05;
+            this.size = random(5, 10);
+            this.alphaFactor = 3;
+            this.gravity = 0.05; // Gravity force
+        }
+    }
+
+    update() {
+        this.vy += this.gravity; // Apply gravity
+        this.x += this.vx;
+        this.y += this.vy;
+        this.alpha -= this.alphaFactor;
+        this.size -= this.scaleFactor;
+    }
+
+    display() {
+        noStroke();
+        fill(this.color.levels[0], this.color.levels[1], this.color.levels[2], this.alpha);
+        drawStar(this.x, this.y, this.size, 5); // Draw a 5-pointed star
+    }
+
+    isOffScreen() {
+        return this.alpha <= 0 || this.size < 0 || this.y > height; // Include condition for off the bottom of the screen
+    }
+}
+
+function drawStar(x, y, radius, npoints) {
+    let angle = TWO_PI / npoints;
+    let halfAngle = angle / 2;
+    beginShape();
+    for (let a = -PI/2; a < TWO_PI-PI/2; a += angle) {
+        let sx = x + cos(a) * radius;
+        let sy = y + sin(a) * radius;
+        vertex(sx, sy);
+        sx = x + cos(a + halfAngle) * (radius / 2); // Adjust size of inner vertices
+        sy = y + sin(a + halfAngle) * (radius / 2);
+        vertex(sx, sy);
+    }
+    endShape(CLOSE);
+}
+
+
+
 class Card {
 
     /*
@@ -600,7 +813,7 @@ class Card {
 
 // check if mouse given positions are within the drawing dimensions of the card.
     isActive(positionX, positionY) {
-        if((positionX > this.posx-(this.width/2) && positionX < this.posx+(this.width/2))
+        if(mouseIsPressed && (positionX > this.posx-(this.width/2) && positionX < this.posx+(this.width/2))
             && (positionY > this.posy-(this.height/2) && positionY < this.posy+(this.height/2))){
             return true;
         } else {
