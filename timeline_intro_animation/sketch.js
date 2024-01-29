@@ -1,23 +1,11 @@
-let animatedValue = -0.1;
 let fps = 0;
-let errors = 0;
-let persistentErrors = -1;
-let historyErrors = -1;
-
-let selectedCard;
-let cards = [];
-let placeholders = [];
-
 let touchTargets = [];
-
-let undiscoveredCardIds = new Set();
-let discoveredPlaceholders = new Set();
 
 // this controls the limits of within which cards can move on posX
 const EASE_IN_FACTOR_DISPERSE_LEFT_LIMIT = -150;
 const EASE_IN_FACTOR_DISPERSE_RIGHT_LIMIT = 150;
 
-// this controls the limits of within which cards can move on posY
+// this controls the limits within which cards can move on posY
 const POSY_OFFSET_DISPERSE_LEFT_LIMIT = -15;
 const POSY_OFFSET_DISPERSE_RIGHT_LIMIT = 10;
 
@@ -26,25 +14,86 @@ let POSY_INITIAL_CARD;
 let POSX_INITIAL_CARD;
 
 
-// POP-UP variables --------------
 
 
-
-let placeholderForPopUp = -1;
-let placeholderForWinAnimation = -1;
+//  ----- ERRORS -----
+let errors = 0;
+let persistentErrors = -1;
+let historyErrors = -1;
 // -------------------------------
 
-// win animation variables
-let winParticles = [];
-let finalWinParticles = [];
-let shouldDisplayWinParticles = false;
-const WIN_PARTICLE_ANIMATION_DURATION = 2;
-let winParticleAnimationDuration = WIN_PARTICLE_ANIMATION_DURATION;
-let finalWin = false;
-let finalWinAnimationPosx;
-let finalWinAnimationPosy;
-let timeoutTillStart = 30;
+//  ----- CARDS && PLACEHOLDERS -----
+let selectedCard;
+let cards = [];
+let placeholders = [];
 
+let undiscoveredCardIds = new Set();
+let discoveredPlaceholders = new Set();
+// -------------------------------
+
+// ----- STARS VARIABLES -----
+const STAR_ROTATION_SPEED = 0.01;
+const STAR_RADIUS = 45;
+let startRotationParam = 0;
+// -------------------------------
+
+
+
+
+// ----- POP-UP variables -----
+let cardPopUpProperties = {
+    dynamicRadius: 0,
+    targetRadius: 30,
+    currentSize: 0,
+    elasticity: 0.07,
+    velocity: 2,
+    position: 0,
+    inc: 3,
+    displayPopUp: false,
+    showPropertiesInitialized: false,
+    hidePropertiesInitialized: false,
+}
+
+let infoPopUpProperties = {
+    dynamicRadius: 10,
+    targetRadius: 30,
+    currentSize: 20,
+    elasticity: 0.07,
+    velocity: 2,
+    position: 0,
+    inc: 3,
+    displayPopUp: false,
+    showPropertiesInitialized: false,
+    hidePropertiesInitialized: false,
+}
+// -------------------------------
+
+// ----- MATCH/WIN animation variables -----
+let cardMatchProperties = {
+    WIN_PARTICLE_ANIMATION_DURATION: 2, // duration for generating particles.
+    particles: [], // list of particles for card match animation.
+    shouldDisplay: false,
+    placeholder: -1, // placeholder to use in positioning card match animation.
+    particleAnimationDuration: this.WIN_PARTICLE_ANIMATION_DURATION,
+    numberOfParticles: 15, // number of particles.
+}
+
+let winProperties = {
+    particles: [], // list of particles for win animation.
+    finalWin: false, // reached the final stage where all cards match.
+    posx: undefined,
+    posy: undefined,
+    timeoutTillStart: 30, // delay before starting the final win animation.
+    placeholderModifier: {
+        red: 0, // color of the placeholder when scrolling through matching cards at the end.
+        green: 206,
+        blue: 209,
+        stroke: 0, // remove stroke at the end when changing placeholder colors.
+        scale: 2, // scale placeholder while scrolling through matching cards at the end.
+    },
+}
+
+// -------------------------------
 
 function setup() {
     createCanvas(600, 800);
@@ -60,11 +109,6 @@ function setup() {
     cards.push(new Card(6, (width/2) - 6, height-2, random(1, 0.5), random(-1, -0.6)));
     cards.push(new Card(7, (width/2) - 6, height-2, random(0.0, 0.0), random(-1, 0)));
 
-    // initialize the set of undiscovered cards. this is used in displaying pop-ups.
-    for (let i=0; i<cards.length; i++) {
-        undiscoveredCardIds.add(cards[i].id);
-    }
-
     placeholders.push(new Placeholder(7, POSX_INITIAL_CARD - 180, POSY_INITIAL_CARD, 56, 106, 7, 1978, "info card 7"));
     placeholders.push(new Placeholder(1, POSX_INITIAL_CARD - 120, POSY_INITIAL_CARD, 56, 106, 1, 1981, "info card 1"));
     placeholders.push(new Placeholder(2, POSX_INITIAL_CARD - 60, POSY_INITIAL_CARD, 56, 106, 2, 1982, "info card 2"));
@@ -75,45 +119,49 @@ function setup() {
 
     touchTargets.push(new TouchTarget());
 
-    //initialize finalWinAnimationPosy with the position of the first placeholder.
-    finalWinAnimationPosx = placeholders[0].posx;
-    finalWinAnimationPosy = placeholders[0].posy;
+    //initialize winProperties animation to start at the position of the first placeholder.
+    winProperties.posx = placeholders[0].posx;
+    winProperties.posy = placeholders[0].posy;
+
+    // initialize the set of undiscovered cards. this is used in displaying pop-ups.
+    for (let i = 0; i < cards.length; i++) {
+        undiscoveredCardIds.add(cards[i].id);
+    }
 }
 
 
 function draw() {
     background(220);
-    stroke(1);
-
+    // stroke(1);
 
     // display final win animation behind all cards.
     // check if all cards have been disclosed
-    finalWin = undiscoveredCardIds.size === 0
-        && finalWinAnimationPosx < placeholders[placeholders.length-1].posx + 10
-        && winParticles.length === 0;
+    winProperties.finalWin = undiscoveredCardIds.size === 0
+        && winProperties.posx < placeholders[placeholders.length-1].posx + 10
+        && cardMatchProperties.particles.length === 0;
     // in final animation, display win animation for all placeholders and gradually remove them from the discovered set.
-    if (finalWin) {
-        timeoutTillStart--;
-        if (timeoutTillStart < 0) {
+    if (winProperties.finalWin) {
+        winProperties.timeoutTillStart--;
+        if (winProperties.timeoutTillStart < 0) {
 
             // change rect colors progressively as the particles move
             for (let j=0; j < placeholders.length; j++) {
-                if (finalWinAnimationPosx == placeholders[j].posx) {
-                    placeholders[j].rectColorR = 0;
-                    placeholders[j].rectColorG = 206;
-                    placeholders[j].rectColorB = 209;
-                    placeholders[j].activeCard.scaleFactor = 2;
+                if (winProperties.posx === placeholders[j].posx) {
+                    placeholders[j].rectColorR = winProperties.placeholderModifier.red;
+                    placeholders[j].rectColorG = winProperties.placeholderModifier.green;
+                    placeholders[j].rectColorB = winProperties.placeholderModifier.blue;
+                    placeholders[j].phStroke = winProperties.placeholderModifier.stroke;
+                    placeholders[j].activeCard.scaleFactor = winProperties.placeholderModifier.scale;
                     break;
                 }
             }
 
-            finalWinAnimationPosx += 2;
+            winProperties.posx += 2;
         }
         initShowInfoPopUp();
     }
-    if (undiscoveredCardIds.size === 0 && timeoutTillStart < 0) {
-        createFinalWinParticlesAnimation(finalWinAnimationPosx, placeholders[placeholders.length - 1].posx + 10);
-        stroke(1);
+    if (undiscoveredCardIds.size === 0 && winProperties.timeoutTillStart < 0) {
+        createFinalWinParticlesAnimation(winProperties.posx, placeholders[placeholders.length - 1].posx + 10);
     }
     // -------- END final win animation
 
@@ -146,7 +194,9 @@ function draw() {
             currentCard.returnToScatteredPosition();
         } else {
             // display card
-            if (placeholderForPopUp !== undefined && placeholderForPopUp.activeCard !== undefined && placeholderForPopUp.activeCard.id === currentCard.id) {
+            if (cardMatchProperties.placeholder !== undefined
+                && cardMatchProperties.placeholder.activeCard !== undefined
+                && cardMatchProperties.placeholder.activeCard.id === currentCard.id) {
                 winCard = currentCard; // draw this card later, after particles win animation.
             } else {
                 currentCard.draw();
@@ -158,11 +208,11 @@ function draw() {
 
     //  ^^^^^^ WIN ANIMATIONS ^^^^^^^^^^^
     if (winCard !== undefined) {
-        // easeInFactorDisperse checks in order to avoid win animation on the first card that is already positioned on the right spot.
-        if (winCard.easeInFactorDisperse !== undefined){
-            generateWinParticles();
+
+        // avoid win animation on the first card that is already positioned on the right spot.
+        if (!winCard.isFirstCard()){
+            generateMatchParticles();
         }
-        stroke(1);
         winCard.draw();
     }
     // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -174,7 +224,7 @@ function draw() {
 
 
     // ++++++++ display info dialog +++++++
-    if (finalWinParticles.length === 0 && !finalWin) { // check if final win animation is over.
+    if (winProperties.particles.length === 0 && !winProperties.finalWin) { // check if final win animation is over.
         drawInfoPopUp(width/2, height/2);
     }
     // ++++++++++++++++++++++++++++++++++++
@@ -190,73 +240,72 @@ function draw() {
 }
 
 
-let startRotationParam = 0;
 function drawRotatingStar(posx, posy, isWinStart) {
-    startRotationParam +=0.01;
-    r=45;
+    startRotationParam += STAR_ROTATION_SPEED;
+
     if (isWinStart) {
         fill(255, 215, 0);
     } else {
         fill(120,120,120);
     }
-    noStroke()
+
+    noStroke();
     beginShape();
-    vertex(posx + r*cos(TWO_PI*0/5+startRotationParam),posy + r*sin(TWO_PI*0/5+startRotationParam));
-    vertex(posx + r*cos(TWO_PI*2/5+startRotationParam),posy + r*sin(TWO_PI*2/5+startRotationParam));
-    vertex(posx + r*cos(TWO_PI*4/5+startRotationParam),posy + r*sin(TWO_PI*4/5+startRotationParam));
-    vertex(posx + r*cos(TWO_PI*1/5+startRotationParam),posy + r*sin(TWO_PI*1/5+startRotationParam));
-    vertex(posx + r*cos(TWO_PI*3/5+startRotationParam),posy + r*sin(TWO_PI*3/5+startRotationParam));
+    vertex(posx + STAR_RADIUS * cos(TWO_PI * 0/5 + startRotationParam),posy + STAR_RADIUS * sin(TWO_PI * 0/5 + startRotationParam));
+    vertex(posx + STAR_RADIUS * cos(TWO_PI * 2/5 + startRotationParam),posy + STAR_RADIUS * sin(TWO_PI * 2/5 + startRotationParam));
+    vertex(posx + STAR_RADIUS * cos(TWO_PI * 4/5 + startRotationParam),posy + STAR_RADIUS * sin(TWO_PI * 4/5 + startRotationParam));
+    vertex(posx + STAR_RADIUS * cos(TWO_PI * 1/5 + startRotationParam),posy + STAR_RADIUS * sin(TWO_PI * 1/5 + startRotationParam));
+    vertex(posx + STAR_RADIUS * cos(TWO_PI * 3/5 + startRotationParam),posy + STAR_RADIUS * sin(TWO_PI * 3/5 + startRotationParam));
     endShape(CLOSE);
 }
 
 function createFinalWinParticlesAnimation(posx, finalPosx) {
     if (posx < finalPosx) {
         for (let i = 0; i < 1; i++) {
-            let particle = new Particle(posx, finalWinAnimationPosy, true);
-            finalWinParticles.push(particle);
+            let particle = new Particle(posx, winProperties.posy, true);
+            winProperties.particles.push(particle);
         }
     }
 
     // Update and display each particle
-    for (let i = finalWinParticles.length - 1; i >= 0; i--) {
-        finalWinParticles[i].update();
-        finalWinParticles[i].display();
+    for (let i = winProperties.particles.length - 1; i >= 0; i--) {
+        winProperties.particles[i].update();
+        winProperties.particles[i].display();
 
         // Remove particles that are no longer visible
-        if (finalWinParticles[i].isOffScreen()) {
-            finalWinParticles.splice(i, 1);
+        if (winProperties.particles[i].isOffScreen()) {
+            winProperties.particles.splice(i, 1);
         }
     }
 }
 
-function displayWinParticles(placeholder) {
-    shouldDisplayWinParticles = true;
-    placeholderForWinAnimation = placeholder;
-
+function initDisplayMatchAnimation(placeholder) {
+    cardMatchProperties.shouldDisplay = true;
+    cardMatchProperties.placeholder = placeholder;
+    cardMatchProperties.particleAnimationDuration = cardMatchProperties.WIN_PARTICLE_ANIMATION_DURATION;
 }
 
-function generateWinParticles() {
-    if (shouldDisplayWinParticles) {
-        winParticleAnimationDuration--;
-        for (let i = 0; i < 15; i++) {
-            let particle = new Particle(placeholderForWinAnimation.posx, placeholderForWinAnimation.posy);
-            winParticles.push(particle);
+function generateMatchParticles() {
+    if (cardMatchProperties.shouldDisplay) {
+        cardMatchProperties.particleAnimationDuration--;
+        for (let i = 0; i < cardMatchProperties.numberOfParticles; i++) {
+            let particle = new Particle(cardMatchProperties.placeholder.posx, cardMatchProperties.placeholder.posy);
+            cardMatchProperties.particles.push(particle);
         }
 
-        if (winParticleAnimationDuration < 0) {
-            shouldDisplayWinParticles = false;
-            winParticleAnimationDuration = WIN_PARTICLE_ANIMATION_DURATION;
+        if (cardMatchProperties.particleAnimationDuration < 0) {
+            cardMatchProperties.shouldDisplay = false;
         }
     }
 
     // Update and display each particle
-    for (let i = winParticles.length - 1; i >= 0; i--) {
-        winParticles[i].update();
-        winParticles[i].display();
+    for (let i = cardMatchProperties.particles.length - 1; i >= 0; i--) {
+        cardMatchProperties.particles[i].update();
+        cardMatchProperties.particles[i].display();
 
         // Remove particles that are no longer visible
-        if (winParticles[i].isOffScreen()) {
-            winParticles.splice(i, 1);
+        if (cardMatchProperties.particles[i].isOffScreen()) {
+            cardMatchProperties.particles.splice(i, 1);
         }
     }
 }
@@ -286,11 +335,11 @@ function checkPlaceholderCards() {
                 // this prevents repeated displays of pop-ups over already discovered cards.
                 if (!isAnySelectedCard() && currentPlaceholder.activeCard.id === currentPlaceholder.correctCardId
                     && undiscoveredCardIds.has(currentCard.id)) {
-                    print('show pop up');
                     undiscoveredCardIds.delete(currentCard.id);
                     discoveredPlaceholders.add(currentPlaceholder);
+
                     initShowPopUp(currentPlaceholder);
-                    displayWinParticles(currentPlaceholder); // display win animation particles.
+                    initDisplayMatchAnimation(currentPlaceholder); // display win animation particles.
                 }
             }
         }
@@ -315,28 +364,15 @@ function checkPlaceholderCards() {
 
 function drawPopUp() {
     if (cardPopUpProperties.displayPopUp) {
-        if (cardPopUpProperties.dynamicRadius <= 50) {
-            cardPopUpProperties.dynamicRadius += cardPopUpProperties.inc;
-        }
-
-        // Apply elastic force
-        let force = (cardPopUpProperties.targetRadius - cardPopUpProperties.currentSize) * cardPopUpProperties.elasticity;
-        cardPopUpProperties.velocity += force;
-        cardPopUpProperties.position += cardPopUpProperties.velocity;
-
-        // Update the size
-        cardPopUpProperties.currentSize = max(0, cardPopUpProperties.position) + cardPopUpProperties.dynamicRadius;
-        let scaleRatio = map(cardPopUpProperties.currentSize, 0, 52, 0, 0.5);
-
+        let scaleRatio = calculatePopUpScaleRatio(cardPopUpProperties);
 
         push();
         noStroke();
         fill(255);
-        translate(placeholderForPopUp.posx, placeholderForPopUp.posy - placeholderForPopUp.height - 20);
+        translate(cardMatchProperties.placeholder.posx, cardMatchProperties.placeholder.posy - cardMatchProperties.placeholder.height - 20);
         scale(scaleRatio);
         rectMode(CENTER);
         rect(0, 0, 400, 200, 30);
-        // stroke(1);
         triangle(-40, 75, 0, 125, 40, 75);
         pop();
 
@@ -344,33 +380,6 @@ function drawPopUp() {
             cardPopUpProperties.displayPopUp = false;
         }
     }
-}
-
-
-let cardPopUpProperties = {
-    dynamicRadius: 0,
-    targetRadius: 30,
-    currentSize: 0,
-    elasticity: 0.07,
-    velocity: 2,
-    position: 0,
-    inc: 3,
-    displayPopUp: false,
-    showPropertiesInitialized: false,
-    hidePropertiesInitialized: false,
-}
-
-let infoPopUpProperties = {
-    dynamicRadius: 10,
-    targetRadius: 30,
-    currentSize: 20,
-    elasticity: 0.07,
-    velocity: 2,
-    position: 0,
-    inc: 3,
-    displayPopUp: false,
-    showPropertiesInitialized: false,
-    hidePopUpPropertiesInitialized: false,
 }
 
 
@@ -386,6 +395,23 @@ function initShowInfoPopUp() {
 
         infoPopUpProperties.displayPopUp = true;
         infoPopUpProperties.showPropertiesInitialized = true;
+        infoPopUpProperties.hidePropertiesInitialized = false;
+    }
+}
+
+
+function initHideInfoPopUp() {
+    if (!infoPopUpProperties.hidePropertiesInitialized) {
+        infoPopUpProperties.dynamicRadius = 0;
+        infoPopUpProperties.targetRadius = 10;
+        infoPopUpProperties.currentSize = 0;
+        infoPopUpProperties.elasticity = 0.05;
+        infoPopUpProperties.velocity = 12;
+        infoPopUpProperties.position = 20;
+        infoPopUpProperties.inc = 0;
+
+        infoPopUpProperties.showPropertiesInitialized = false;
+        infoPopUpProperties.hidePropertiesInitialized = true;
     }
 }
 
@@ -405,7 +431,7 @@ function calculatePopUpScaleRatio(properties) {
     return scaleRatio;
 }
 
-function drawInfoPopUp(posx, posy) { //TODO: refactor these two methods(drawPopUp) to have only one?
+function drawInfoPopUp(posx, posy) {
     if (infoPopUpProperties.displayPopUp) {
         let scaleRatio = calculatePopUpScaleRatio(infoPopUpProperties);
 
@@ -434,13 +460,17 @@ function drawInfoPopUp(posx, posy) { //TODO: refactor these two methods(drawPopU
 
         pop();
 
+        if (scaleRatio === 0) {
+            infoPopUpProperties.displayPopUp = false;
+        }
+
     }
 }
 
 function initShowPopUp(placeholder) {
-    print('props init.' + cardPopUpProperties.showPropertiesInitialized);
     if (!cardPopUpProperties.showPropertiesInitialized) {
-        placeholderForPopUp = placeholder; //TODO:
+        cardMatchProperties.placeholder = placeholder; // this is saved in the more general cardMatchProperties object.
+
         cardPopUpProperties.currentSize = 0;
         cardPopUpProperties.position = 0;
         cardPopUpProperties.velocity = 2;
@@ -473,6 +503,8 @@ function initHidePopUp() {
 function drawDiscoveredYears() {
     for (let item of discoveredPlaceholders) {
         fill(0);
+        stroke(1);
+        strokeWeight(1);
         text(item.year, item.posx - 18, item.posy + item.height/2 + 20);
     }
 }
@@ -497,8 +529,7 @@ function clearSelectedCard() {
 
 function checkInfoPopUpClosed() {
     if (mouseX > 460 && mouseX < 480 && mouseY < 240 && mouseY > 220) {
-        infoPopUpProperties.displayPopUp = false;
-        infoPopUpProperties.showPopUpPropertiesInitialized = false; //TODO: ?
+        initHideInfoPopUp();
     }
 }
 
@@ -597,6 +628,8 @@ class Placeholder {
         this.rectColorR = this.GRAY_COLOR_TINT;
         this.rectColorG = this.GRAY_COLOR_TINT;
         this.rectColorB = this.GRAY_COLOR_TINT;
+        this.phStroke = 1;
+
     }
 
     isCardOver(activeCard) {
@@ -615,6 +648,8 @@ class Placeholder {
         this.checkWrongCardAnimation();
 
         rectMode(CENTER);
+        stroke(this.phStroke);
+        strokeWeight(this.phStroke);
         fill(this.rectColorR, this.rectColorG, this.rectColorB);
         rect(this.posx, this.posy, this.width, this.height);
     }
@@ -854,6 +889,8 @@ class Card {
     draw() {
         push();
         fill(255);
+        stroke(1);
+        strokeWeight(1);
         rectMode(CENTER);
         translate(this.posx, this.posy);
 
@@ -907,6 +944,10 @@ class Card {
         } else {
             return false;
         }
+    }
+
+    isFirstCard() {
+        return this.easeInFactorDisperse === undefined && this.posyOffsetDisperse === undefined;
     }
 
     resetRotation(isStraight) {
