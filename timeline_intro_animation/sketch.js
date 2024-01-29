@@ -27,18 +27,8 @@ let POSX_INITIAL_CARD;
 
 
 // POP-UP variables --------------
-let displayPopUp = false;
-let showPopUpPropertiesInitialized = false;
-let hidePopUpPropertiesInitialized = false;
 
 
-let currentSize = 0;
-let position = 0;
-let velocity = 2;
-let targetRadius = 30;
-let elasticity = 0.07;
-let dynamicRadius = 0;
-let inc = 3;
 
 let placeholderForPopUp = -1;
 let placeholderForWinAnimation = -1;
@@ -119,11 +109,11 @@ function draw() {
 
             finalWinAnimationPosx += 2;
         }
+        initShowInfoPopUp();
     }
     if (undiscoveredCardIds.size === 0 && timeoutTillStart < 0) {
         createFinalWinParticlesAnimation(finalWinAnimationPosx, placeholders[placeholders.length - 1].posx + 10);
         stroke(1);
-
     }
     // -------- END final win animation
 
@@ -182,6 +172,13 @@ function draw() {
     drawPopUp();
     // +++++++++++++++++++++++++++++++++++++++
 
+
+    // ++++++++ display info dialog +++++++
+    if (finalWinParticles.length === 0 && !finalWin) { // check if final win animation is over.
+        drawInfoPopUp(width/2, height/2);
+    }
+    // ++++++++++++++++++++++++++++++++++++
+
     // DEBUG - display FPS
     if (random() > 0.9) {
         fps = (fps + frameRate())/2; // Get the current frames per second
@@ -190,6 +187,26 @@ function draw() {
     fill(0);
     text("FPS: " + fps.toFixed(0), 20, 20);
     text("ERRORS: " + historyErrors, 20, 40);
+}
+
+
+let startRotationParam = 0;
+function drawRotatingStar(posx, posy, isWinStart) {
+    startRotationParam +=0.01;
+    r=45;
+    if (isWinStart) {
+        fill(255, 215, 0);
+    } else {
+        fill(120,120,120);
+    }
+    noStroke()
+    beginShape();
+    vertex(posx + r*cos(TWO_PI*0/5+startRotationParam),posy + r*sin(TWO_PI*0/5+startRotationParam));
+    vertex(posx + r*cos(TWO_PI*2/5+startRotationParam),posy + r*sin(TWO_PI*2/5+startRotationParam));
+    vertex(posx + r*cos(TWO_PI*4/5+startRotationParam),posy + r*sin(TWO_PI*4/5+startRotationParam));
+    vertex(posx + r*cos(TWO_PI*1/5+startRotationParam),posy + r*sin(TWO_PI*1/5+startRotationParam));
+    vertex(posx + r*cos(TWO_PI*3/5+startRotationParam),posy + r*sin(TWO_PI*3/5+startRotationParam));
+    endShape(CLOSE);
 }
 
 function createFinalWinParticlesAnimation(posx, finalPosx) {
@@ -269,6 +286,7 @@ function checkPlaceholderCards() {
                 // this prevents repeated displays of pop-ups over already discovered cards.
                 if (!isAnySelectedCard() && currentPlaceholder.activeCard.id === currentPlaceholder.correctCardId
                     && undiscoveredCardIds.has(currentCard.id)) {
+                    print('show pop up');
                     undiscoveredCardIds.delete(currentCard.id);
                     discoveredPlaceholders.add(currentPlaceholder);
                     initShowPopUp(currentPlaceholder);
@@ -296,19 +314,19 @@ function checkPlaceholderCards() {
 
 
 function drawPopUp() {
-    if (displayPopUp) {
-        if (dynamicRadius <= 50) {
-            dynamicRadius += inc;
+    if (cardPopUpProperties.displayPopUp) {
+        if (cardPopUpProperties.dynamicRadius <= 50) {
+            cardPopUpProperties.dynamicRadius += cardPopUpProperties.inc;
         }
 
         // Apply elastic force
-        let force = (targetRadius - currentSize) * elasticity;
-        velocity += force;
-        position += velocity;
+        let force = (cardPopUpProperties.targetRadius - cardPopUpProperties.currentSize) * cardPopUpProperties.elasticity;
+        cardPopUpProperties.velocity += force;
+        cardPopUpProperties.position += cardPopUpProperties.velocity;
 
         // Update the size
-        currentSize = max(0, position) + dynamicRadius;
-        let scaleRatio = map(currentSize, 0, 52, 0, 0.5);
+        cardPopUpProperties.currentSize = max(0, cardPopUpProperties.position) + cardPopUpProperties.dynamicRadius;
+        let scaleRatio = map(cardPopUpProperties.currentSize, 0, 52, 0, 0.5);
 
 
         push();
@@ -322,72 +340,133 @@ function drawPopUp() {
         triangle(-40, 75, 0, 125, 40, 75);
         pop();
 
-        if (scaleRatio == 0) {
-            displayPopUp = false;
+        if (scaleRatio === 0) {
+            cardPopUpProperties.displayPopUp = false;
         }
     }
 }
 
-function drawInfoPopUp() {
-    if (dynamicRadius <= 50) {
-        dynamicRadius += inc;
+
+let cardPopUpProperties = {
+    dynamicRadius: 0,
+    targetRadius: 30,
+    currentSize: 0,
+    elasticity: 0.07,
+    velocity: 2,
+    position: 0,
+    inc: 3,
+    displayPopUp: false,
+    showPropertiesInitialized: false,
+    hidePropertiesInitialized: false,
+}
+
+let infoPopUpProperties = {
+    dynamicRadius: 10,
+    targetRadius: 30,
+    currentSize: 20,
+    elasticity: 0.07,
+    velocity: 2,
+    position: 0,
+    inc: 3,
+    displayPopUp: false,
+    showPropertiesInitialized: false,
+    hidePopUpPropertiesInitialized: false,
+}
+
+
+function initShowInfoPopUp() {
+    if (!infoPopUpProperties.showPropertiesInitialized) {
+        infoPopUpProperties.dynamicRadius = 10;
+        infoPopUpProperties.targetRadius = 30;
+        infoPopUpProperties.currentSize = 20;
+        infoPopUpProperties.elasticity = 0.07;
+        infoPopUpProperties.velocity = 2;
+        infoPopUpProperties.position = 0;
+        infoPopUpProperties.inc = 3;
+
+        infoPopUpProperties.displayPopUp = true;
+        infoPopUpProperties.showPropertiesInitialized = true;
+    }
+}
+
+function calculatePopUpScaleRatio(properties) {
+    if (properties.dynamicRadius <= 50) {
+        properties.dynamicRadius += properties.inc;
     }
 
     // Apply elastic force
-    let force = (targetRadius - currentSize) * elasticity;
-    velocity += force;
-    position += velocity;
+    let force = (properties.targetRadius - properties.currentSize) * properties.elasticity;
+    properties.velocity += force;
+    properties.position += properties.velocity;
 
     // Update the size
-    currentSize = max(0, position) + dynamicRadius;
-    let scaleRatio = map(currentSize, 0, 52, 0, 0.5);
+    properties.currentSize = max(0, properties.position) + properties.dynamicRadius;
+    let scaleRatio = map(properties.currentSize, 0, 52, 0, 0.5);
+    return scaleRatio;
+}
 
+function drawInfoPopUp(posx, posy) { //TODO: refactor these two methods(drawPopUp) to have only one?
+    if (infoPopUpProperties.displayPopUp) {
+        let scaleRatio = calculatePopUpScaleRatio(infoPopUpProperties);
 
-    push();
-    noStroke();
-    fill(255);
-    translate(placeholderForPopUp.posx, placeholderForPopUp.posy - placeholderForPopUp.height - 20);
-    scale(scaleRatio);
-    rectMode(CENTER);
-    rect(0, 0, 400, 200, 30);
-    // stroke(1);
-    triangle(-40, 75, 0, 125, 40, 75);
-    pop();
+        push();
+        noStroke();
+        fill(255);
+        translate(posx, posy);
+        scale(scaleRatio);
+        rectMode(CENTER);
+        rect(0, 0, 800, 800, 30);
+        stroke(1);
+        strokeWeight(3);
 
-    if (scaleRatio == 0) {
-        displayPopUp = false;
+        // X
+        line(320, -360, 360, -320);
+        line(360, -360, 320, -320);
+
+        // stars
+
+        let star1Win = historyErrors < 10;
+        let star2Win = historyErrors < 3;
+        let star3Win = historyErrors === 0;
+        drawRotatingStar(0 - 100, 0 - 280, star1Win);
+        drawRotatingStar(0, 0 - 280, star2Win);
+        drawRotatingStar(0 + 100, 0 - 280, star3Win);
+
+        pop();
+
     }
 }
 
 function initShowPopUp(placeholder) {
-    if (!showPopUpPropertiesInitialized) {
-        placeholderForPopUp = placeholder;
-        currentSize = 0;
-        position = 0;
-        velocity = 2;
-        targetRadius = 30;
-        elasticity = 0.07;
-        dynamicRadius = 0;
-        inc = 3;
+    print('props init.' + cardPopUpProperties.showPropertiesInitialized);
+    if (!cardPopUpProperties.showPropertiesInitialized) {
+        placeholderForPopUp = placeholder; //TODO:
+        cardPopUpProperties.currentSize = 0;
+        cardPopUpProperties.position = 0;
+        cardPopUpProperties.velocity = 2;
+        cardPopUpProperties.targetRadius = 30;
+        cardPopUpProperties.elasticity = 0.07;
+        cardPopUpProperties.dynamicRadius = 0;
+        cardPopUpProperties.inc = 3;
 
-        showPopUpPropertiesInitialized = true;
-        hidePopUpPropertiesInitialized = false;
-        displayPopUp = true;
+        cardPopUpProperties.showPropertiesInitialized = true;
+        cardPopUpProperties.hidePropertiesInitialized = false;
+        cardPopUpProperties.displayPopUp = true;
     }
 }
 
 function initHidePopUp() {
-    if (!hidePopUpPropertiesInitialized) {
-        currentSize = 0;
-        position = 20;
-        velocity = 12;
-        targetRadius = 10;
-        elasticity = 0.05;
-        dynamicRadius = 0;
-        inc = 0;
+    if (!cardPopUpProperties.hidePropertiesInitialized) {
+        cardPopUpProperties.currentSize = 0;
+        cardPopUpProperties.position = 20;
+        cardPopUpProperties.velocity = 12;
+        cardPopUpProperties.targetRadius = 10;
+        cardPopUpProperties.elasticity = 0.05;
+        cardPopUpProperties.dynamicRadius = 0;
+        cardPopUpProperties.inc = 0;
 
-        hidePopUpPropertiesInitialized = true;
-        showPopUpPropertiesInitialized = false;
+        cardPopUpProperties.hidePropertiesInitialized = true;
+        cardPopUpProperties.showPropertiesInitialized = false;
     }
 }
 
@@ -416,6 +495,13 @@ function clearSelectedCard() {
     selectedCard = undefined;
 }
 
+function checkInfoPopUpClosed() {
+    if (mouseX > 460 && mouseX < 480 && mouseY < 240 && mouseY > 220) {
+        infoPopUpProperties.displayPopUp = false;
+        infoPopUpProperties.showPopUpPropertiesInitialized = false; //TODO: ?
+    }
+}
+
 function touchStarted() {
     // decide order of the cards based on mouseposition ------
     if (!isAnySelectedCard()) {
@@ -434,6 +520,8 @@ function touchStarted() {
         // clear active pop-up if any.
         initHidePopUp();
     }
+
+    checkInfoPopUpClosed();
 
 }
 // desktop support
