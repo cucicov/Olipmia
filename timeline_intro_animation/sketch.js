@@ -91,6 +91,7 @@ let winProperties = {
         stroke: 0, // remove stroke at the end when changing placeholder colors.
         scale: 2, // scale placeholder while scrolling through matching cards at the end.
     },
+    winStarHorizontalSpeed: 2,
 }
 
 // -------------------------------
@@ -130,6 +131,28 @@ function setup() {
 }
 
 
+function isGameOver() {
+    return winProperties.particles.length === 0
+        && !winProperties.finalWin
+        && undiscoveredCardIds.size === 0 && cardMatchProperties.particles.length === 0 && winProperties.timeoutTillStart < 0;;
+}
+
+function getWinStarSettings() {
+    let star1Win = historyErrors < 10;
+    let star2Win = historyErrors < 3;
+    let star3Win = historyErrors === 0;
+    return {star1Win, star2Win, star3Win};
+}
+
+function drawWinStars() {
+    if (!infoPopUpProperties.displayPopUp) {
+        let {star1Win, star2Win, star3Win} = getWinStarSettings();
+        drawRotatingStar(width/2 - 100, height/2 + 100, star1Win);
+        drawRotatingStar(width/2, height/2 + 100, star2Win);
+        drawRotatingStar(width/2 + 100, height/2 + 100, star3Win);
+    }
+}
+
 function draw() {
     background(220);
     // stroke(1);
@@ -156,7 +179,7 @@ function draw() {
                 }
             }
 
-            winProperties.posx += 2;
+            winProperties.posx += winProperties.winStarHorizontalSpeed;
         }
         initShowInfoPopUp();
     }
@@ -208,7 +231,6 @@ function draw() {
 
     //  ^^^^^^ WIN ANIMATIONS ^^^^^^^^^^^
     if (winCard !== undefined) {
-
         // avoid win animation on the first card that is already positioned on the right spot.
         if (!winCard.isFirstCard()){
             generateMatchParticles();
@@ -224,9 +246,15 @@ function draw() {
 
 
     // ++++++++ display info dialog +++++++
-    if (winProperties.particles.length === 0 && !winProperties.finalWin) { // check if final win animation is over.
+    if (isGameOver()) { // check if final win animation is over.
         drawInfoPopUp(width/2, height/2);
+        drawWinStars();
     }
+
+    if (isGameOver()) {
+
+    }
+
     // ++++++++++++++++++++++++++++++++++++
 
     // DEBUG - display FPS
@@ -345,12 +373,13 @@ function checkPlaceholderCards() {
         }
 
         // counter errors.
-        if (!isAnySelectedCard() && currentPlaceholder.activeCard !== undefined && currentPlaceholder.activeCard.id !== currentPlaceholder.correctCardId) {
+        if (!isAnySelectedCard()
+            && currentPlaceholder.activeCard !== undefined
+            && currentPlaceholder.activeCard.id !== currentPlaceholder.correctCardId) {
+
             errors++;
             currentPlaceholder.activeCard.shouldBeReturned = true;
-            currentPlaceholder.showWrongCardAnimation();
-            // currentPlaceholder.activeCard.posx = currentPlaceholder.activeCard.initialPosXAfterScatter;
-            // currentPlaceholder.activeCard.posy = currentPlaceholder.activeCard.initialPosYAfterScatter;
+            currentPlaceholder.showWrongAnimation = true;
             currentPlaceholder.activeCard.activePlaceholder = undefined;
             currentPlaceholder.activeCard = undefined;
         }
@@ -451,9 +480,7 @@ function drawInfoPopUp(posx, posy) {
 
         // stars
 
-        let star1Win = historyErrors < 10;
-        let star2Win = historyErrors < 3;
-        let star3Win = historyErrors === 0;
+        let {star1Win, star2Win, star3Win} = getWinStarSettings();
         drawRotatingStar(0 - 100, 0 - 280, star1Win);
         drawRotatingStar(0, 0 - 280, star2Win);
         drawRotatingStar(0 + 100, 0 - 280, star3Win);
@@ -654,10 +681,6 @@ class Placeholder {
         rect(this.posx, this.posy, this.width, this.height);
     }
 
-    showWrongCardAnimation() {
-        this.showWrongAnimation = true;
-    }
-
     checkWrongCardAnimation() {
         this.internalFrameCount++;
         if (this.showWrongAnimation) {
@@ -716,7 +739,11 @@ class Particle {
 
     display() {
         noStroke();
-        fill(this.color.levels[0], this.color.levels[1], this.color.levels[2], this.alpha);
+        // fill(this.color.levels[0], this.color.levels[1], this.color.levels[2], this.alpha);
+        fill(255);
+        stroke(0);
+        strokeWeight(1);
+        // ellipse(this.x, this.y, random(5,10), random(5,10));
         drawStar(this.x, this.y, this.size, 5); // Draw a 5-pointed star
     }
 
