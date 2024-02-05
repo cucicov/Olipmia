@@ -2,12 +2,12 @@ let fps = 0;
 let touchTargets = [];
 
 // this controls the limits of within which cards can move on posX
-const EASE_IN_FACTOR_DISPERSE_LEFT_LIMIT = -150;
-const EASE_IN_FACTOR_DISPERSE_RIGHT_LIMIT = 150;
+const EASE_IN_FACTOR_DISPERSE_LEFT_LIMIT = -800;
+const EASE_IN_FACTOR_DISPERSE_RIGHT_LIMIT = 800;
 
 // this controls the limits within which cards can move on posY
-const POSY_OFFSET_DISPERSE_LEFT_LIMIT = -15;
-const POSY_OFFSET_DISPERSE_RIGHT_LIMIT = 10;
+const POSY_OFFSET_DISPERSE_LEFT_LIMIT = -60;
+const POSY_OFFSET_DISPERSE_RIGHT_LIMIT = 30;
 
 // position for the initial card starting the game
 let POSY_INITIAL_CARD;
@@ -16,6 +16,11 @@ let POSX_INITIAL_CARD;
 // position for the deck, how far to enter the canvas.
 let POSY_INITIAL_DECK;
 
+// card sizes
+let CARD_WIDTH = 240;
+let CARD_HEIGHT = 500;
+let PLACEHOLDER_WIDTH = 260;
+let PLACEHOLDER_HEIGHT = 520;
 
 
 //  ----- ERRORS -----
@@ -35,10 +40,10 @@ let discoveredPlaceholders = new Set();
 
 // ----- STARS VARIABLES -----
 const STAR_ROTATION_SPEED = 0.01;
-const STAR_RADIUS = 45;
+const STAR_RADIUS = 145;
+;
 let startRotationParam = 0;
 // -------------------------------
-
 
 
 
@@ -77,7 +82,7 @@ let cardMatchProperties = {
     shouldDisplay: false,
     placeholder: -1, // placeholder to use in positioning card match animation.
     particleAnimationDuration: this.WIN_PARTICLE_ANIMATION_DURATION,
-    numberOfParticles: 15, // number of particles.
+    numberOfParticles: 55, // number of particles.
 }
 
 let winProperties = {
@@ -93,7 +98,7 @@ let winProperties = {
         stroke: 0, // remove stroke at the end when changing placeholder colors.
         scale: 2, // scale placeholder while scrolling through matching cards at the end.
     },
-    winStarHorizontalSpeed: 2,
+    winStarHorizontalSpeed: 5,
 }
 
 // -------------------------------
@@ -103,23 +108,58 @@ function setup() {
 
     POSX_INITIAL_CARD = width/2;
     POSY_INITIAL_CARD = 1300;
-    POSY_INITIAL_DECK = 2000;
+    POSY_INITIAL_DECK = 1300;
 
-    cards.push(new Card(1,(width/2) + 4, height+13, random(-1, - 0.9), random(-1, -0.6)));
-    cards.push(new Card(2, (width/2) + 2, height+10, random(1, 0.8), random(0.6, 1)));
-    cards.push(new Card(3, width/2, height+7, )); // middle card
-    cards.push(new Card(4, (width/2) - 2, height+4, random(-0.5, -0.3), random(0.5, 0.9)));
-    cards.push(new Card(5, (width/2) - 4, height+1, random(-0.2, 0.7), random(1, 0.6)));
-    cards.push(new Card(6, (width/2) - 6, height-2, random(1, 0.5), random(-1, -0.6)));
-    cards.push(new Card(7, (width/2) - 6, height-2, random(0.0, 0.0), random(-1, 0)));
+    cards.push(new Card(1,(width/2) + 20, height+50, random(-1, - 0.9), random(-1, -0.6)));
+    cards.push(new Card(2, (width/2) + 10, height+40, random(1, 0.8), random(0.6, 1)));
+    cards.push(new Card(3, width/2, height+30, )); // middle card
+    cards.push(new Card(4, (width/2) - 10, height+20, random(-0.5, -0.3), random(0.5, 0.9)));
+    cards.push(new Card(5, (width/2) - 20, height+10, random(-0.2, 0.7), random(1, 0.6)));
+    cards.push(new Card(6, (width/2) - 30, height, random(1, 0.5), random(-1, -0.6)));
+    cards.push(new Card(7, (width/2) - 40, height-10, random(0.0, 0.0), random(-1, 0)));
 
-    placeholders.push(new Placeholder(7, POSX_INITIAL_CARD - 180, POSY_INITIAL_CARD, 56, 106, 7, 1978, "info card 7"));
-    placeholders.push(new Placeholder(1, POSX_INITIAL_CARD - 120, POSY_INITIAL_CARD, 56, 106, 1, 1981, "info card 1"));
-    placeholders.push(new Placeholder(2, POSX_INITIAL_CARD - 60, POSY_INITIAL_CARD, 56, 106, 2, 1982, "info card 2"));
-    placeholders.push(new Placeholder(3, POSX_INITIAL_CARD, POSY_INITIAL_CARD, 56, 106, 3, 1983, "info card 3"));
-    placeholders.push(new Placeholder(4, POSX_INITIAL_CARD + 60, POSY_INITIAL_CARD, 56, 106, 4, 1984, "info card 4"));
-    placeholders.push(new Placeholder(5, POSX_INITIAL_CARD + 120, POSY_INITIAL_CARD, 56, 106, 5, 1985, "info card 5"));
-    placeholders.push(new Placeholder(6, POSX_INITIAL_CARD + 180, POSY_INITIAL_CARD, 56, 106, 6, 1986, "info card 6"));
+    placeholders.push(new Placeholder(7,
+        POSX_INITIAL_CARD - PLACEHOLDER_WIDTH * 3 - 48,
+        POSY_INITIAL_CARD,
+        PLACEHOLDER_WIDTH,
+        PLACEHOLDER_HEIGHT,
+        7, 1978, "info card 7"));
+    placeholders.push(new Placeholder(1,
+        POSX_INITIAL_CARD - PLACEHOLDER_WIDTH * 2 - 32,
+        POSY_INITIAL_CARD,
+        PLACEHOLDER_WIDTH,
+        PLACEHOLDER_HEIGHT,
+        1, 1981, "info card 1"));
+    placeholders.push(new Placeholder(2,
+        POSX_INITIAL_CARD - PLACEHOLDER_WIDTH - 16,
+        POSY_INITIAL_CARD,
+        PLACEHOLDER_WIDTH,
+        PLACEHOLDER_HEIGHT,
+        2, 1982, "info card 2"));
+    placeholders.push(new Placeholder(3,
+        POSX_INITIAL_CARD,
+        POSY_INITIAL_CARD,
+        PLACEHOLDER_WIDTH,
+        PLACEHOLDER_HEIGHT,
+        3, 1983, "info card 3"));
+    placeholders.push(new Placeholder(4,
+        POSX_INITIAL_CARD + PLACEHOLDER_WIDTH + 16,
+        POSY_INITIAL_CARD,
+        PLACEHOLDER_WIDTH,
+        PLACEHOLDER_HEIGHT,
+        4, 1984, "info card 4"));
+    placeholders.push(new Placeholder(5,
+        POSX_INITIAL_CARD + PLACEHOLDER_WIDTH * 2 + 32,
+        POSY_INITIAL_CARD,
+        PLACEHOLDER_WIDTH,
+        PLACEHOLDER_HEIGHT,
+        5, 1985, "info card 5"));
+    placeholders.push(new Placeholder(6,
+        POSX_INITIAL_CARD + PLACEHOLDER_WIDTH * 3 + 48,
+        POSY_INITIAL_CARD,
+        PLACEHOLDER_WIDTH,
+        PLACEHOLDER_HEIGHT,
+        6, 1986, "info card 6"));
 
     touchTargets.push(new TouchTarget());
 
@@ -150,14 +190,19 @@ function getWinStarSettings() {
 function drawWinStars() {
     if (!infoPopUpProperties.displayPopUp) {
         let {star1Win, star2Win, star3Win} = getWinStarSettings();
-        drawRotatingStar(width/2 - 100, height/2 + 100, star1Win);
+        drawRotatingStar(width/2 - 400, height/2 + 100, star1Win);
         drawRotatingStar(width/2, height/2 + 100, star2Win);
-        drawRotatingStar(width/2 + 100, height/2 + 100, star3Win);
+        drawRotatingStar(width/2 + 400, height/2 + 100, star3Win);
     }
 }
 
 function draw() {
     background(220);
+
+    // TODO: remove (guiding lines)
+    line(0, 840, width, 840);
+    line(0, height-840, width, height-840);
+
     // stroke(1);
 
     // display final win animation behind all cards.
@@ -172,7 +217,8 @@ function draw() {
 
             // change rect colors progressively as the particles move
             for (let j=0; j < placeholders.length; j++) {
-                if (winProperties.posx === placeholders[j].posx) {
+                if (winProperties.posx >= placeholders[j].posx - winProperties.winStarHorizontalSpeed
+                    && winProperties.posx <= placeholders[j].posx + winProperties.winStarHorizontalSpeed) {
                     placeholders[j].rectColorR = winProperties.placeholderModifier.red;
                     placeholders[j].rectColorG = winProperties.placeholderModifier.green;
                     placeholders[j].rectColorB = winProperties.placeholderModifier.blue;
@@ -399,13 +445,12 @@ function drawPopUp() {
         let scaleRatio = calculatePopUpScaleRatio(cardPopUpProperties);
 
         push();
-        noStroke();
         fill(255);
-        translate(cardMatchProperties.placeholder.posx, cardMatchProperties.placeholder.posy - cardMatchProperties.placeholder.height - 20);
+        translate(cardMatchProperties.placeholder.posx,
+            cardMatchProperties.placeholder.posy);
         scale(scaleRatio);
         rectMode(CENTER);
-        rect(0, 0, 400, 200, 30);
-        triangle(-40, 75, 0, 125, 40, 75);
+        rect(0, 0, 900, 1600, 30);
         pop();
 
         if (scaleRatio === 0) {
@@ -473,20 +518,20 @@ function drawInfoPopUp(posx, posy) {
         translate(posx, posy);
         scale(scaleRatio);
         rectMode(CENTER);
-        rect(0, 0, 800, 800, 30);
+        rect(0, 0, 2800, 2500, 70);
         stroke(1);
-        strokeWeight(3);
+        strokeWeight(7);
 
         // X
-        line(320, -360, 360, -320);
-        line(360, -360, 320, -320);
+        line(1200, -1150, 1300, -1050);
+        line(1200, -1050, 1300, -1150);
 
         // stars
 
         let {star1Win, star2Win, star3Win} = getWinStarSettings();
-        drawRotatingStar(0 - 100, 0 - 280, star1Win);
-        drawRotatingStar(0, 0 - 280, star2Win);
-        drawRotatingStar(0 + 100, 0 - 280, star3Win);
+        drawRotatingStar(0 - 400, 0 - 880, star1Win);
+        drawRotatingStar(0, 0 - 880, star2Win);
+        drawRotatingStar(0 + 400, 0 - 880, star3Win);
 
         pop();
 
@@ -535,7 +580,8 @@ function drawDiscoveredYears() {
         fill(0);
         stroke(1);
         strokeWeight(1);
-        text(item.year, item.posx - 18, item.posy + item.height/2 + 20);
+        textSize(44);
+        text(item.year, item.posx - 50, item.posy + item.height/2 + 50);
     }
 }
 
@@ -558,7 +604,8 @@ function clearSelectedCard() {
 }
 
 function checkInfoPopUpClosed() {
-    if (mouseX > 460 && mouseX < 480 && mouseY < 240 && mouseY > 220) {
+    print(mouseX + ":" + mouseY);
+    if (mouseX > 1680 && mouseX < 1730 && mouseY < 1400 && mouseY > 1340) {
         initHideInfoPopUp();
     }
 }
@@ -715,20 +762,20 @@ class Particle {
         this.alpha = 255;
         if (multicolor) {
             this.color = color(random(0, 120), random(80, 220), random(180, 255));
-            this.vx = random(-7, 7);
-            this.vy = random(-7, 7);
-            this.scaleFactor = 0.01;
-            this.size = random(7, 15);
+            this.vx = random(-17, 17);
+            this.vy = random(-17, 17);
+            this.scaleFactor = 0.1;
+            this.size = random(10, 50);
             this.alphaFactor = 3;
             this.gravity = 0; // Gravity force
         } else {
             this.color = color(random([[255, 236, 139], [255, 215, 0], [184, 134, 11], [218, 165, 32], [238, 232, 170]]));
-            this.vx = random(-7, 7);
-            this.vy = random(-7, 7);
-            this.scaleFactor = 0.05;
-            this.size = random(5, 10);
+            this.vx = random(-15, 15);
+            this.vy = random(-15, 15);
+            this.scaleFactor = 0.5;
+            this.size = random(10, 50);
             this.alphaFactor = 3;
-            this.gravity = 0.05; // Gravity force
+            this.gravity = 0.07; // Gravity force
         }
     }
 
@@ -743,7 +790,8 @@ class Particle {
     display() {
         noStroke();
         // fill(this.color.levels[0], this.color.levels[1], this.color.levels[2], this.alpha);
-        fill(255);
+        fill(255, 255, 255, this.alpha);
+        // fill(255);
         stroke(0);
         strokeWeight(1);
         // ellipse(this.x, this.y, random(5,10), random(5,10));
@@ -751,7 +799,7 @@ class Particle {
     }
 
     isOffScreen() {
-        return this.alpha <= 0 || this.size < 0 || this.y > height; // Include condition for off the bottom of the screen
+        return this.size < 0 || this.y > height; // Include condition for off the bottom of the screen
     }
 }
 
@@ -785,8 +833,8 @@ class Card {
         this.id = id;
         this.posx = posx;
         this.posy = posy;
-        this.width = 50;
-        this.height = 100;
+        this.width = CARD_WIDTH;
+        this.height = CARD_HEIGHT;
 
         this.initialPosY = posy;
         this.initialPosYAfterScatter = posy;
@@ -936,6 +984,7 @@ class Card {
         rotate(radians(this.currentRotationAngle));
         rect(0, 0, this.width, this.height);
         fill(0);
+        textSize(44);
         text(this.id, 0, 0);
         pop();
     }
