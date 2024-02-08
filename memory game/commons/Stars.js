@@ -1,8 +1,8 @@
 
 function getWinStarSettings(gameProp) {
-    let star1Win = tl.historyErrors < gameProp.ERRORS_1_STARS;
-    let star2Win = tl.historyErrors < gameProp.ERRORS_2_STARS;
-    let star3Win = tl.historyErrors < gameProp.ERRORS_3_STARS;
+    let star1Win = tl.historyErrors < 10;
+    let star2Win = tl.historyErrors < 3;
+    let star3Win = tl.historyErrors === 0;
     return {star1Win, star2Win, star3Win};
 }
 
