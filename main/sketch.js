@@ -329,7 +329,7 @@ function checkPlaceholderCards() {
                     tl.undiscoveredCardIds.delete(currentCard.id);
                     tl.discoveredPlaceholders.add(currentPlaceholder);
 
-                    initShowPopUp(currentPlaceholder, tl);
+                    initShowPopUp(tl,currentPlaceholder);
                     initDisplayMatchAnimation(currentPlaceholder, tl); // display win animation particles.
                 }
             }

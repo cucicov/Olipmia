@@ -5,90 +5,90 @@ let fps = 0;
 let persistentErrors = 0;
 let historyErrors = 0;
 
-let img;
-let crop;
-let maskImg;
-let icons = [];
-let originalNumberOfIcons; // used in error calculation.
+let mem = {
+    maskImg: undefined,
+    icons: [],
+    images: [],
 
-let nextButton;
+    nextButton: undefined,
 
-let gameState = {
-    isLevelOver: false,
-    isWon: false,
-    isLost: false,
-    isGameOver: false,
-}
-
-let levelNumber = 1;
-
-
-//TODO: extract all there common variables in a separate commons JS.
-// ----- STARS VARIABLES -----
-const STAR_ROTATION_SPEED = 0.01;
-const STAR_RADIUS = 145;
-let startRotationParam = 0;
-// -------------------------------
+    gameState: {
+        isLevelOver: false,
+        isWon: false,
+        isLost: false,
+        isGameOver: false,
+        levelNumber: 1,
+        MAX_LEVELS: 5,
+        originalNumberOfIcons: undefined, // used in error calculation.
+    },
 
 
-//TODO: extract all there common variables in a separate commons JS.
-let infoPopUpProperties = {
-    dynamicRadius: 10,
-    targetRadius: 30,
-    currentSize: 20,
-    elasticity: 0.07,
-    velocity: 2,
-    position: 0,
-    inc: 3,
-    displayPopUp: false,
-    showPropertiesInitialized: false,
-    hidePropertiesInitialized: false,
-}
-
-//TODO: extract all there common variables in a separate commons JS.
-let cardPopUpProperties = {
-    dynamicRadius: 0,
-    targetRadius: 30,
-    currentSize: 0,
-    elasticity: 0.07,
-    velocity: 2,
-    position: 0,
-    inc: 3,
-    displayPopUp: false,
-    showPropertiesInitialized: false,
-    hidePropertiesInitialized: false,
-}
+    //TODO: extract all there common variables in a separate commons JS.
+    // ----- STARS VARIABLES -----
+    STAR_ROTATION_SPEED: 0.01,
+    STAR_RADIUS: 145,
+    startRotationParam: 0,
+    // -------------------------------
 
 
-// levels of error // TODO: refactor intro properties?
-let ERRORS_LEVEL_1 = 2; // reveal first layer
-let ERRORS_LEVEL_2 = 3; // reveal whole image
-let ERRORS_LEVEL_3 = 4; // game over
+    //TODO: extract all there common variables in a separate commons JS.
+    infoPopUpProperties: {
+        dynamicRadius: 10,
+        targetRadius: 30,
+        currentSize: 20,
+        elasticity: 0.07,
+        velocity: 2,
+        position: 0,
+        inc: 3,
+        displayPopUp: false,
+        showPropertiesInitialized: false,
+        hidePropertiesInitialized: false,
+    },
 
-let images = [];
+    //TODO: extract all there common variables in a separate commons JS.
+    cardPopUpProperties: {
+        dynamicRadius: 0,
+        targetRadius: 30,
+        currentSize: 0,
+        elasticity: 0.07,
+        velocity: 2,
+        position: 0,
+        inc: 3,
+        displayPopUp: false,
+        showPropertiesInitialized: false,
+        hidePropertiesInitialized: false,
+    },
 
-const EASE_IN_FACTOR_DISPERSE_LEFT_LIMIT = -500;
-const EASE_IN_FACTOR_DISPERSE_RIGHT_LIMIT = 500;
-
-// this controls the limits within which cards can move on posY
-const POSY_OFFSET_DISPERSE_LEFT_LIMIT = -50;
-const POSY_OFFSET_DISPERSE_RIGHT_LIMIT = 50;
+    // levels of error // TODO: refactor intro properties?
+    ERRORS_LEVEL_1: 2, // reveal first layer
+    ERRORS_LEVEL_2: 3, // reveal whole image
+    ERRORS_LEVEL_3: 4, // game over
 
 
-let iconMatchProperties = {
-    WIN_PARTICLE_ANIMATION_DURATION: 2, // duration for generating particles.
-    particles: [], // list of particles for card match animation.
-    shouldDisplay: false,
-    placeholder: -1, // placeholder to use in positioning card match animation.
-    particleAnimationDuration: this.WIN_PARTICLE_ANIMATION_DURATION,
-    numberOfParticles: 15, // number of particles.
+    EASE_IN_FACTOR_DISPERSE_LEFT_LIMIT: -500,
+    EASE_IN_FACTOR_DISPERSE_RIGHT_LIMIT: 500,
+
+    // this controls the limits within which cards can move on posY
+    POSY_OFFSET_DISPERSE_LEFT_LIMIT: -50,
+    POSY_OFFSET_DISPERSE_RIGHT_LIMIT: 50,
+
+
+    iconMatchProperties: {
+        WIN_PARTICLE_ANIMATION_DURATION: 2, // duration for generating particles.
+        particles: [], // list of particles for card match animation.
+        shouldDisplay: false,
+        placeholder: -1, // placeholder to use in positioning card match animation.
+        particleAnimationDuration: this.WIN_PARTICLE_ANIMATION_DURATION,
+        numberOfParticles: 15, // number of particles.
+    }
+
 }
 
 
 function preload() {
-    images.push(loadImage('img/1.jpg'))
-    images.push(loadImage('img/2.jpg'))
-    images.push(loadImage('img/3.jpg'))
+    mem.images.push(loadImage('img/1.jpg'))
+    mem.images.push(loadImage('img/2.jpg'))
+    mem.images.push(loadImage('img/3.jpg'))
 }
 
 function setup() {
@@ -99,42 +99,42 @@ function setup() {
 }
 
 function removeRemainingWrongIcons() {
-    for (let i = 0; i < icons.length; i++) {
-        if (icons[i].id !== maskImg.associatedId) {
-            icons[i].wrongIconSelection();
+    for (let i = 0; i < mem.icons.length; i++) {
+        if (mem.icons[i].id !== mem.maskImg.associatedId) {
+            mem.icons[i].wrongIconSelection();
         }
     }
 }
 
 // calculate number of errors, display additional image levels as errors increase, display next
 function processErrors() {
-    if (!gameState.isLevelOver && !gameState.isGameOver) {
-        historyErrors = originalNumberOfIcons - icons.length;
-        maskImg.zoomLevel = historyErrors;
+    if (!mem.gameState.isLevelOver && !mem.gameState.isGameOver) {
+        historyErrors = mem.gameState.originalNumberOfIcons - mem.icons.length;
+        mem.maskImg.zoomLevel = historyErrors;
 
         // if minimum numbers of icons are left -> game over and remove all other icons.
         // this also checks if last wrong icon finished animation.
-        if (historyErrors >= ERRORS_LEVEL_3 && icons.length <= originalNumberOfIcons - ERRORS_LEVEL_3) {
+        if (historyErrors >= mem.ERRORS_LEVEL_3 && mem.icons.length <= mem.gameState.originalNumberOfIcons - mem.ERRORS_LEVEL_3) {
             removeRemainingWrongIcons();
         }
 
         // process when game is over for current image
-        if (icons.length === 1) {
-            gameState.isLevelOver = true;
-            gameState.isLost = true;
+        if (mem.icons.length === 1) {
+            mem.gameState.isLevelOver = true;
+            mem.gameState.isLost = true;
         }
 
-        if (levelNumber > 5) {
-            gameState.isGameOver = true;
+        if (mem.gameState.levelNumber > mem.gameState.MAX_LEVELS) {
+            mem.gameState.isGameOver = true;
         }
     }
 }
 
 // removes icons that have been zoomed out.
 function removeInvisibleIcons() {
-    for (let i = 0; i < icons.length; i++) {
-        if (icons[i].scaleFactor < 0) {
-            icons.splice(i, 1);
+    for (let i = 0; i < mem.icons.length; i++) {
+        if (mem.icons[i].scaleFactor < 0) {
+            mem.icons.splice(i, 1);
             break;
         }
     }
@@ -143,17 +143,17 @@ function removeInvisibleIcons() {
 function resetNewGame() {
     initializeNewImage();
     persistentErrors += historyErrors; // preserve history errors from previous level.
-    icons = [];
+    mem.icons = [];
 
     initializeIcons();
     initHidePopUp();
 
-    gameState.isLevelOver = false;
-    gameState.isWon = false;
-    gameState.isLost = false;
-    gameState.isLevelOver = false;
+    mem.gameState.isLevelOver = false;
+    mem.gameState.isWon = false;
+    mem.gameState.isLost = false;
+    mem.gameState.isLevelOver = false;
 
-    levelNumber++;
+    mem.gameState.levelNumber++;
 }
 
 function draw() {
@@ -165,24 +165,24 @@ function draw() {
 
     generateMatchParticles();
 
-    if (!gameState.isGameOver) {
-        maskImg.draw();
+    if (!mem.gameState.isGameOver) {
+        mem.maskImg.draw();
 
         // icons display and click logic.
-        for (let i = 0; i < icons.length; i++) {
-            let currentIcon = icons[i];
+        for (let i = 0; i < mem.icons.length; i++) {
+            let currentIcon = mem.icons[i];
             currentIcon.disperse();
             currentIcon.draw();
 
             if (currentIcon.isActive(mouseX, mouseY)) {
-                if (maskImg.associatedId === currentIcon.id){ // correct icon selected.
+                if (mem.maskImg.associatedId === currentIcon.id){ // correct icon selected.
                     if (!currentIcon.correctIconSelected) {
                         currentIcon.correctIconSelection();
                         initDisplayMatchAnimation(currentIcon);
-                        initShowPopUp();
+                        initShowPopUp(mem);
 
-                        gameState.isWon = true;
-                        gameState.isLevelOver = true;
+                        mem.gameState.isWon = true;
+                        mem.gameState.isLevelOver = true;
                     }
                 } else { // wrong icon selected.
                     currentIcon.wrongIconSelection();
@@ -196,24 +196,24 @@ function draw() {
     processErrors();
 
     // next button logic
-    if (gameState.isLevelOver) {
-        initShowPopUp();
+    if (mem.gameState.isLevelOver) {
+        initShowPopUp(mem);
         removeRemainingWrongIcons();
 
-        maskImg.zoomLevel = ERRORS_LEVEL_3; // display whole image.
+        mem.maskImg.zoomLevel = mem.ERRORS_LEVEL_3; // display whole image.
 
-        if (gameState.isGameOver) {
-            nextButton.isVisible = false;
-            infoPopUpProperties.displayPopUp = true;
+        if (mem.gameState.isGameOver) {
+            mem.nextButton.isVisible = false;
+            mem.infoPopUpProperties.displayPopUp = true;
         } else {
-            nextButton.isVisible = true;
-            if (nextButton.isClicked(mouseX, mouseY)) {
+            mem.nextButton.isVisible = true;
+            if (mem.nextButton.isClicked(mouseX, mouseY)) {
                 resetNewGame();
             }
         }
 
     }
-    nextButton.draw();
+    mem.nextButton.draw();
 
     // DEBUG - display FPS
     if (random() > 0.9) {
@@ -224,7 +224,7 @@ function draw() {
     text("FPS: " + fps.toFixed(0), 20, 20);
     text("ERRORS: " + persistentErrors, 20, 40);
 
-    if (gameState.isGameOver) {
+    if (mem.gameState.isGameOver) {
         initShowInfoPopUp();
     }
 
@@ -243,15 +243,15 @@ function checkInfoPopUpClosed() {
         initHideInfoPopUp();
 
         // workaround to not display final pop up anymore.
-        infoPopUpProperties.showPropertiesInitialized = true;
+        mem.infoPopUpProperties.showPropertiesInitialized = true;
     }
 }
 
 
 //TODO: extract all there common variables in a separate commons JS.
 function drawPopUp() {
-    if (cardPopUpProperties.displayPopUp) {
-        let scaleRatio = calculatePopUpScaleRatio(cardPopUpProperties);
+    if (mem.cardPopUpProperties.displayPopUp) {
+        let scaleRatio = calculatePopUpScaleRatio(mem.cardPopUpProperties);
 
         push();
         noStroke();
@@ -263,81 +263,81 @@ function drawPopUp() {
         pop();
 
         if (scaleRatio === 0) {
-            cardPopUpProperties.displayPopUp = false;
+            mem.cardPopUpProperties.displayPopUp = false;
         }
     }
 }
 
 //TODO: extract all there common variables in a separate commons JS.
-function initShowPopUp(placeholder) {
-    if (!cardPopUpProperties.showPropertiesInitialized) {
+function initShowPopUp() {
+    if (!mem.cardPopUpProperties.showPropertiesInitialized) {
 
-        cardPopUpProperties.currentSize = 0;
-        cardPopUpProperties.position = 0;
-        cardPopUpProperties.velocity = 2;
-        cardPopUpProperties.targetRadius = 30;
-        cardPopUpProperties.elasticity = 0.07;
-        cardPopUpProperties.dynamicRadius = 0;
-        cardPopUpProperties.inc = 3;
+        mem.cardPopUpProperties.currentSize = 0;
+        mem.cardPopUpProperties.position = 0;
+        mem.cardPopUpProperties.velocity = 2;
+        mem.cardPopUpProperties.targetRadius = 30;
+        mem.cardPopUpProperties.elasticity = 0.07;
+        mem.cardPopUpProperties.dynamicRadius = 0;
+        mem.cardPopUpProperties.inc = 3;
 
-        cardPopUpProperties.showPropertiesInitialized = true;
-        cardPopUpProperties.hidePropertiesInitialized = false;
-        cardPopUpProperties.displayPopUp = true;
+        mem.cardPopUpProperties.showPropertiesInitialized = true;
+        mem.cardPopUpProperties.hidePropertiesInitialized = false;
+        mem.cardPopUpProperties.displayPopUp = true;
     }
 }
 
 //TODO: extract all there common variables in a separate commons JS.
 function initHidePopUp() {
-    if (!cardPopUpProperties.hidePropertiesInitialized) {
-        cardPopUpProperties.currentSize = 0;
-        cardPopUpProperties.position = 20;
-        cardPopUpProperties.velocity = 12;
-        cardPopUpProperties.targetRadius = 10;
-        cardPopUpProperties.elasticity = 0.05;
-        cardPopUpProperties.dynamicRadius = 0;
-        cardPopUpProperties.inc = 0;
+    if (!mem.cardPopUpProperties.hidePropertiesInitialized) {
+        mem.cardPopUpProperties.currentSize = 0;
+        mem.cardPopUpProperties.position = 20;
+        mem.cardPopUpProperties.velocity = 12;
+        mem.cardPopUpProperties.targetRadius = 10;
+        mem.cardPopUpProperties.elasticity = 0.05;
+        mem.cardPopUpProperties.dynamicRadius = 0;
+        mem.cardPopUpProperties.inc = 0;
 
-        cardPopUpProperties.hidePropertiesInitialized = true;
-        cardPopUpProperties.showPropertiesInitialized = false;
+        mem.cardPopUpProperties.hidePropertiesInitialized = true;
+        mem.cardPopUpProperties.showPropertiesInitialized = false;
     }
 }
 
 
 function initShowInfoPopUp() {
-    if (!infoPopUpProperties.showPropertiesInitialized) {
-        infoPopUpProperties.dynamicRadius = 10;
-        infoPopUpProperties.targetRadius = 30;
-        infoPopUpProperties.currentSize = 20;
-        infoPopUpProperties.elasticity = 0.07;
-        infoPopUpProperties.velocity = 2;
-        infoPopUpProperties.position = 0;
-        infoPopUpProperties.inc = 3;
+    if (!mem.infoPopUpProperties.showPropertiesInitialized) {
+        mem.infoPopUpProperties.dynamicRadius = 10;
+        mem.infoPopUpProperties.targetRadius = 30;
+        mem.infoPopUpProperties.currentSize = 20;
+        mem.infoPopUpProperties.elasticity = 0.07;
+        mem.infoPopUpProperties.velocity = 2;
+        mem.infoPopUpProperties.position = 0;
+        mem.infoPopUpProperties.inc = 3;
 
-        infoPopUpProperties.displayPopUp = true;
-        infoPopUpProperties.showPropertiesInitialized = true;
-        infoPopUpProperties.hidePropertiesInitialized = false;
+        mem.infoPopUpProperties.displayPopUp = true;
+        mem.infoPopUpProperties.showPropertiesInitialized = true;
+        mem.infoPopUpProperties.hidePropertiesInitialized = false;
     }
 }
 
 
 function initHideInfoPopUp() {
-    if (!infoPopUpProperties.hidePropertiesInitialized) {
-        infoPopUpProperties.dynamicRadius = 0;
-        infoPopUpProperties.targetRadius = 10;
-        infoPopUpProperties.currentSize = 0;
-        infoPopUpProperties.elasticity = 0.05;
-        infoPopUpProperties.velocity = 12;
-        infoPopUpProperties.position = 20;
-        infoPopUpProperties.inc = 0;
+    if (!mem.infoPopUpProperties.hidePropertiesInitialized) {
+        mem.infoPopUpProperties.dynamicRadius = 0;
+        mem.infoPopUpProperties.targetRadius = 10;
+        mem.infoPopUpProperties.currentSize = 0;
+        mem.infoPopUpProperties.elasticity = 0.05;
+        mem.infoPopUpProperties.velocity = 12;
+        mem.infoPopUpProperties.position = 20;
+        mem.infoPopUpProperties.inc = 0;
 
-        infoPopUpProperties.showPropertiesInitialized = false;
-        infoPopUpProperties.hidePropertiesInitialized = true;
+        mem.infoPopUpProperties.showPropertiesInitialized = false;
+        mem.infoPopUpProperties.hidePropertiesInitialized = true;
     }
 }
 
 function drawInfoPopUp(posx, posy) {
-    if (infoPopUpProperties.displayPopUp) {
-        let scaleRatio = calculatePopUpScaleRatio(infoPopUpProperties);
+    if (mem.infoPopUpProperties.displayPopUp) {
+        let scaleRatio = calculatePopUpScaleRatio(mem.infoPopUpProperties);
 
         push();
         noStroke();
@@ -363,7 +363,7 @@ function drawInfoPopUp(posx, posy) {
         pop();
 
         if (scaleRatio === 0) {
-            infoPopUpProperties.displayPopUp = false;
+            mem.infoPopUpProperties.displayPopUp = false;
         }
 
     }
@@ -397,7 +397,7 @@ function getWinStarSettings() {
 
 //TODO: extract all there common variables in a separate commons JS.
 function drawRotatingStar(posx, posy, isWinStart) {
-    startRotationParam += STAR_ROTATION_SPEED;
+    mem.startRotationParam += mem.STAR_ROTATION_SPEED;
 
     if (isWinStart) {
         fill(255, 215, 0);
@@ -407,16 +407,16 @@ function drawRotatingStar(posx, posy, isWinStart) {
 
     noStroke();
     beginShape();
-    vertex(posx + STAR_RADIUS * cos(TWO_PI * 0/5 + startRotationParam),posy + STAR_RADIUS * sin(TWO_PI * 0/5 + startRotationParam));
-    vertex(posx + STAR_RADIUS * cos(TWO_PI * 2/5 + startRotationParam),posy + STAR_RADIUS * sin(TWO_PI * 2/5 + startRotationParam));
-    vertex(posx + STAR_RADIUS * cos(TWO_PI * 4/5 + startRotationParam),posy + STAR_RADIUS * sin(TWO_PI * 4/5 + startRotationParam));
-    vertex(posx + STAR_RADIUS * cos(TWO_PI * 1/5 + startRotationParam),posy + STAR_RADIUS * sin(TWO_PI * 1/5 + startRotationParam));
-    vertex(posx + STAR_RADIUS * cos(TWO_PI * 3/5 + startRotationParam),posy + STAR_RADIUS * sin(TWO_PI * 3/5 + startRotationParam));
+    vertex(posx + mem.STAR_RADIUS * cos(TWO_PI * 0/5 + mem.startRotationParam),posy + mem.STAR_RADIUS * sin(TWO_PI * 0/5 + mem.startRotationParam));
+    vertex(posx + mem.STAR_RADIUS * cos(TWO_PI * 2/5 + mem.startRotationParam),posy + mem.STAR_RADIUS * sin(TWO_PI * 2/5 + mem.startRotationParam));
+    vertex(posx + mem.STAR_RADIUS * cos(TWO_PI * 4/5 + mem.startRotationParam),posy + mem.STAR_RADIUS * sin(TWO_PI * 4/5 + mem.startRotationParam));
+    vertex(posx + mem.STAR_RADIUS * cos(TWO_PI * 1/5 + mem.startRotationParam),posy + mem.STAR_RADIUS * sin(TWO_PI * 1/5 + mem.startRotationParam));
+    vertex(posx + mem.STAR_RADIUS * cos(TWO_PI * 3/5 + mem.startRotationParam),posy + mem.STAR_RADIUS * sin(TWO_PI * 3/5 + mem.startRotationParam));
     endShape(CLOSE);
 }
 
 function initializeNewImage() {
-    let img = random(images);
+    let img = random(mem.images);
 
     let cropSize1 = 300;
     let crop1 = new CropSettings(cropSize1, cropSize1, img.width / 2 - cropSize1 / 2, img.height / 2 - cropSize1 / 2);
@@ -425,22 +425,22 @@ function initializeNewImage() {
     let cropSize3 = 1800; // whole image reveal
     let crop3 = new CropSettings(cropSize3, cropSize3, img.width / 2 - cropSize3 / 2, img.height / 2 - cropSize3 / 2);
 
-    maskImg = new MaskImage(img, 2, crop1, crop2, crop3);
+    mem.maskImg = new MaskImage(img, 2, crop1, crop2, crop3);
 
-    nextButton = new Button(width - 100, height/2, 50, 50);
+    mem.nextButton = new Button(width - 100, height/2, 50, 50);
 }
 
 function initializeIcons() {
-    icons.push(new Icon(1, (width / 2), height / 2, 1, -0.33));
-    icons.push(new Icon(2, (width / 2), height / 2, -1, -0.33));
-    icons.push(new Icon(3, width / 2, height / 2, 0.33, -1));
-    icons.push(new Icon(4, (width / 2), height / 2, 0.33, 1));
-    icons.push(new Icon(5, (width / 2), height / 2, -0.33, -1));
-    icons.push(new Icon(6, (width / 2), height / 2, -0.33, 1));
-    icons.push(new Icon(7, (width / 2), height / 2, 1, 0.33));
-    icons.push(new Icon(8, (width / 2), height / 2, -1, 0.33));
+    mem.icons.push(new Icon(1, (width / 2), height / 2, 1, -0.33));
+    mem.icons.push(new Icon(2, (width / 2), height / 2, -1, -0.33));
+    mem.icons.push(new Icon(3, width / 2, height / 2, 0.33, -1));
+    mem.icons.push(new Icon(4, (width / 2), height / 2, 0.33, 1));
+    mem.icons.push(new Icon(5, (width / 2), height / 2, -0.33, -1));
+    mem.icons.push(new Icon(6, (width / 2), height / 2, -0.33, 1));
+    mem.icons.push(new Icon(7, (width / 2), height / 2, 1, 0.33));
+    mem.icons.push(new Icon(8, (width / 2), height / 2, -1, 0.33));
 
-    originalNumberOfIcons = icons.length;
+    mem.gameState.originalNumberOfIcons = mem.icons.length;
 }
 
 
@@ -553,7 +553,7 @@ class MaskImage {
 
     // check if reveal should be done and update settings accordingly.
     checkZoom() {
-        if (this.zoomLevel === ERRORS_LEVEL_1) {
+        if (this.zoomLevel === mem.ERRORS_LEVEL_1) {
             if (this.cropWidth < this.crop2Settings.cropWidth) {
                 this.cropWidth += this.zoomStep;
             }
@@ -568,7 +568,7 @@ class MaskImage {
             }
         }
 
-        if (this.zoomLevel >= ERRORS_LEVEL_2) {
+        if (this.zoomLevel >= mem.ERRORS_LEVEL_2) {
             if (this.cropWidth < this.crop3Settings.cropWidth) {
                 this.cropWidth += this.zoomStep;
             }
@@ -586,32 +586,32 @@ class MaskImage {
 }
 
 function initDisplayMatchAnimation(icon) {
-    iconMatchProperties.shouldDisplay = true;
-    iconMatchProperties.placeholder = icon;
-    iconMatchProperties.particleAnimationDuration = iconMatchProperties.WIN_PARTICLE_ANIMATION_DURATION;
+    mem.iconMatchProperties.shouldDisplay = true;
+    mem.iconMatchProperties.placeholder = icon;
+    mem.iconMatchProperties.particleAnimationDuration = mem.iconMatchProperties.WIN_PARTICLE_ANIMATION_DURATION;
 }
 
 function generateMatchParticles() {
-    if (iconMatchProperties.shouldDisplay) {
-        iconMatchProperties.particleAnimationDuration--;
-        for (let i = 0; i < iconMatchProperties.numberOfParticles; i++) {
-            let particle = new Particle(iconMatchProperties.placeholder.posx, iconMatchProperties.placeholder.posy);
-            iconMatchProperties.particles.push(particle);
+    if (mem.iconMatchProperties.shouldDisplay) {
+        mem.iconMatchProperties.particleAnimationDuration--;
+        for (let i = 0; i < mem.iconMatchProperties.numberOfParticles; i++) {
+            let particle = new Particle(mem.iconMatchProperties.placeholder.posx, mem.iconMatchProperties.placeholder.posy);
+            mem.iconMatchProperties.particles.push(particle);
         }
 
-        if (iconMatchProperties.particleAnimationDuration < 0) {
-            iconMatchProperties.shouldDisplay = false;
+        if (mem.iconMatchProperties.particleAnimationDuration < 0) {
+            mem.iconMatchProperties.shouldDisplay = false;
         }
     }
 
     // Update and display each particle
-    for (let i = iconMatchProperties.particles.length - 1; i >= 0; i--) {
-        iconMatchProperties.particles[i].update();
-        iconMatchProperties.particles[i].display();
+    for (let i = mem.iconMatchProperties.particles.length - 1; i >= 0; i--) {
+        mem.iconMatchProperties.particles[i].update();
+        mem.iconMatchProperties.particles[i].display();
 
         // Remove particles that are no longer visible
-        if (iconMatchProperties.particles[i].isOffScreen()) {
-            iconMatchProperties.particles.splice(i, 1);
+        if (mem.iconMatchProperties.particles[i].isOffScreen()) {
+            mem.iconMatchProperties.particles.splice(i, 1);
         }
     }
 }
@@ -672,8 +672,8 @@ class Icon {
         this.dispersed = false;
         this.animatedValueDisperse = -0.1; // helper for disperse animation.
 
-        this.easeInFactorDisperse = map(disperseX, -1, 1, EASE_IN_FACTOR_DISPERSE_LEFT_LIMIT, EASE_IN_FACTOR_DISPERSE_RIGHT_LIMIT); // how far the card moves posX after disperse.
-        this.posyOffsetDisperse = map(disperseY, -1, 1, POSY_OFFSET_DISPERSE_LEFT_LIMIT, POSY_OFFSET_DISPERSE_RIGHT_LIMIT); // how far the card moves posY after disperse
+        this.easeInFactorDisperse = map(disperseX, -1, 1, mem.EASE_IN_FACTOR_DISPERSE_LEFT_LIMIT, mem.EASE_IN_FACTOR_DISPERSE_RIGHT_LIMIT); // how far the card moves posX after disperse.
+        this.posyOffsetDisperse = map(disperseY, -1, 1, mem.POSY_OFFSET_DISPERSE_LEFT_LIMIT, mem.POSY_OFFSET_DISPERSE_RIGHT_LIMIT); // how far the card moves posY after disperse
 
         this.wrongIconSelected = false;
         this.correctIconSelected = false;

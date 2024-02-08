@@ -110,21 +110,23 @@ function drawInfoPopUp(posx, posy, gameProp) {
 
 
 
-function initShowPopUp(placeholder, tl) {
-    if (!tl.cardPopUpProperties.showPropertiesInitialized) {
-        tl.cardMatchProperties.placeholder = placeholder; // this is saved in the more general cardMatchProperties object.
+function initShowPopUp(gameProp, placeholder) {
+    if (!gameProp.cardPopUpProperties.showPropertiesInitialized) {
+        if (placeholder !== undefined){ // timeline setting.
+            gameProp.cardMatchProperties.placeholder = placeholder; // this is saved in the more general cardMatchProperties object.
+        }
 
-        tl.cardPopUpProperties.currentSize = 0;
-        tl.cardPopUpProperties.position = 0;
-        tl.cardPopUpProperties.velocity = 2;
-        tl.cardPopUpProperties.targetRadius = 30;
-        tl.cardPopUpProperties.elasticity = 0.07;
-        tl.cardPopUpProperties.dynamicRadius = 0;
-        tl.cardPopUpProperties.inc = 3;
+        gameProp.cardPopUpProperties.currentSize = 0;
+        gameProp.cardPopUpProperties.position = 0;
+        gameProp.cardPopUpProperties.velocity = 2;
+        gameProp.cardPopUpProperties.targetRadius = 30;
+        gameProp.cardPopUpProperties.elasticity = 0.07;
+        gameProp.cardPopUpProperties.dynamicRadius = 0;
+        gameProp.cardPopUpProperties.inc = 3;
 
-        tl.cardPopUpProperties.showPropertiesInitialized = true;
-        tl.cardPopUpProperties.hidePropertiesInitialized = false;
-        tl.cardPopUpProperties.displayPopUp = true;
+        gameProp.cardPopUpProperties.showPropertiesInitialized = true;
+        gameProp.cardPopUpProperties.hidePropertiesInitialized = false;
+        gameProp.cardPopUpProperties.displayPopUp = true;
     }
 }
 
