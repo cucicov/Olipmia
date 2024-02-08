@@ -1,239 +1,222 @@
 let fps = 0;
 let touchTargets = [];
 
+let tl = {
 // this controls the limits of within which cards can move on posX
-const EASE_IN_FACTOR_DISPERSE_LEFT_LIMIT = -800;
-const EASE_IN_FACTOR_DISPERSE_RIGHT_LIMIT = 800;
+    EASE_IN_FACTOR_DISPERSE_LEFT_LIMIT: -800,
+    EASE_IN_FACTOR_DISPERSE_RIGHT_LIMIT: 800,
 
-// this controls the limits within which cards can move on posY
-const POSY_OFFSET_DISPERSE_LEFT_LIMIT = -60;
-const POSY_OFFSET_DISPERSE_RIGHT_LIMIT = 30;
+    // this controls the limits within which cards can move on posY
+    POSY_OFFSET_DISPERSE_LEFT_LIMIT: -60,
+    POSY_OFFSET_DISPERSE_RIGHT_LIMIT: 30,
 
-// position for the initial card starting the game
-let POSY_INITIAL_CARD;
-let POSX_INITIAL_CARD;
+    // position for the initial card starting the game
+    POSY_INITIAL_CARD: undefined,
+    POSX_INITIAL_CARD: undefined,
 
-// position for the deck, how far to enter the canvas.
-let POSY_INITIAL_DECK;
+    // position for the deck, how far to enter the canvas.
+    POSY_INITIAL_DECK: undefined,
 
-// card sizes
-let CARD_WIDTH = 240;
-let CARD_HEIGHT = 500;
-let PLACEHOLDER_WIDTH = 260;
-let PLACEHOLDER_HEIGHT = 520;
+    // card sizes
+    CARD_WIDTH: 240,
+    CARD_HEIGHT: 500,
+    PLACEHOLDER_WIDTH: 260,
+    PLACEHOLDER_HEIGHT: 520,
 
+    //  ----- ERRORS -----
+    errors: 0,
+    persistentErrors: -1,
+    historyErrors: -1,
+    // -------------------------------
 
-//  ----- ERRORS -----
-let errors = 0;
-let persistentErrors = -1;
-let historyErrors = -1;
-// -------------------------------
+    //  ----- CARDS && PLACEHOLDERS -----
+    selectedCard: undefined,
+    cards: [],
+    placeholders: [],
 
-//  ----- CARDS && PLACEHOLDERS -----
-let selectedCard;
-let cards = [];
-let placeholders = [];
+    undiscoveredCardIds: new Set(),
+    discoveredPlaceholders: new Set(),
+    // -------------------------------
 
-let undiscoveredCardIds = new Set();
-let discoveredPlaceholders = new Set();
-// -------------------------------
+    // ----- STARS VARIABLES -----
+    STAR_ROTATION_SPEED: 0.01,
+    STAR_RADIUS: 145,
 
-// ----- STARS VARIABLES -----
-const STAR_ROTATION_SPEED = 0.01;
-const STAR_RADIUS = 145;
-;
-let startRotationParam = 0;
-// -------------------------------
+    startRotationParam: 0,
+    // -------------------------------
 
-
-
-// ----- POP-UP variables -----
-let cardPopUpProperties = {
-    dynamicRadius: 0,
-    targetRadius: 30,
-    currentSize: 0,
-    elasticity: 0.07,
-    velocity: 2,
-    position: 0,
-    inc: 3,
-    displayPopUp: false,
-    showPropertiesInitialized: false,
-    hidePropertiesInitialized: false,
-}
-
-let infoPopUpProperties = {
-    dynamicRadius: 10,
-    targetRadius: 30,
-    currentSize: 20,
-    elasticity: 0.07,
-    velocity: 2,
-    position: 0,
-    inc: 3,
-    displayPopUp: false,
-    showPropertiesInitialized: false,
-    hidePropertiesInitialized: false,
-}
-// -------------------------------
-
-// ----- MATCH/WIN animation variables -----
-let cardMatchProperties = {
-    WIN_PARTICLE_ANIMATION_DURATION: 2, // duration for generating particles.
-    particles: [], // list of particles for card match animation.
-    shouldDisplay: false,
-    placeholder: -1, // placeholder to use in positioning card match animation.
-    particleAnimationDuration: this.WIN_PARTICLE_ANIMATION_DURATION,
-    numberOfParticles: 55, // number of particles.
-}
-
-let winProperties = {
-    particles: [], // list of particles for win animation.
-    finalWin: false, // reached the final stage where all cards match.
-    posx: undefined,
-    posy: undefined,
-    timeoutTillStart: 30, // delay before starting the final win animation.
-    placeholderModifier: {
-        red: 0, // color of the placeholder when scrolling through matching cards at the end.
-        green: 206,
-        blue: 209,
-        stroke: 0, // remove stroke at the end when changing placeholder colors.
-        scale: 2, // scale placeholder while scrolling through matching cards at the end.
+    // ----- POP-UP variables -----
+    cardPopUpProperties: {
+        dynamicRadius: 0,
+        targetRadius: 30,
+        currentSize: 0,
+        elasticity: 0.07,
+        velocity: 2,
+        position: 0,
+        inc: 3,
+        displayPopUp: false,
+        showPropertiesInitialized: false,
+        hidePropertiesInitialized: false,
     },
-    winStarHorizontalSpeed: 5,
+    infoPopUpProperties: {
+        dynamicRadius: 10,
+        targetRadius: 30,
+        currentSize: 20,
+        elasticity: 0.07,
+        velocity: 2,
+        position: 0,
+        inc: 3,
+        displayPopUp: false,
+        showPropertiesInitialized: false,
+        hidePropertiesInitialized: false,
+    },
+    // -------------------------------
+
+    // ----- MATCH/WIN animation variables -----
+    cardMatchProperties: {
+        WIN_PARTICLE_ANIMATION_DURATION: 2, // duration for generating particles.
+        particles: [], // list of particles for card match animation.
+        shouldDisplay: false,
+        placeholder: -1, // placeholder to use in positioning card match animation.
+        particleAnimationDuration: this.WIN_PARTICLE_ANIMATION_DURATION,
+        numberOfParticles: 55, // number of particles.
+    },
+    winProperties: {
+        particles: [], // list of particles for win animation.
+        finalWin: false, // reached the final stage where all cards match.
+        posx: undefined,
+        posy: undefined,
+        timeoutTillStart: 30, // delay before starting the final win animation.
+        placeholderModifier: {
+            red: 0, // color of the placeholder when scrolling through matching cards at the end.
+            green: 206,
+            blue: 209,
+            stroke: 0, // remove stroke at the end when changing placeholder colors.
+            scale: 2, // scale placeholder while scrolling through matching cards at the end.
+        },
+        winStarHorizontalSpeed: 5,
+    }
+
 }
 
 // -------------------------------
 
 function setup() {
+    initializeTimeline();
+}
+
+function draw() {
+    drawTimeline();
+}
+
+function initializeTimeline() {
     createCanvas(2160, 3840);
 
-    POSX_INITIAL_CARD = width/2;
-    POSY_INITIAL_CARD = 1300;
-    POSY_INITIAL_DECK = 1300;
+    tl.POSX_INITIAL_CARD = width/2;
+    tl.POSY_INITIAL_CARD = 1300;
+    tl.POSY_INITIAL_DECK = 1300;
 
-    cards.push(new Card(1,(width/2) + 20, height+50, random(-1, - 0.9), random(-1, -0.6)));
-    cards.push(new Card(2, (width/2) + 10, height+40, random(1, 0.8), random(0.6, 1)));
-    cards.push(new Card(3, width/2, height+30, )); // middle card
-    cards.push(new Card(4, (width/2) - 10, height+20, random(-0.5, -0.3), random(0.5, 0.9)));
-    cards.push(new Card(5, (width/2) - 20, height+10, random(-0.2, 0.7), random(1, 0.6)));
-    cards.push(new Card(6, (width/2) - 30, height, random(1, 0.5), random(-1, -0.6)));
-    cards.push(new Card(7, (width/2) - 40, height-10, random(0.0, 0.0), random(-1, 0)));
+    tl.cards.push(new Card(1,(width/2) + 20, height+50, random(-1, - 0.9), random(-1, -0.6)));
+    tl.cards.push(new Card(2, (width/2) + 10, height+40, random(1, 0.8), random(0.6, 1)));
+    tl.cards.push(new Card(3, width/2, height+30, )); // middle card
+    tl.cards.push(new Card(4, (width/2) - 10, height+20, random(-0.5, -0.3), random(0.5, 0.9)));
+    tl.cards.push(new Card(5, (width/2) - 20, height+10, random(-0.2, 0.7), random(1, 0.6)));
+    tl.cards.push(new Card(6, (width/2) - 30, height, random(1, 0.5), random(-1, -0.6)));
+    tl.cards.push(new Card(7, (width/2) - 40, height-10, random(0.0, 0.0), random(-1, 0)));
 
-    placeholders.push(new Placeholder(7,
-        POSX_INITIAL_CARD - PLACEHOLDER_WIDTH * 3 - 48,
-        POSY_INITIAL_CARD,
-        PLACEHOLDER_WIDTH,
-        PLACEHOLDER_HEIGHT,
+    tl.placeholders.push(new Placeholder(7,
+        tl.POSX_INITIAL_CARD - tl.PLACEHOLDER_WIDTH * 3 - 48,
+        tl.POSY_INITIAL_CARD,
+        tl.PLACEHOLDER_WIDTH,
+        tl.PLACEHOLDER_HEIGHT,
         7, 1978, "info card 7"));
-    placeholders.push(new Placeholder(1,
-        POSX_INITIAL_CARD - PLACEHOLDER_WIDTH * 2 - 32,
-        POSY_INITIAL_CARD,
-        PLACEHOLDER_WIDTH,
-        PLACEHOLDER_HEIGHT,
+    tl.placeholders.push(new Placeholder(1,
+        tl.POSX_INITIAL_CARD - tl.PLACEHOLDER_WIDTH * 2 - 32,
+        tl.POSY_INITIAL_CARD,
+        tl.PLACEHOLDER_WIDTH,
+        tl.PLACEHOLDER_HEIGHT,
         1, 1981, "info card 1"));
-    placeholders.push(new Placeholder(2,
-        POSX_INITIAL_CARD - PLACEHOLDER_WIDTH - 16,
-        POSY_INITIAL_CARD,
-        PLACEHOLDER_WIDTH,
-        PLACEHOLDER_HEIGHT,
+    tl.placeholders.push(new Placeholder(2,
+        tl.POSX_INITIAL_CARD - tl.PLACEHOLDER_WIDTH - 16,
+        tl.POSY_INITIAL_CARD,
+        tl.PLACEHOLDER_WIDTH,
+        tl.PLACEHOLDER_HEIGHT,
         2, 1982, "info card 2"));
-    placeholders.push(new Placeholder(3,
-        POSX_INITIAL_CARD,
-        POSY_INITIAL_CARD,
-        PLACEHOLDER_WIDTH,
-        PLACEHOLDER_HEIGHT,
+    tl.placeholders.push(new Placeholder(3,
+        tl.POSX_INITIAL_CARD,
+        tl.POSY_INITIAL_CARD,
+        tl.PLACEHOLDER_WIDTH,
+        tl.PLACEHOLDER_HEIGHT,
         3, 1983, "info card 3"));
-    placeholders.push(new Placeholder(4,
-        POSX_INITIAL_CARD + PLACEHOLDER_WIDTH + 16,
-        POSY_INITIAL_CARD,
-        PLACEHOLDER_WIDTH,
-        PLACEHOLDER_HEIGHT,
+    tl.placeholders.push(new Placeholder(4,
+        tl.POSX_INITIAL_CARD + tl.PLACEHOLDER_WIDTH + 16,
+        tl.POSY_INITIAL_CARD,
+        tl.PLACEHOLDER_WIDTH,
+        tl.PLACEHOLDER_HEIGHT,
         4, 1984, "info card 4"));
-    placeholders.push(new Placeholder(5,
-        POSX_INITIAL_CARD + PLACEHOLDER_WIDTH * 2 + 32,
-        POSY_INITIAL_CARD,
-        PLACEHOLDER_WIDTH,
-        PLACEHOLDER_HEIGHT,
+    tl.placeholders.push(new Placeholder(5,
+        tl.POSX_INITIAL_CARD + tl.PLACEHOLDER_WIDTH * 2 + 32,
+        tl.POSY_INITIAL_CARD,
+        tl.PLACEHOLDER_WIDTH,
+        tl.PLACEHOLDER_HEIGHT,
         5, 1985, "info card 5"));
-    placeholders.push(new Placeholder(6,
-        POSX_INITIAL_CARD + PLACEHOLDER_WIDTH * 3 + 48,
-        POSY_INITIAL_CARD,
-        PLACEHOLDER_WIDTH,
-        PLACEHOLDER_HEIGHT,
+    tl.placeholders.push(new Placeholder(6,
+        tl.POSX_INITIAL_CARD + tl.PLACEHOLDER_WIDTH * 3 + 48,
+        tl.POSY_INITIAL_CARD,
+        tl.PLACEHOLDER_WIDTH,
+        tl.PLACEHOLDER_HEIGHT,
         6, 1986, "info card 6"));
 
     touchTargets.push(new TouchTarget());
 
     //initialize winProperties animation to start at the position of the first placeholder.
-    winProperties.posx = placeholders[0].posx;
-    winProperties.posy = placeholders[0].posy;
+    tl.winProperties.posx = tl.placeholders[0].posx;
+    tl.winProperties.posy = tl.placeholders[0].posy;
 
     // initialize the set of undiscovered cards. this is used in displaying pop-ups.
-    for (let i = 0; i < cards.length; i++) {
-        undiscoveredCardIds.add(cards[i].id);
+    for (let i = 0; i < tl.cards.length; i++) {
+        tl.undiscoveredCardIds.add(tl.cards[i].id);
     }
 }
 
-
-function isGameOver() {
-    return winProperties.particles.length === 0
-        && !winProperties.finalWin
-        && undiscoveredCardIds.size === 0 && cardMatchProperties.particles.length === 0 && winProperties.timeoutTillStart < 0;;
-}
-
-function getWinStarSettings() {
-    let star1Win = historyErrors < 10;
-    let star2Win = historyErrors < 3;
-    let star3Win = historyErrors === 0;
-    return {star1Win, star2Win, star3Win};
-}
-
-function drawWinStars() {
-    if (!infoPopUpProperties.displayPopUp) {
-        let {star1Win, star2Win, star3Win} = getWinStarSettings();
-        drawRotatingStar(width/2 - 400, height/2 + 100, star1Win);
-        drawRotatingStar(width/2, height/2 + 100, star2Win);
-        drawRotatingStar(width/2 + 400, height/2 + 100, star3Win);
-    }
-}
-
-function draw() {
+function drawTimeline() {
     background(220);
 
-    // TODO: remove (guiding lines)
-    line(0, 840, width, 840);
-    line(0, height-840, width, height-840);
+    // guiding lines center of the screen.
+    // line(0, 840, width, 840);
+    // line(0, height-840, width, height-840);
 
     // stroke(1);
 
     // display final win animation behind all cards.
     // check if all cards have been disclosed
-    winProperties.finalWin = undiscoveredCardIds.size === 0
-        && winProperties.posx < placeholders[placeholders.length-1].posx + 10
-        && cardMatchProperties.particles.length === 0;
+    tl.winProperties.finalWin = tl.undiscoveredCardIds.size === 0
+        && tl.winProperties.posx < tl.placeholders[tl.placeholders.length-1].posx + 10
+        && tl.cardMatchProperties.particles.length === 0;
     // in final animation, display win animation for all placeholders and gradually remove them from the discovered set.
-    if (winProperties.finalWin) {
-        winProperties.timeoutTillStart--;
-        if (winProperties.timeoutTillStart < 0) {
+    if (tl.winProperties.finalWin) {
+        tl.winProperties.timeoutTillStart--;
+        if (tl.winProperties.timeoutTillStart < 0) {
 
             // change rect colors progressively as the particles move
-            for (let j=0; j < placeholders.length; j++) {
-                if (winProperties.posx >= placeholders[j].posx - winProperties.winStarHorizontalSpeed
-                    && winProperties.posx <= placeholders[j].posx + winProperties.winStarHorizontalSpeed) {
-                    placeholders[j].rectColorR = winProperties.placeholderModifier.red;
-                    placeholders[j].rectColorG = winProperties.placeholderModifier.green;
-                    placeholders[j].rectColorB = winProperties.placeholderModifier.blue;
-                    placeholders[j].phStroke = winProperties.placeholderModifier.stroke;
-                    placeholders[j].activeCard.scaleFactor = winProperties.placeholderModifier.scale;
+            for (let j=0; j < tl.placeholders.length; j++) {
+                if (tl.winProperties.posx >= tl.placeholders[j].posx - tl.winProperties.winStarHorizontalSpeed
+                    && tl.winProperties.posx <= tl.placeholders[j].posx + tl.winProperties.winStarHorizontalSpeed) {
+                    tl.placeholders[j].rectColorR = tl.winProperties.placeholderModifier.red;
+                    tl.placeholders[j].rectColorG = tl.winProperties.placeholderModifier.green;
+                    tl.placeholders[j].rectColorB = tl.winProperties.placeholderModifier.blue;
+                    tl.placeholders[j].phStroke = tl.winProperties.placeholderModifier.stroke;
+                    tl.placeholders[j].activeCard.scaleFactor = tl.winProperties.placeholderModifier.scale;
                     break;
                 }
             }
 
-            winProperties.posx += winProperties.winStarHorizontalSpeed;
+            tl.winProperties.posx += tl.winProperties.winStarHorizontalSpeed;
         }
-        initShowInfoPopUp();
+        initShowInfoPopUp(tl);
     }
-    if (undiscoveredCardIds.size === 0 && winProperties.timeoutTillStart < 0) {
-        createFinalWinParticlesAnimation(winProperties.posx, placeholders[placeholders.length - 1].posx + 10);
+    if (tl.undiscoveredCardIds.size === 0 && tl.winProperties.timeoutTillStart < 0) {
+        createFinalWinParticlesAnimation(tl.winProperties.posx, tl.placeholders[tl.placeholders.length - 1].posx + 10, tl);
     }
     // -------- END final win animation
 
@@ -255,8 +238,8 @@ function draw() {
 
     let winCard = undefined;
     // initialize and display the cards.
-    for (let i = 0; i < cards.length; i++) {
-        let currentCard = cards[i];
+    for (let i = 0; i < tl.cards.length; i++) {
+        let currentCard = tl.cards[i];
 
         if (!currentCard.initialized){
             currentCard.initialize();
@@ -266,9 +249,9 @@ function draw() {
             currentCard.returnToScatteredPosition();
         } else {
             // display card
-            if (cardMatchProperties.placeholder !== undefined
-                && cardMatchProperties.placeholder.activeCard !== undefined
-                && cardMatchProperties.placeholder.activeCard.id === currentCard.id) {
+            if (tl.cardMatchProperties.placeholder !== undefined
+                && tl.cardMatchProperties.placeholder.activeCard !== undefined
+                && tl.cardMatchProperties.placeholder.activeCard.id === currentCard.id) {
                 winCard = currentCard; // draw this card later, after particles win animation.
             } else {
                 currentCard.draw();
@@ -282,7 +265,7 @@ function draw() {
     if (winCard !== undefined) {
         // avoid win animation on the first card that is already positioned on the right spot.
         if (!winCard.isFirstCard()){
-            generateMatchParticles();
+            generateMatchParticles(tl);
         }
         winCard.draw();
     }
@@ -290,18 +273,14 @@ function draw() {
 
 
     // display pop-ups +++++++++++++++++++++++++++++++++++
-    drawPopUp();
+    drawPopUp(tl);
     // +++++++++++++++++++++++++++++++++++++++
 
 
     // ++++++++ display info dialog +++++++
     if (isGameOver()) { // check if final win animation is over.
-        drawInfoPopUp(width/2, height/2);
-        drawWinStars();
-    }
-
-    if (isGameOver()) {
-
+        drawInfoPopUp(width/2, height/2, tl);
+        drawWinStars(tl);
     }
 
     // ++++++++++++++++++++++++++++++++++++
@@ -313,96 +292,31 @@ function draw() {
     textSize(16);
     fill(0);
     text("FPS: " + fps.toFixed(0), 20, 20);
-    text("ERRORS: " + historyErrors, 20, 40);
+    text("ERRORS: " + tl.historyErrors, 20, 40);
 }
 
-
-function drawRotatingStar(posx, posy, isWinStart) {
-    startRotationParam += STAR_ROTATION_SPEED;
-
-    if (isWinStart) {
-        fill(255, 215, 0);
-    } else {
-        fill(120,120,120);
-    }
-
-    noStroke();
-    beginShape();
-    vertex(posx + STAR_RADIUS * cos(TWO_PI * 0/5 + startRotationParam),posy + STAR_RADIUS * sin(TWO_PI * 0/5 + startRotationParam));
-    vertex(posx + STAR_RADIUS * cos(TWO_PI * 2/5 + startRotationParam),posy + STAR_RADIUS * sin(TWO_PI * 2/5 + startRotationParam));
-    vertex(posx + STAR_RADIUS * cos(TWO_PI * 4/5 + startRotationParam),posy + STAR_RADIUS * sin(TWO_PI * 4/5 + startRotationParam));
-    vertex(posx + STAR_RADIUS * cos(TWO_PI * 1/5 + startRotationParam),posy + STAR_RADIUS * sin(TWO_PI * 1/5 + startRotationParam));
-    vertex(posx + STAR_RADIUS * cos(TWO_PI * 3/5 + startRotationParam),posy + STAR_RADIUS * sin(TWO_PI * 3/5 + startRotationParam));
-    endShape(CLOSE);
-}
-
-function createFinalWinParticlesAnimation(posx, finalPosx) {
-    if (posx < finalPosx) {
-        for (let i = 0; i < 1; i++) {
-            let particle = new Particle(posx, winProperties.posy, true);
-            winProperties.particles.push(particle);
-        }
-    }
-
-    // Update and display each particle
-    for (let i = winProperties.particles.length - 1; i >= 0; i--) {
-        winProperties.particles[i].update();
-        winProperties.particles[i].display();
-
-        // Remove particles that are no longer visible
-        if (winProperties.particles[i].isOffScreen()) {
-            winProperties.particles.splice(i, 1);
-        }
-    }
-}
-
-function initDisplayMatchAnimation(placeholder) {
-    cardMatchProperties.shouldDisplay = true;
-    cardMatchProperties.placeholder = placeholder;
-    cardMatchProperties.particleAnimationDuration = cardMatchProperties.WIN_PARTICLE_ANIMATION_DURATION;
-}
-
-function generateMatchParticles() {
-    if (cardMatchProperties.shouldDisplay) {
-        cardMatchProperties.particleAnimationDuration--;
-        for (let i = 0; i < cardMatchProperties.numberOfParticles; i++) {
-            let particle = new Particle(cardMatchProperties.placeholder.posx, cardMatchProperties.placeholder.posy);
-            cardMatchProperties.particles.push(particle);
-        }
-
-        if (cardMatchProperties.particleAnimationDuration < 0) {
-            cardMatchProperties.shouldDisplay = false;
-        }
-    }
-
-    // Update and display each particle
-    for (let i = cardMatchProperties.particles.length - 1; i >= 0; i--) {
-        cardMatchProperties.particles[i].update();
-        cardMatchProperties.particles[i].display();
-
-        // Remove particles that are no longer visible
-        if (cardMatchProperties.particles[i].isOffScreen()) {
-            cardMatchProperties.particles.splice(i, 1);
-        }
-    }
+function isGameOver() {
+    return tl.winProperties.particles.length === 0
+        && !tl.winProperties.finalWin
+        && tl.undiscoveredCardIds.size === 0 && tl.cardMatchProperties.particles.length === 0 && tl.winProperties.timeoutTillStart < 0;;
 }
 
 
 function checkPlaceholderCards() {
     // reset cards active placeholders and set them later together with the placeholder settings.
-    for (let i = 0; i < cards.length; i++) {
-        cards[i].activePlaceholder = undefined;
+    for (let i = 0; i < tl.cards.length; i++) {
+        tl.cards[i].activePlaceholder = undefined;
     }
 
-    errors = 0;
-    for (let i = 0; i < placeholders.length; i++) {
-        let currentPlaceholder = placeholders[i];
+    tl.errors = 0;
+    for (let i = 0; i < tl.placeholders.length; i++) {
+        let currentPlaceholder = tl.placeholders[i];
         currentPlaceholder.activeCard = undefined;
         currentPlaceholder.draw();
 
         // check if card should be snapped into placeholder.
-        for (let i = 0; i < cards.length; i++) {
-            let currentCard = cards[i];
+        for (let i = 0; i < tl.cards.length; i++) {
+            let currentCard = tl.cards[i];
             if (currentPlaceholder.isCardOver(currentCard) && currentPlaceholder.activeCard === undefined) {
                 // set active card and placeholder to each other.
                 currentPlaceholder.activeCard = currentCard;
@@ -411,12 +325,12 @@ function checkPlaceholderCards() {
                 // if a card has been discovered AND is correct, display pop-up and remove it from the undiscovered set.
                 // this prevents repeated displays of pop-ups over already discovered cards.
                 if (!isAnySelectedCard() && currentPlaceholder.activeCard.id === currentPlaceholder.correctCardId
-                    && undiscoveredCardIds.has(currentCard.id)) {
-                    undiscoveredCardIds.delete(currentCard.id);
-                    discoveredPlaceholders.add(currentPlaceholder);
+                    && tl.undiscoveredCardIds.has(currentCard.id)) {
+                    tl.undiscoveredCardIds.delete(currentCard.id);
+                    tl.discoveredPlaceholders.add(currentPlaceholder);
 
-                    initShowPopUp(currentPlaceholder);
-                    initDisplayMatchAnimation(currentPlaceholder); // display win animation particles.
+                    initShowPopUp(currentPlaceholder, tl);
+                    initDisplayMatchAnimation(currentPlaceholder, tl); // display win animation particles.
                 }
             }
         }
@@ -426,7 +340,7 @@ function checkPlaceholderCards() {
             && currentPlaceholder.activeCard !== undefined
             && currentPlaceholder.activeCard.id !== currentPlaceholder.correctCardId) {
 
-            errors++;
+            tl.errors++;
             currentPlaceholder.activeCard.shouldBeReturned = true;
             currentPlaceholder.showWrongAnimation = true;
             currentPlaceholder.activeCard.activePlaceholder = undefined;
@@ -440,143 +354,8 @@ function checkPlaceholderCards() {
 }
 
 
-function drawPopUp() {
-    if (cardPopUpProperties.displayPopUp) {
-        let scaleRatio = calculatePopUpScaleRatio(cardPopUpProperties);
-
-        push();
-        fill(255);
-        translate(cardMatchProperties.placeholder.posx,
-            cardMatchProperties.placeholder.posy);
-        scale(scaleRatio);
-        rectMode(CENTER);
-        rect(0, 0, 900, 1600, 30);
-        pop();
-
-        if (scaleRatio === 0) {
-            cardPopUpProperties.displayPopUp = false;
-        }
-    }
-}
-
-
-function initShowInfoPopUp() {
-    if (!infoPopUpProperties.showPropertiesInitialized) {
-        infoPopUpProperties.dynamicRadius = 10;
-        infoPopUpProperties.targetRadius = 30;
-        infoPopUpProperties.currentSize = 20;
-        infoPopUpProperties.elasticity = 0.07;
-        infoPopUpProperties.velocity = 2;
-        infoPopUpProperties.position = 0;
-        infoPopUpProperties.inc = 3;
-
-        infoPopUpProperties.displayPopUp = true;
-        infoPopUpProperties.showPropertiesInitialized = true;
-        infoPopUpProperties.hidePropertiesInitialized = false;
-    }
-}
-
-
-function initHideInfoPopUp() {
-    if (!infoPopUpProperties.hidePropertiesInitialized) {
-        infoPopUpProperties.dynamicRadius = 0;
-        infoPopUpProperties.targetRadius = 10;
-        infoPopUpProperties.currentSize = 0;
-        infoPopUpProperties.elasticity = 0.05;
-        infoPopUpProperties.velocity = 12;
-        infoPopUpProperties.position = 20;
-        infoPopUpProperties.inc = 0;
-
-        infoPopUpProperties.showPropertiesInitialized = false;
-        infoPopUpProperties.hidePropertiesInitialized = true;
-    }
-}
-
-function calculatePopUpScaleRatio(properties) {
-    if (properties.dynamicRadius <= 50) {
-        properties.dynamicRadius += properties.inc;
-    }
-
-    // Apply elastic force
-    let force = (properties.targetRadius - properties.currentSize) * properties.elasticity;
-    properties.velocity += force;
-    properties.position += properties.velocity;
-
-    // Update the size
-    properties.currentSize = max(0, properties.position) + properties.dynamicRadius;
-    let scaleRatio = map(properties.currentSize, 0, 52, 0, 0.5);
-    return scaleRatio;
-}
-
-function drawInfoPopUp(posx, posy) {
-    if (infoPopUpProperties.displayPopUp) {
-        let scaleRatio = calculatePopUpScaleRatio(infoPopUpProperties);
-
-        push();
-        noStroke();
-        fill(255);
-        translate(posx, posy);
-        scale(scaleRatio);
-        rectMode(CENTER);
-        rect(0, 0, 2800, 2500, 70);
-        stroke(1);
-        strokeWeight(7);
-
-        // X
-        line(1200, -1150, 1300, -1050);
-        line(1200, -1050, 1300, -1150);
-
-        // stars
-
-        let {star1Win, star2Win, star3Win} = getWinStarSettings();
-        drawRotatingStar(0 - 400, 0 - 880, star1Win);
-        drawRotatingStar(0, 0 - 880, star2Win);
-        drawRotatingStar(0 + 400, 0 - 880, star3Win);
-
-        pop();
-
-        if (scaleRatio === 0) {
-            infoPopUpProperties.displayPopUp = false;
-        }
-
-    }
-}
-
-function initShowPopUp(placeholder) {
-    if (!cardPopUpProperties.showPropertiesInitialized) {
-        cardMatchProperties.placeholder = placeholder; // this is saved in the more general cardMatchProperties object.
-
-        cardPopUpProperties.currentSize = 0;
-        cardPopUpProperties.position = 0;
-        cardPopUpProperties.velocity = 2;
-        cardPopUpProperties.targetRadius = 30;
-        cardPopUpProperties.elasticity = 0.07;
-        cardPopUpProperties.dynamicRadius = 0;
-        cardPopUpProperties.inc = 3;
-
-        cardPopUpProperties.showPropertiesInitialized = true;
-        cardPopUpProperties.hidePropertiesInitialized = false;
-        cardPopUpProperties.displayPopUp = true;
-    }
-}
-
-function initHidePopUp() {
-    if (!cardPopUpProperties.hidePropertiesInitialized) {
-        cardPopUpProperties.currentSize = 0;
-        cardPopUpProperties.position = 20;
-        cardPopUpProperties.velocity = 12;
-        cardPopUpProperties.targetRadius = 10;
-        cardPopUpProperties.elasticity = 0.05;
-        cardPopUpProperties.dynamicRadius = 0;
-        cardPopUpProperties.inc = 0;
-
-        cardPopUpProperties.hidePropertiesInitialized = true;
-        cardPopUpProperties.showPropertiesInitialized = false;
-    }
-}
-
 function drawDiscoveredYears() {
-    for (let item of discoveredPlaceholders) {
+    for (let item of tl.discoveredPlaceholders) {
         fill(0);
         stroke(1);
         strokeWeight(1);
@@ -586,60 +365,33 @@ function drawDiscoveredYears() {
 }
 
 function countPersistentErrors() {
-    if (errors !== persistentErrors && !isAnySelectedCard()) {
-        if (errors > persistentErrors) {
-            historyErrors++;
+    if (tl.errors !== tl.persistentErrors && !isAnySelectedCard()) {
+        if (tl.errors > tl.persistentErrors) {
+            tl.historyErrors++;
         }
-        persistentErrors = errors;
+        tl.persistentErrors = tl.errors;
     }
 }
 
-
 function isAnySelectedCard() {
-    return selectedCard !== undefined;
+    return tl.selectedCard !== undefined;
 }
 
 function clearSelectedCard() {
-    selectedCard = undefined;
+    tl.selectedCard = undefined;
 }
 
-function checkInfoPopUpClosed() {
-    print(mouseX + ":" + mouseY);
-    if (mouseX > 1680 && mouseX < 1730 && mouseY < 1400 && mouseY > 1340) {
-        initHideInfoPopUp();
-    }
-}
 
-function touchStarted() {
-    // decide order of the cards based on mouseposition ------
-    if (!isAnySelectedCard()) {
-        for (let i = 0; i < cards.length; i++) {
-            let activeCard = cards[i];
-            if (activeCard.isActive(touchTargets[0].x, touchTargets[0].y)) {
-                cards.splice(i, 1);
-                cards.push(activeCard);
-                selectedCard = activeCard;
-                // straighten the selected card
-                selectedCard.resetRotation(true);
-                // break;
-            }
-        }
+// *********** MOUSE AND TOUCH EVENTS **************************
 
-        // clear active pop-up if any.
-        initHidePopUp();
-    }
-
-    checkInfoPopUpClosed();
-
-}
 // desktop support
 function mousePressed() {
     touchStarted();
 }
 
 function touchEnded() {
-    for (let i = 0; i < cards.length; i++) {
-        cards[i].resetRotation(false);
+    for (let i = 0; i < tl.cards.length; i++) {
+        tl.cards[i].resetRotation(false);
     }
     clearSelectedCard();
 }
@@ -651,8 +403,8 @@ function mouseReleased() {
 function touchMoved(){
     touchStarted();
     if (isAnySelectedCard()) {
-        selectedCard.posx = touchTargets[0].x;
-        selectedCard.posy = touchTargets[0].y;
+        tl.selectedCard.posx = touchTargets[0].x;
+        tl.selectedCard.posy = touchTargets[0].y;
     }
 }
 
@@ -660,396 +412,30 @@ function mouseDragged() {
     touchMoved();
 }
 
+function touchStarted() {
+    // decide order of the cards based on mouseposition ------
+    if (!isAnySelectedCard()) {
+        for (let i = 0; i < tl.cards.length; i++) {
+            let activeCard = tl.cards[i];
+            if (activeCard.isActive(touchTargets[0].x, touchTargets[0].y)) {
+                tl.cards.splice(i, 1);
+                tl.cards.push(activeCard);
+                tl.selectedCard = activeCard;
+                // straighten the selected card
+                tl.selectedCard.resetRotation(true);
+                // break;
+            }
+        }
 
-//// CLASSES <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-class TouchTarget {
-    constructor() {
-        this.x = 0;
-        this.y = 0;
+        // clear active pop-up if any.
+        initHidePopUp(tl);
     }
+
+    checkInfoPopUpClosed(tl);
+
 }
 
-class Placeholder {
-    /*
-    * @param id - unique id of the placeholder
-    * @param posx - position of the placeholder
-    * @param posy - position of the placeholder
-    * @param width - dimensions of the placeholder
-    * @param height - dimensions of the placeholder
-    * @param cardId - the correct card id to be associated with the placeholder.
-    * @param year - year associated with the card of the placeholder.
-    * @param info - the correct card id to be associated with the placeholder.
-     */
-    constructor(id, posx, posy, width, height, cardId, year, info) {
-        this.id = id;
-        this.posx = posx;
-        this.posy = posy;
-        this.width = width;
-        this.height = height;
-        this.correctCardId = cardId; // correct card id.
-
-        this.activeCard = 0; // actively associated card.
-
-        // INFO
-        this.year = year;
-        this.info = info;
-
-        // UTILITIES
-        this.showWrongAnimation = false;
-        this.wrongAnimationAmplitude = 50;
-        this.wrongAnimationFrequency = 0.07;
-        this.initialPosy = posy; // keep original position for wrong animation.
-        this.internalFrameCount = 0;
-        this.GRAY_COLOR_TINT = 200;
-        this.rectColorR = this.GRAY_COLOR_TINT;
-        this.rectColorG = this.GRAY_COLOR_TINT;
-        this.rectColorB = this.GRAY_COLOR_TINT;
-        this.phStroke = 1;
-
-    }
-
-    isCardOver(activeCard) {
-        if (this.posx > (activeCard.posx - activeCard.width/2) &&
-            this.posx < (activeCard.posx + activeCard.width/2) &&
-            this.posy > (activeCard.posy - activeCard.height/2) &&
-            this.posy < (activeCard.posy + activeCard.height/2)) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    draw() {
-        // check if should display wrong card animation on placeholder.
-        this.checkWrongCardAnimation();
-
-        rectMode(CENTER);
-        stroke(this.phStroke);
-        strokeWeight(this.phStroke);
-        fill(this.rectColorR, this.rectColorG, this.rectColorB);
-        rect(this.posx, this.posy, this.width, this.height);
-    }
-
-    checkWrongCardAnimation() {
-        this.internalFrameCount++;
-        if (this.showWrongAnimation) {
-            if (this.internalFrameCount > 0) {
-                let sinParam = sin(this.internalFrameCount * this.wrongAnimationFrequency);
-
-                // modify also placeholder fill value.
-                this.rectColorR = this.GRAY_COLOR_TINT + sinParam * 50;
-                this.rectColorG = this.GRAY_COLOR_TINT - sinParam * 100;
-                this.rectColorB = this.GRAY_COLOR_TINT - sinParam * 100;
-
-                this.posy = this.initialPosy + this.wrongAnimationAmplitude * sinParam;
-
-                if (this.internalFrameCount * this.wrongAnimationFrequency >= PI) {
-                    this.showWrongAnimation = false; // Stop the animation when it completes one full cycle
-                    this.posy = this.initialPosy;
-                }
-            }
-        } else {
-            this.internalFrameCount = -25; // delay before starting the wrong animation.
-        }
-    }
-}
-
-class Particle {
-    constructor(x, y, multicolor) {
-        this.x = x;
-        this.y = y;
-        this.alpha = 255;
-        if (multicolor) {
-            this.color = color(random(0, 120), random(80, 220), random(180, 255));
-            this.vx = random(-17, 17);
-            this.vy = random(-17, 17);
-            this.scaleFactor = 0.1;
-            this.size = random(10, 50);
-            this.alphaFactor = 3;
-            this.gravity = 0; // Gravity force
-        } else {
-            this.color = color(random([[255, 236, 139], [255, 215, 0], [184, 134, 11], [218, 165, 32], [238, 232, 170]]));
-            this.vx = random(-15, 15);
-            this.vy = random(-15, 15);
-            this.scaleFactor = 0.5;
-            this.size = random(10, 50);
-            this.alphaFactor = 3;
-            this.gravity = 0.07; // Gravity force
-        }
-    }
-
-    update() {
-        this.vy += this.gravity; // Apply gravity
-        this.x += this.vx;
-        this.y += this.vy;
-        this.alpha -= this.alphaFactor;
-        this.size -= this.scaleFactor;
-    }
-
-    display() {
-        noStroke();
-        // fill(this.color.levels[0], this.color.levels[1], this.color.levels[2], this.alpha);
-        fill(255, 255, 255, this.alpha);
-        // fill(255);
-        stroke(0);
-        strokeWeight(1);
-        // ellipse(this.x, this.y, random(5,10), random(5,10));
-        drawStar(this.x, this.y, this.size, 5); // Draw a 5-pointed star
-    }
-
-    isOffScreen() {
-        return this.size < 0 || this.y > height; // Include condition for off the bottom of the screen
-    }
-}
-
-function drawStar(x, y, radius, npoints) {
-    let angle = TWO_PI / npoints;
-    let halfAngle = angle / 2;
-    beginShape();
-    for (let a = -PI/2; a < TWO_PI-PI/2; a += angle) {
-        let sx = x + cos(a) * radius;
-        let sy = y + sin(a) * radius;
-        vertex(sx, sy);
-        sx = x + cos(a + halfAngle) * (radius / 2); // Adjust size of inner vertices
-        sy = y + sin(a + halfAngle) * (radius / 2);
-        vertex(sx, sy);
-    }
-    endShape(CLOSE);
-}
-
-
-
-class Card {
-
-    /*
-    * @param id - unique id of the card
-    * @param posx - initial position of the card
-    * @param posy - initial position of the card
-    * @param disperseX - range (-1, 1)
-    * @param disperseY - range (-1, 1)
-     */
-    constructor(id, posx, posy, disperseX, disperseY) {
-        this.id = id;
-        this.posx = posx;
-        this.posy = posy;
-        this.width = CARD_WIDTH;
-        this.height = CARD_HEIGHT;
-
-        this.initialPosY = posy;
-        this.initialPosYAfterScatter = posy;
-        this.initialPosX = posx;
-        this.initialPosXAfterScatter = posx;
-        this.initialized = false;
-        this.dispersed = false;
-        this.shouldBeReturned = false; // flag for controlling the return to initial position card animation.
-        this.activePlaceholder = undefined; // id of the actively associated placeholder the card is on.
-        this.animatedValueInitialization = -0.1; // helper for initialization animation.
-        this.animatedValueDisperse = -0.1; // helper for disperse animation.
-        this.rotationAngle = random(5, 25); // rotation of the card at the disperse action.
-        this.rotationDirectionClockwise = random() > 0.5; // randomize the rotation direction.
-
-        this.easeInFactorInitialization = POSY_INITIAL_DECK; // how far the card moves at the initialization.
-
-        // this.easeInFactorDisperse = random(-150, 150); // how far the card moves posX after disperse.
-        // this.posyOffsetDisperse = random(-6, 6); // how far the card moves posY after disperse
-        if (disperseX !== undefined && disperseY !== undefined){
-            this.easeInFactorDisperse = map(disperseX, -1, 1, EASE_IN_FACTOR_DISPERSE_LEFT_LIMIT, EASE_IN_FACTOR_DISPERSE_RIGHT_LIMIT); // how far the card moves posX after disperse.
-            this.posyOffsetDisperse = map(disperseY, -1, 1, POSY_OFFSET_DISPERSE_LEFT_LIMIT, POSY_OFFSET_DISPERSE_RIGHT_LIMIT); // how far the card moves posY after disperse
-        }
-
-        this.currentRotationAngle = 0.01; // helper for disperse rotation animation.
-        this.originalRotationAngle = 0.01; // helper to keep original rotation angle.
-        this.scaleFactor = 1;
-        this.ROTATION_ACCELERATION = 1.15; // rotation increment factor for animation.
-    }
-
-    initialize() {
-        // animate card entering.
-        if (!this.initialized) {
-            this.animatedValueInitialization += 0.005;
-            let easedValue = this.easeInOutQuint(this.animatedValueInitialization);
-            this.posy = this.initialPosY - easedValue * this.easeInFactorInitialization;
-            if (easedValue >= 1.0) {
-                this.initialized = true;
-                this.initialPosY = this.posy;
-            }
-        }
-        this.draw();
-    }
-
-
-    disperse() {
-        if (this.easeInFactorDisperse === undefined && this.posyOffsetDisperse === undefined){ // this is initial card.
-            this.moveToStartingPoint();
-        } else { // this is a normal card.
-            this.scatter();
-        }
-    }
-
-    // move card to starting position.
-    moveToStartingPoint() {
-        if (!this.dispersed) {
-            this.animatedValueDisperse += 0.01;
-            let easedValue = this.easeInOutQuint(this.animatedValueDisperse);
-
-            this.posy = this.initialPosY - easedValue * (this.initialPosY - POSY_INITIAL_CARD);
-
-            if (easedValue >= 1.0) { // finish disperse animation.
-                this.dispersed = true;
-            }
-        }
-
-        this.draw();
-    }
-
-    returnToScatteredPosition() {
-        if (this.shouldBeReturned) {
-            this.animatedValueDisperse += 0.01;
-            let easedValue = this.easeInOutQuint(this.animatedValueDisperse);
-
-            // modify posy only in the middle of the posx animation in order to avoid snappy behavior.
-            // if (easedValue > 0.2 && easedValue < 0.8) {
-            this.posy = POSY_INITIAL_CARD + easedValue * (this.initialPosYAfterScatter - POSY_INITIAL_CARD);
-            // }
-
-            // this.posx = this.initialPosX - easedValue * this.easeInFactorDisperse;
-
-            if (easedValue >= 1.0) { // finish disperse animation.
-                this.shouldBeReturned = false;
-                this.animatedValueDisperse = -0.1; // reset to be used in subsequent returns.
-            }
-        }
-        this.draw();
-    }
-
-    // "randomly" scatter the card.
-    scatter() {
-        if (!this.dispersed) {
-            this.animatedValueDisperse += 0.01;
-            let easedValue = this.easeInOutQuint(this.animatedValueDisperse);
-
-            // modify posy only in the middle of the posx animation in order to avoid snappy behavior.
-            if (easedValue > 0.2 && easedValue < 0.8) {
-                this.posy = this.posy + (this.posyOffsetDisperse * (1 - easedValue));
-            }
-
-            this.posx = this.initialPosX - easedValue * this.easeInFactorDisperse;
-
-            if (easedValue >= 1.0) { // finish disperse animation.
-                this.dispersed = true;
-                this.animatedValueDisperse = -0.1; // reset to be used in subsequent returns for returnToScatteredPosition().
-            }
-            this.initialPosYAfterScatter = this.posy;
-            this.initialPosXAfterScatter = this.posx;
-        }
-
-        //------ ROTATION
-        // rotate card during disperse animation.
-        if (this.rotationDirectionClockwise) {
-            if (this.currentRotationAngle < this.rotationAngle) {
-                this.currentRotationAngle = this.currentRotationAngle * this.ROTATION_ACCELERATION;
-            }
-        } else {
-            if (this.currentRotationAngle > this.rotationAngle * -1) {
-                if (this.currentRotationAngle > 0) {
-                    this.currentRotationAngle *= -1;
-                }
-                this.currentRotationAngle = this.currentRotationAngle * this.ROTATION_ACCELERATION;
-            }
-        }
-        this.originalRotationAngle = this.currentRotationAngle;
-        //---------------
-
-        this.draw();
-    }
-
-    draw() {
-        push();
-        fill(255);
-        stroke(1);
-        strokeWeight(1);
-        rectMode(CENTER);
-        translate(this.posx, this.posy);
-
-        // -------- scale image when active
-        this.scaleImageWhenActive();
-        //---------------
-
-        // --------- straighten the card if there is any active placeholder
-        this.processActivePlaceholder();
-        // --------------
-
-        scale(this.scaleFactor);
-        rotate(radians(this.currentRotationAngle));
-        rect(0, 0, this.width, this.height);
-        fill(0);
-        textSize(44);
-        text(this.id, 0, 0);
-        pop();
-    }
-
-    processActivePlaceholder() {
-        if (this.activePlaceholder !== undefined) {
-            this.resetRotation(true);
-
-            // check if this is the currently selected card in which case do not snap as the user still drags it.
-            if (!isAnySelectedCard()) {
-                this.posx = this.activePlaceholder.posx;
-                this.posy = this.activePlaceholder.posy;
-            }
-        } else {
-            this.resetRotation(false);
-        }
-    }
-
-    scaleImageWhenActive() {
-        if (this.isActive(touchTargets[0].x, touchTargets[0].y)) {
-            if (this.scaleFactor < 2) {
-                this.scaleFactor += 0.1;
-            }
-        } else {
-            if (this.scaleFactor > 1) {
-                this.scaleFactor -= 0.1;
-            }
-        }
-    }
-
-// check if mouse given positions are within the drawing dimensions of the card.
-    isActive(positionX, positionY) {
-        if(mouseIsPressed && (positionX > this.posx-(this.width/2) && positionX < this.posx+(this.width/2))
-            && (positionY > this.posy-(this.height/2) && positionY < this.posy+(this.height/2))){
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    isFirstCard() {
-        return this.easeInFactorDisperse === undefined && this.posyOffsetDisperse === undefined;
-    }
-
-    resetRotation(isStraight) {
-        if (isStraight) {
-            this.currentRotationAngle = 0;
-        } else {
-            this.currentRotationAngle = this.originalRotationAngle;
-        }
-    }
-
-    easeInOutQuint(progress) {
-        if (progress < 0.5) {
-            return 16 * Math.pow(progress, 5);
-        } else {
-            return 1 - Math.pow(-2 * progress + 2, 5) / 2;
-        }
-    }
-
-    easeOutQuad(progress) {
-        return 1 - (1 - progress) * (1 - progress);
-    }
-
-}
+// *************************************************************
 
 document.addEventListener("gesturestart", function (e) {
     e.preventDefault();

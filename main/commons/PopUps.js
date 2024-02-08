@@ -1,0 +1,152 @@
+
+
+
+function drawPopUp(gameProp) {
+    if (gameProp.cardPopUpProperties.displayPopUp) {
+        let scaleRatio = calculatePopUpScaleRatio(gameProp.cardPopUpProperties);
+
+        push();
+        fill(255);
+        translate(gameProp.cardMatchProperties.placeholder.posx,
+            gameProp.cardMatchProperties.placeholder.posy);
+        scale(scaleRatio);
+        rectMode(CENTER);
+        rect(0, 0, 900, 1600, 30);
+        pop();
+
+        if (scaleRatio === 0) {
+            gameProp.cardPopUpProperties.displayPopUp = false;
+        }
+    }
+}
+
+
+
+function initShowInfoPopUp(gameProp) {
+    if (!gameProp.infoPopUpProperties.showPropertiesInitialized) {
+        gameProp.infoPopUpProperties.dynamicRadius = 10;
+        gameProp.infoPopUpProperties.targetRadius = 30;
+        gameProp.infoPopUpProperties.currentSize = 20;
+        gameProp.infoPopUpProperties.elasticity = 0.07;
+        gameProp.infoPopUpProperties.velocity = 2;
+        gameProp.infoPopUpProperties.position = 0;
+        gameProp.infoPopUpProperties.inc = 3;
+
+        gameProp.infoPopUpProperties.displayPopUp = true;
+        gameProp.infoPopUpProperties.showPropertiesInitialized = true;
+        gameProp.infoPopUpProperties.hidePropertiesInitialized = false;
+    }
+}
+
+
+function initHideInfoPopUp(gameProp) {
+    if (!gameProp.infoPopUpProperties.hidePropertiesInitialized) {
+        gameProp.infoPopUpProperties.dynamicRadius = 0;
+        gameProp.infoPopUpProperties.targetRadius = 10;
+        gameProp.infoPopUpProperties.currentSize = 0;
+        gameProp.infoPopUpProperties.elasticity = 0.05;
+        gameProp.infoPopUpProperties.velocity = 12;
+        gameProp.infoPopUpProperties.position = 20;
+        gameProp.infoPopUpProperties.inc = 0;
+
+        gameProp.infoPopUpProperties.showPropertiesInitialized = false;
+        gameProp.infoPopUpProperties.hidePropertiesInitialized = true;
+    }
+}
+
+
+
+function calculatePopUpScaleRatio(properties) {
+    if (properties.dynamicRadius <= 50) {
+        properties.dynamicRadius += properties.inc;
+    }
+
+    // Apply elastic force
+    let force = (properties.targetRadius - properties.currentSize) * properties.elasticity;
+    properties.velocity += force;
+    properties.position += properties.velocity;
+
+    // Update the size
+    properties.currentSize = max(0, properties.position) + properties.dynamicRadius;
+    let scaleRatio = map(properties.currentSize, 0, 52, 0, 0.5);
+    return scaleRatio;
+}
+
+
+
+function drawInfoPopUp(posx, posy, gameProp) {
+    if (gameProp.infoPopUpProperties.displayPopUp) {
+        let scaleRatio = calculatePopUpScaleRatio(gameProp.infoPopUpProperties);
+
+        push();
+        noStroke();
+        fill(255);
+        translate(posx, posy);
+        scale(scaleRatio);
+        rectMode(CENTER);
+        rect(0, 0, 2800, 2500, 70);
+        stroke(1);
+        strokeWeight(7);
+
+        // X
+        line(1200, -1150, 1300, -1050);
+        line(1200, -1050, 1300, -1150);
+
+        // stars
+
+        let {star1Win, star2Win, star3Win} = getWinStarSettings(gameProp);
+        drawRotatingStar(0 - 400, 0 - 880, star1Win, gameProp);
+        drawRotatingStar(0, 0 - 880, star2Win, gameProp);
+        drawRotatingStar(0 + 400, 0 - 880, star3Win, gameProp);
+
+        pop();
+
+        if (scaleRatio === 0) {
+            gameProp.infoPopUpProperties.displayPopUp = false;
+        }
+
+    }
+}
+
+
+
+function initShowPopUp(placeholder, tl) {
+    if (!tl.cardPopUpProperties.showPropertiesInitialized) {
+        tl.cardMatchProperties.placeholder = placeholder; // this is saved in the more general cardMatchProperties object.
+
+        tl.cardPopUpProperties.currentSize = 0;
+        tl.cardPopUpProperties.position = 0;
+        tl.cardPopUpProperties.velocity = 2;
+        tl.cardPopUpProperties.targetRadius = 30;
+        tl.cardPopUpProperties.elasticity = 0.07;
+        tl.cardPopUpProperties.dynamicRadius = 0;
+        tl.cardPopUpProperties.inc = 3;
+
+        tl.cardPopUpProperties.showPropertiesInitialized = true;
+        tl.cardPopUpProperties.hidePropertiesInitialized = false;
+        tl.cardPopUpProperties.displayPopUp = true;
+    }
+}
+
+
+function initHidePopUp(gameProp) {
+    if (!gameProp.cardPopUpProperties.hidePropertiesInitialized) {
+        gameProp.cardPopUpProperties.currentSize = 0;
+        gameProp.cardPopUpProperties.position = 20;
+        gameProp.cardPopUpProperties.velocity = 12;
+        gameProp.cardPopUpProperties.targetRadius = 10;
+        gameProp.cardPopUpProperties.elasticity = 0.05;
+        gameProp.cardPopUpProperties.dynamicRadius = 0;
+        gameProp.cardPopUpProperties.inc = 0;
+
+        gameProp.cardPopUpProperties.hidePropertiesInitialized = true;
+        gameProp.cardPopUpProperties.showPropertiesInitialized = false;
+    }
+}
+
+function checkInfoPopUpClosed(gameProp) {
+    if (mouseX > 1680 && mouseX < 1730 && mouseY < 1400 && mouseY > 1340) {
+        initHideInfoPopUp(gameProp);
+    }
+}
+

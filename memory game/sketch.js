@@ -26,7 +26,7 @@ let levelNumber = 1;
 //TODO: extract all there common variables in a separate commons JS.
 // ----- STARS VARIABLES -----
 const STAR_ROTATION_SPEED = 0.01;
-const STAR_RADIUS = 45;
+const STAR_RADIUS = 145;
 let startRotationParam = 0;
 // -------------------------------
 
@@ -67,12 +67,12 @@ let ERRORS_LEVEL_3 = 4; // game over
 
 let images = [];
 
-const EASE_IN_FACTOR_DISPERSE_LEFT_LIMIT = -200;
-const EASE_IN_FACTOR_DISPERSE_RIGHT_LIMIT = 200;
+const EASE_IN_FACTOR_DISPERSE_LEFT_LIMIT = -500;
+const EASE_IN_FACTOR_DISPERSE_RIGHT_LIMIT = 500;
 
 // this controls the limits within which cards can move on posY
-const POSY_OFFSET_DISPERSE_LEFT_LIMIT = -20;
-const POSY_OFFSET_DISPERSE_RIGHT_LIMIT = 20;
+const POSY_OFFSET_DISPERSE_LEFT_LIMIT = -50;
+const POSY_OFFSET_DISPERSE_RIGHT_LIMIT = 50;
 
 
 let iconMatchProperties = {
@@ -92,7 +92,7 @@ function preload() {
 }
 
 function setup() {
-    createCanvas(1000, 1000);
+    createCanvas(2160, 3840);
 
     initializeNewImage();
     initializeIcons();
@@ -142,7 +142,6 @@ function removeInvisibleIcons() {
 
 function resetNewGame() {
     initializeNewImage();
-    print(historyErrors);
     persistentErrors += historyErrors; // preserve history errors from previous level.
     icons = [];
 
@@ -160,9 +159,11 @@ function resetNewGame() {
 function draw() {
     background(220);
 
+    // guiding lines center of the screen.
+    line(0, 840, width, 840);
+    line(0, height-840, width, height-840);
 
     generateMatchParticles();
-
 
     if (!gameState.isGameOver) {
         maskImg.draw();
@@ -191,15 +192,8 @@ function draw() {
         }
     }
 
-
     removeInvisibleIcons();
     processErrors();
-
-    // if (maskImg.zoomLevel > 3) {
-    //     initializeNewImage();
-    //     icons = [];
-    //     initializeIcons();
-    // }
 
     // next button logic
     if (gameState.isLevelOver) {
@@ -237,7 +231,6 @@ function draw() {
     drawInfoPopUp(width/2, height/2);
 
     drawPopUp();
-
 }
 
 function mousePressed() {
@@ -246,8 +239,7 @@ function mousePressed() {
 }
 
 function checkInfoPopUpClosed() {
-    print(mouseX + "::" + mouseY);
-    if (mouseX > 660 && mouseX < 680 && mouseY < 340 && mouseY > 320) {
+    if (mouseX > 1680 && mouseX < 1730 && mouseY < 1400 && mouseY > 1340) {
         initHideInfoPopUp();
 
         // workaround to not display final pop up anymore.
@@ -264,10 +256,10 @@ function drawPopUp() {
         push();
         noStroke();
         fill(255);
-        translate(width/2, height/2 + 300);
+        translate(width/2, height/2 + 800);
         scale(scaleRatio * 2);
         rectMode(CENTER);
-        rect(0, 0, 400, 200, 30);
+        rect(0, 0, 1200, 500, 30);
         pop();
 
         if (scaleRatio === 0) {
@@ -353,20 +345,20 @@ function drawInfoPopUp(posx, posy) {
         translate(posx, posy);
         scale(scaleRatio);
         rectMode(CENTER);
-        rect(0, 0, 800, 800, 30);
+        rect(0, 0, 2800, 2500, 70);
         stroke(1);
-        strokeWeight(3);
+        strokeWeight(7);
 
         // X
-        line(320, -360, 360, -320);
-        line(360, -360, 320, -320);
+        line(1200, -1150, 1300, -1050);
+        line(1200, -1050, 1300, -1150);
 
         // stars
 
         let {star1Win, star2Win, star3Win} = getWinStarSettings();
-        drawRotatingStar(0 - 100, 0 - 280, star1Win);
-        drawRotatingStar(0, 0 - 280, star2Win);
-        drawRotatingStar(0 + 100, 0 - 280, star3Win);
+        drawRotatingStar(0 - 400, 0 - 880, star1Win);
+        drawRotatingStar(0, 0 - 880, star2Win);
+        drawRotatingStar(0 + 400, 0 - 880, star3Win);
 
         pop();
 
@@ -426,11 +418,11 @@ function drawRotatingStar(posx, posy, isWinStart) {
 function initializeNewImage() {
     let img = random(images);
 
-    let cropSize1 = 100;
+    let cropSize1 = 300;
     let crop1 = new CropSettings(cropSize1, cropSize1, img.width / 2 - cropSize1 / 2, img.height / 2 - cropSize1 / 2);
-    let cropSize2 = 200;
+    let cropSize2 = 600;
     let crop2 = new CropSettings(cropSize2, cropSize2, img.width / 2 - cropSize2 / 2, img.height / 2 - cropSize2 / 2);
-    let cropSize3 = 800;
+    let cropSize3 = 1800; // whole image reveal
     let crop3 = new CropSettings(cropSize3, cropSize3, img.width / 2 - cropSize3 / 2, img.height / 2 - cropSize3 / 2);
 
     maskImg = new MaskImage(img, 2, crop1, crop2, crop3);
@@ -459,20 +451,20 @@ class Particle {
         this.alpha = 255;
         if (multicolor) {
             this.color = color(random(0, 120), random(80, 220), random(180, 255));
-            this.vx = random(-7, 7);
-            this.vy = random(-7, 7);
+            this.vx = random(-17, 17);
+            this.vy = random(-17, 17);
             this.scaleFactor = 0.01;
-            this.size = random(7, 15);
+            this.size = random(10, 50);
             this.alphaFactor = 3;
             this.gravity = 0; // Gravity force
         } else {
             this.color = color(random([[255, 236, 139], [255, 215, 0], [184, 134, 11], [218, 165, 32], [238, 232, 170]]));
-            this.vx = random(-7, 7);
-            this.vy = random(-7, 7);
-            this.scaleFactor = 0.05;
-            this.size = random(5, 10);
+            this.vx = random(-15, 15);
+            this.vy = random(-15, 15);
+            this.scaleFactor = 0.5;
+            this.size = random(10, 50);
             this.alphaFactor = 3;
-            this.gravity = 0.05; // Gravity force
+            this.gravity = 0.07; // Gravity force
         }
     }
 
@@ -543,7 +535,7 @@ class MaskImage {
         this.crop2Settings = crop2;
         this.crop3Settings = crop3;
 
-        this.zoomStep = 2;
+        this.zoomStep = 5;
         this.zoomLevel = 1;
     }
 
@@ -671,8 +663,8 @@ class Icon {
         this.id = id;
         this.posx = posx;
         this.posy = posy;
-        this.width = 50;
-        this.height = 50;
+        this.width = 150;
+        this.height = 150;
 
         this.initialPosX = posx;
         this.initialPosY = posy;
