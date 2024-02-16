@@ -6,6 +6,7 @@ let persistentErrors = 0;
 let historyErrors = 0;
 
 let mem = {
+    propertiesIdentifier: "mem",
     maskImg: undefined,
     icons: [],
     images: [],
@@ -23,7 +24,6 @@ let mem = {
     },
 
 
-    //TODO: extract all there common variables in a separate commons JS.
     // ----- STARS VARIABLES -----
     STAR_ROTATION_SPEED: 0.01,
     STAR_RADIUS: 145,
@@ -31,7 +31,6 @@ let mem = {
     // -------------------------------
 
 
-    //TODO: extract all there common variables in a separate commons JS.
     infoPopUpProperties: {
         dynamicRadius: 10,
         targetRadius: 30,
@@ -45,7 +44,6 @@ let mem = {
         hidePropertiesInitialized: false,
     },
 
-    //TODO: extract all there common variables in a separate commons JS.
     cardPopUpProperties: {
         dynamicRadius: 0,
         targetRadius: 30,
@@ -57,13 +55,20 @@ let mem = {
         displayPopUp: false,
         showPropertiesInitialized: false,
         hidePropertiesInitialized: false,
+        popupWidth: 2400,
+        popupHeight: 1000,
+        popupPosx: 1080,
+        popupPosy: 2720,
     },
 
-    // levels of error // TODO: refactor intro properties?
+    // levels of error
     ERRORS_LEVEL_1: 2, // reveal first layer
     ERRORS_LEVEL_2: 3, // reveal whole image
     ERRORS_LEVEL_3: 4, // game over
 
+    ERRORS_3_STARS: 3,
+    ERRORS_2_STARS: 5,
+    ERRORS_1_STARS: 10,
 
     EASE_IN_FACTOR_DISPERSE_LEFT_LIMIT: -500,
     EASE_IN_FACTOR_DISPERSE_RIGHT_LIMIT: 500,
@@ -73,13 +78,14 @@ let mem = {
     POSY_OFFSET_DISPERSE_RIGHT_LIMIT: 50,
 
 
-    iconMatchProperties: {
+
+    cardMatchProperties: {
         WIN_PARTICLE_ANIMATION_DURATION: 2, // duration for generating particles.
         particles: [], // list of particles for card match animation.
         shouldDisplay: false,
-        placeholder: -1, // placeholder to use in positioning card match animation.
         particleAnimationDuration: this.WIN_PARTICLE_ANIMATION_DURATION,
         numberOfParticles: 15, // number of particles.
+        placeholder: undefined,
     }
 
 }
@@ -91,11 +97,15 @@ function preload() {
     mem.images.push(loadImage('img/3.jpg'))
 }
 
-function setup() {
+function initializeMemory() {
     createCanvas(2160, 3840);
 
     initializeNewImage();
     initializeIcons();
+}
+
+function setup() {
+    initializeMemory();
 }
 
 function removeRemainingWrongIcons() {
@@ -146,7 +156,7 @@ function resetNewGame() {
     mem.icons = [];
 
     initializeIcons();
-    initHidePopUp();
+    initHidePopUp(mem);
 
     mem.gameState.isLevelOver = false;
     mem.gameState.isWon = false;
@@ -156,17 +166,17 @@ function resetNewGame() {
     mem.gameState.levelNumber++;
 }
 
-function draw() {
+function drawMemory() {
     background(220);
 
     // guiding lines center of the screen.
     line(0, 840, width, 840);
-    line(0, height-840, width, height-840);
-
-    generateMatchParticles();
+    line(0, height - 840, width, height - 840);
 
     if (!mem.gameState.isGameOver) {
         mem.maskImg.draw();
+
+        generateMatchParticles(mem);
 
         // icons display and click logic.
         for (let i = 0; i < mem.icons.length; i++) {
@@ -175,10 +185,10 @@ function draw() {
             currentIcon.draw();
 
             if (currentIcon.isActive(mouseX, mouseY)) {
-                if (mem.maskImg.associatedId === currentIcon.id){ // correct icon selected.
+                if (mem.maskImg.associatedId === currentIcon.id) { // correct icon selected.
                     if (!currentIcon.correctIconSelected) {
                         currentIcon.correctIconSelection();
-                        initDisplayMatchAnimation(currentIcon);
+                        initDisplayMatchAnimation(currentIcon, mem);
                         initShowPopUp(mem);
 
                         mem.gameState.isWon = true;
@@ -217,7 +227,7 @@ function draw() {
 
     // DEBUG - display FPS
     if (random() > 0.9) {
-        fps = (fps + frameRate())/2; // Get the current frames per second
+        fps = (fps + frameRate()) / 2; // Get the current frames per second
     }
     textSize(16);
     fill(0);
@@ -225,195 +235,25 @@ function draw() {
     text("ERRORS: " + persistentErrors, 20, 40);
 
     if (mem.gameState.isGameOver) {
-        initShowInfoPopUp();
+        initShowInfoPopUp(mem);
     }
 
-    drawInfoPopUp(width/2, height/2);
+    drawInfoPopUp(width / 2, height / 2, mem);
 
-    drawPopUp();
+    drawPopUp(mem);
+    // print('popup:' + mem.cardMatchProperties.placeholder.posx + ':' + mem.cardMatchProperties.placeholder.posy);
+}
+
+function draw() {
+    drawMemory();
+
 }
 
 function mousePressed() {
-    checkInfoPopUpClosed();
-    initHidePopUp();
+    checkInfoPopUpClosed(mem);
+    initHidePopUp(mem);
 }
 
-function checkInfoPopUpClosed() {
-    if (mouseX > 1680 && mouseX < 1730 && mouseY < 1400 && mouseY > 1340) {
-        initHideInfoPopUp();
-
-        // workaround to not display final pop up anymore.
-        mem.infoPopUpProperties.showPropertiesInitialized = true;
-    }
-}
-
-
-//TODO: extract all there common variables in a separate commons JS.
-function drawPopUp() {
-    if (mem.cardPopUpProperties.displayPopUp) {
-        let scaleRatio = calculatePopUpScaleRatio(mem.cardPopUpProperties);
-
-        push();
-        noStroke();
-        fill(255);
-        translate(width/2, height/2 + 800);
-        scale(scaleRatio * 2);
-        rectMode(CENTER);
-        rect(0, 0, 1200, 500, 30);
-        pop();
-
-        if (scaleRatio === 0) {
-            mem.cardPopUpProperties.displayPopUp = false;
-        }
-    }
-}
-
-//TODO: extract all there common variables in a separate commons JS.
-function initShowPopUp() {
-    if (!mem.cardPopUpProperties.showPropertiesInitialized) {
-
-        mem.cardPopUpProperties.currentSize = 0;
-        mem.cardPopUpProperties.position = 0;
-        mem.cardPopUpProperties.velocity = 2;
-        mem.cardPopUpProperties.targetRadius = 30;
-        mem.cardPopUpProperties.elasticity = 0.07;
-        mem.cardPopUpProperties.dynamicRadius = 0;
-        mem.cardPopUpProperties.inc = 3;
-
-        mem.cardPopUpProperties.showPropertiesInitialized = true;
-        mem.cardPopUpProperties.hidePropertiesInitialized = false;
-        mem.cardPopUpProperties.displayPopUp = true;
-    }
-}
-
-//TODO: extract all there common variables in a separate commons JS.
-function initHidePopUp() {
-    if (!mem.cardPopUpProperties.hidePropertiesInitialized) {
-        mem.cardPopUpProperties.currentSize = 0;
-        mem.cardPopUpProperties.position = 20;
-        mem.cardPopUpProperties.velocity = 12;
-        mem.cardPopUpProperties.targetRadius = 10;
-        mem.cardPopUpProperties.elasticity = 0.05;
-        mem.cardPopUpProperties.dynamicRadius = 0;
-        mem.cardPopUpProperties.inc = 0;
-
-        mem.cardPopUpProperties.hidePropertiesInitialized = true;
-        mem.cardPopUpProperties.showPropertiesInitialized = false;
-    }
-}
-
-
-function initShowInfoPopUp() {
-    if (!mem.infoPopUpProperties.showPropertiesInitialized) {
-        mem.infoPopUpProperties.dynamicRadius = 10;
-        mem.infoPopUpProperties.targetRadius = 30;
-        mem.infoPopUpProperties.currentSize = 20;
-        mem.infoPopUpProperties.elasticity = 0.07;
-        mem.infoPopUpProperties.velocity = 2;
-        mem.infoPopUpProperties.position = 0;
-        mem.infoPopUpProperties.inc = 3;
-
-        mem.infoPopUpProperties.displayPopUp = true;
-        mem.infoPopUpProperties.showPropertiesInitialized = true;
-        mem.infoPopUpProperties.hidePropertiesInitialized = false;
-    }
-}
-
-
-function initHideInfoPopUp() {
-    if (!mem.infoPopUpProperties.hidePropertiesInitialized) {
-        mem.infoPopUpProperties.dynamicRadius = 0;
-        mem.infoPopUpProperties.targetRadius = 10;
-        mem.infoPopUpProperties.currentSize = 0;
-        mem.infoPopUpProperties.elasticity = 0.05;
-        mem.infoPopUpProperties.velocity = 12;
-        mem.infoPopUpProperties.position = 20;
-        mem.infoPopUpProperties.inc = 0;
-
-        mem.infoPopUpProperties.showPropertiesInitialized = false;
-        mem.infoPopUpProperties.hidePropertiesInitialized = true;
-    }
-}
-
-function drawInfoPopUp(posx, posy) {
-    if (mem.infoPopUpProperties.displayPopUp) {
-        let scaleRatio = calculatePopUpScaleRatio(mem.infoPopUpProperties);
-
-        push();
-        noStroke();
-        fill(255);
-        translate(posx, posy);
-        scale(scaleRatio);
-        rectMode(CENTER);
-        rect(0, 0, 2800, 2500, 70);
-        stroke(1);
-        strokeWeight(7);
-
-        // X
-        line(1200, -1150, 1300, -1050);
-        line(1200, -1050, 1300, -1150);
-
-        // stars
-
-        let {star1Win, star2Win, star3Win} = getWinStarSettings();
-        drawRotatingStar(0 - 400, 0 - 880, star1Win);
-        drawRotatingStar(0, 0 - 880, star2Win);
-        drawRotatingStar(0 + 400, 0 - 880, star3Win);
-
-        pop();
-
-        if (scaleRatio === 0) {
-            mem.infoPopUpProperties.displayPopUp = false;
-        }
-
-    }
-}
-
-//TODO: extract all there common variables in a separate commons JS.
-function calculatePopUpScaleRatio(properties) {
-    if (properties.dynamicRadius <= 50) {
-        properties.dynamicRadius += properties.inc;
-    }
-
-    // Apply elastic force
-    let force = (properties.targetRadius - properties.currentSize) * properties.elasticity;
-    properties.velocity += force;
-    properties.position += properties.velocity;
-
-    // Update the size
-    properties.currentSize = max(0, properties.position) + properties.dynamicRadius;
-    let scaleRatio = map(properties.currentSize, 0, 52, 0, 0.5);
-    return scaleRatio;
-}
-
-//TODO: extract all there common variables in a separate commons JS.
-function getWinStarSettings() {
-    let star1Win = persistentErrors < 10;
-    let star2Win = persistentErrors < 5;
-    let star3Win = persistentErrors < 3;
-    return {star1Win, star2Win, star3Win};
-}
-
-
-//TODO: extract all there common variables in a separate commons JS.
-function drawRotatingStar(posx, posy, isWinStart) {
-    mem.startRotationParam += mem.STAR_ROTATION_SPEED;
-
-    if (isWinStart) {
-        fill(255, 215, 0);
-    } else {
-        fill(120,120,120);
-    }
-
-    noStroke();
-    beginShape();
-    vertex(posx + mem.STAR_RADIUS * cos(TWO_PI * 0/5 + mem.startRotationParam),posy + mem.STAR_RADIUS * sin(TWO_PI * 0/5 + mem.startRotationParam));
-    vertex(posx + mem.STAR_RADIUS * cos(TWO_PI * 2/5 + mem.startRotationParam),posy + mem.STAR_RADIUS * sin(TWO_PI * 2/5 + mem.startRotationParam));
-    vertex(posx + mem.STAR_RADIUS * cos(TWO_PI * 4/5 + mem.startRotationParam),posy + mem.STAR_RADIUS * sin(TWO_PI * 4/5 + mem.startRotationParam));
-    vertex(posx + mem.STAR_RADIUS * cos(TWO_PI * 1/5 + mem.startRotationParam),posy + mem.STAR_RADIUS * sin(TWO_PI * 1/5 + mem.startRotationParam));
-    vertex(posx + mem.STAR_RADIUS * cos(TWO_PI * 3/5 + mem.startRotationParam),posy + mem.STAR_RADIUS * sin(TWO_PI * 3/5 + mem.startRotationParam));
-    endShape(CLOSE);
-}
 
 function initializeNewImage() {
     let img = random(mem.images);
@@ -425,332 +265,20 @@ function initializeNewImage() {
     let cropSize3 = 1800; // whole image reveal
     let crop3 = new CropSettings(cropSize3, cropSize3, img.width / 2 - cropSize3 / 2, img.height / 2 - cropSize3 / 2);
 
-    mem.maskImg = new MaskImage(img, 2, crop1, crop2, crop3);
+    mem.maskImg = new MaskImage(img, 2, crop1, crop2, crop3, mem);
 
     mem.nextButton = new Button(width - 100, height/2, 50, 50);
 }
 
 function initializeIcons() {
-    mem.icons.push(new Icon(1, (width / 2), height / 2, 1, -0.33));
-    mem.icons.push(new Icon(2, (width / 2), height / 2, -1, -0.33));
-    mem.icons.push(new Icon(3, width / 2, height / 2, 0.33, -1));
-    mem.icons.push(new Icon(4, (width / 2), height / 2, 0.33, 1));
-    mem.icons.push(new Icon(5, (width / 2), height / 2, -0.33, -1));
-    mem.icons.push(new Icon(6, (width / 2), height / 2, -0.33, 1));
-    mem.icons.push(new Icon(7, (width / 2), height / 2, 1, 0.33));
-    mem.icons.push(new Icon(8, (width / 2), height / 2, -1, 0.33));
+    mem.icons.push(new Icon(1, (width / 2), height / 2, 1, -0.33, mem));
+    mem.icons.push(new Icon(2, (width / 2), height / 2, -1, -0.33, mem));
+    mem.icons.push(new Icon(3, width / 2, height / 2, 0.33, -1, mem));
+    mem.icons.push(new Icon(4, (width / 2), height / 2, 0.33, 1, mem));
+    mem.icons.push(new Icon(5, (width / 2), height / 2, -0.33, -1, mem));
+    mem.icons.push(new Icon(6, (width / 2), height / 2, -0.33, 1, mem));
+    mem.icons.push(new Icon(7, (width / 2), height / 2, 1, 0.33, mem));
+    mem.icons.push(new Icon(8, (width / 2), height / 2, -1, 0.33, mem));
 
     mem.gameState.originalNumberOfIcons = mem.icons.length;
 }
-
-
-class Particle {
-    constructor(x, y, multicolor) {
-        this.x = x;
-        this.y = y;
-        this.alpha = 255;
-        if (multicolor) {
-            this.color = color(random(0, 120), random(80, 220), random(180, 255));
-            this.vx = random(-17, 17);
-            this.vy = random(-17, 17);
-            this.scaleFactor = 0.01;
-            this.size = random(10, 50);
-            this.alphaFactor = 3;
-            this.gravity = 0; // Gravity force
-        } else {
-            this.color = color(random([[255, 236, 139], [255, 215, 0], [184, 134, 11], [218, 165, 32], [238, 232, 170]]));
-            this.vx = random(-15, 15);
-            this.vy = random(-15, 15);
-            this.scaleFactor = 0.5;
-            this.size = random(10, 50);
-            this.alphaFactor = 3;
-            this.gravity = 0.07; // Gravity force
-        }
-    }
-
-    update() {
-        this.vy += this.gravity; // Apply gravity
-        this.x += this.vx;
-        this.y += this.vy;
-        this.alpha -= this.alphaFactor;
-        this.size -= this.scaleFactor;
-    }
-
-    display() {
-        noStroke();
-        // fill(this.color.levels[0], this.color.levels[1], this.color.levels[2], this.alpha);
-        fill(255);
-        stroke(0);
-        strokeWeight(1);
-        // ellipse(this.x, this.y, random(5,10), random(5,10));
-        drawStar(this.x, this.y, this.size, 5); // Draw a 5-pointed star
-    }
-
-    isOffScreen() {
-        return this.alpha <= 0 || this.size < 0 || this.y > height; // Include condition for off the bottom of the screen
-    }
-}
-
-function drawStar(x, y, radius, npoints) {
-    let angle = TWO_PI / npoints;
-    let halfAngle = angle / 2;
-    beginShape();
-    for (let a = -PI/2; a < TWO_PI-PI/2; a += angle) {
-        let sx = x + cos(a) * radius;
-        let sy = y + sin(a) * radius;
-        vertex(sx, sy);
-        sx = x + cos(a + halfAngle) * (radius / 2); // Adjust size of inner vertices
-        sy = y + sin(a + halfAngle) * (radius / 2);
-        vertex(sx, sy);
-    }
-    endShape(CLOSE);
-}
-
-class CropSettings {
-    constructor(cropWidth, cropHeight, sourceCropX, sourceCropY) {
-        this.cropWidth = cropWidth;
-        this.cropHeight = cropHeight;
-        this.sourceCropX = sourceCropX;
-        this.sourceCropY = sourceCropY;
-    }
-}
-
-class MaskImage {
-    /*
-    * @param image - image of the sports person.
-    * @param sportId - correct associated sport id.
-    * @param crop1 - initial size of the crop image.
-    * @param crop2 - level 2 of the crop image.
-    * @param crop3 - level 3 of the crop image.
-     */
-    constructor(image, sportId, crop1, crop2, crop3) {
-        this.image = image;
-        this.associatedId = sportId;
-
-        this.cropWidth = crop1.cropWidth;
-        this.cropHeight = crop1.cropHeight;
-        this.sourceCropX = crop1.sourceCropX;
-        this.sourceCropY = crop1.sourceCropY;
-
-        this.crop2Settings = crop2;
-        this.crop3Settings = crop3;
-
-        this.zoomStep = 5;
-        this.zoomLevel = 1;
-    }
-
-    draw() {
-
-        this.checkZoom();
-
-        this.posx = width/2 - (this.cropWidth/2);
-        this.posy = height/2 - (this.cropHeight/2);
-
-        image(this.image, this.posx, this.posy, this.cropWidth,
-            this.cropHeight, this.sourceCropX, this.sourceCropY,
-            this.cropWidth, this.cropHeight);
-    }
-
-    // check if reveal should be done and update settings accordingly.
-    checkZoom() {
-        if (this.zoomLevel === mem.ERRORS_LEVEL_1) {
-            if (this.cropWidth < this.crop2Settings.cropWidth) {
-                this.cropWidth += this.zoomStep;
-            }
-            if (this.cropHeight < this.crop2Settings.cropHeight) {
-                this.cropHeight += this.zoomStep;
-            }
-            if (this.sourceCropX > this.crop2Settings.sourceCropX) {
-                this.sourceCropX -= this.zoomStep / 2;
-            }
-            if (this.sourceCropY > this.crop2Settings.sourceCropY) {
-                this.sourceCropY -= this.zoomStep / 2;
-            }
-        }
-
-        if (this.zoomLevel >= mem.ERRORS_LEVEL_2) {
-            if (this.cropWidth < this.crop3Settings.cropWidth) {
-                this.cropWidth += this.zoomStep;
-            }
-            if (this.cropHeight < this.crop3Settings.cropHeight) {
-                this.cropHeight += this.zoomStep;
-            }
-            if (this.sourceCropX > this.crop3Settings.sourceCropX) {
-                this.sourceCropX -= this.zoomStep / 2;
-            }
-            if (this.sourceCropY > this.crop3Settings.sourceCropY) {
-                this.sourceCropY -= this.zoomStep / 2;
-            }
-        }
-    }
-}
-
-function initDisplayMatchAnimation(icon) {
-    mem.iconMatchProperties.shouldDisplay = true;
-    mem.iconMatchProperties.placeholder = icon;
-    mem.iconMatchProperties.particleAnimationDuration = mem.iconMatchProperties.WIN_PARTICLE_ANIMATION_DURATION;
-}
-
-function generateMatchParticles() {
-    if (mem.iconMatchProperties.shouldDisplay) {
-        mem.iconMatchProperties.particleAnimationDuration--;
-        for (let i = 0; i < mem.iconMatchProperties.numberOfParticles; i++) {
-            let particle = new Particle(mem.iconMatchProperties.placeholder.posx, mem.iconMatchProperties.placeholder.posy);
-            mem.iconMatchProperties.particles.push(particle);
-        }
-
-        if (mem.iconMatchProperties.particleAnimationDuration < 0) {
-            mem.iconMatchProperties.shouldDisplay = false;
-        }
-    }
-
-    // Update and display each particle
-    for (let i = mem.iconMatchProperties.particles.length - 1; i >= 0; i--) {
-        mem.iconMatchProperties.particles[i].update();
-        mem.iconMatchProperties.particles[i].display();
-
-        // Remove particles that are no longer visible
-        if (mem.iconMatchProperties.particles[i].isOffScreen()) {
-            mem.iconMatchProperties.particles.splice(i, 1);
-        }
-    }
-}
-
-class Button {
-    constructor(posx, posy, width, height) {
-        this.posx = posx;
-        this.posy = posy;
-        this.width = width;
-        this.height = height;
-        this.isVisible = false;
-    }
-
-    draw() {
-        if (this.isVisible) {
-            push();
-            fill(255);
-            stroke(1);
-            strokeWeight(1);
-            rectMode(CENTER);
-            translate(this.posx, this.posy);
-            rect(0, 0, this.width, this.height);
-            fill(0);
-            text(">", 0, 0);
-            pop();
-        }
-    }
-
-    isClicked(positionX, positionY) {
-        if(mouseIsPressed && (positionX > this.posx-(this.width/2) && positionX < this.posx+(this.width/2))
-            && (positionY > this.posy-(this.height/2) && positionY < this.posy+(this.height/2))){
-            return true;
-        } else {
-            return false;
-        }
-    }
-}
-
-class Icon {
-
-    /*
-    * @param id - unique id of the card
-    * @param posx - initial position of the card
-    * @param posy - initial position of the card
-    * @param disperseX - range (-1, 1)
-    * @param disperseY - range (-1, 1)
-     */
-    constructor(id, posx, posy, disperseX, disperseY) {
-        this.id = id;
-        this.posx = posx;
-        this.posy = posy;
-        this.width = 150;
-        this.height = 150;
-
-        this.initialPosX = posx;
-        this.initialPosY = posy;
-
-        this.dispersed = false;
-        this.animatedValueDisperse = -0.1; // helper for disperse animation.
-
-        this.easeInFactorDisperse = map(disperseX, -1, 1, mem.EASE_IN_FACTOR_DISPERSE_LEFT_LIMIT, mem.EASE_IN_FACTOR_DISPERSE_RIGHT_LIMIT); // how far the card moves posX after disperse.
-        this.posyOffsetDisperse = map(disperseY, -1, 1, mem.POSY_OFFSET_DISPERSE_LEFT_LIMIT, mem.POSY_OFFSET_DISPERSE_RIGHT_LIMIT); // how far the card moves posY after disperse
-
-        this.wrongIconSelected = false;
-        this.correctIconSelected = false;
-        this.scaleFactor = 1;
-    }
-
-    // "randomly" scatter the card.
-    disperse() {
-        if (!this.dispersed) {
-            this.animatedValueDisperse += 0.01;
-            let easedValue = this.easeInOutQuint(this.animatedValueDisperse);
-
-            // modify posy only in the middle of the posx animation in order to avoid snappy behavior.
-            if (easedValue > 0.2 && easedValue < 0.8) {
-                this.posy = this.posy + (this.posyOffsetDisperse * (1 - easedValue));
-            }
-
-            this.posx = this.initialPosX - easedValue * this.easeInFactorDisperse;
-
-            if (easedValue >= 1.0) { // finish disperse animation.
-                this.dispersed = true;
-                this.animatedValueDisperse = -0.1; // reset to be used in subsequent returns for returnToScatteredPosition().
-            }
-        }
-    }
-
-    draw() {
-        push();
-        stroke(1);
-        strokeWeight(1);
-        rectMode(CENTER);
-        translate(this.posx, this.posy);
-
-        // check if wrong card is selected
-        if (this.wrongIconSelected) {
-            this.scaleFactor -= 0.03;
-            fill(220, 0, 0);
-        } else {
-            fill(255);
-        }
-        scale(this.scaleFactor);
-        rect(0, 0, this.width, this.height);
-        fill(0);
-        text(this.id, 0, 0);
-        pop();
-    }
-
-    // check if mouse given positions are within the drawing dimensions of the card.
-    isActive(positionX, positionY) {
-        if(mouseIsPressed && (positionX > this.posx-(this.width/2) && positionX < this.posx+(this.width/2))
-            && (positionY > this.posy-(this.height/2) && positionY < this.posy+(this.height/2))){
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    correctIconSelection() {
-        this.correctIconSelected = true;
-    }
-
-    wrongIconSelection() {
-        this.wrongIconSelected = true;
-    }
-
-
-    easeInOutQuint(progress) {
-        if (progress < 0.5) {
-            return 16 * Math.pow(progress, 5);
-        } else {
-            return 1 - Math.pow(-2 * progress + 2, 5) / 2;
-        }
-    }
-
-    easeOutQuad(progress) {
-        return 1 - (1 - progress) * (1 - progress);
-    }
-
-}
-

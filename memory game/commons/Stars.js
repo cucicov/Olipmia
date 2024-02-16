@@ -1,112 +1,163 @@
 
-function getWinStarSettings(gameProp) {
-    let star1Win = tl.historyErrors < 10;
-    let star2Win = tl.historyErrors < 3;
-    let star3Win = tl.historyErrors === 0;
-    return {star1Win, star2Win, star3Win};
+function drawPopUp(gameProp) {
+    if (gameProp.cardPopUpProperties.displayPopUp) {
+        let scaleRatio = calculatePopUpScaleRatio(gameProp.cardPopUpProperties);
+
+        push();
+        fill(255);
+
+        if (gameProp.propertiesIdentifier === "tl") {
+            translate(gameProp.cardMatchProperties.placeholder.posx,
+                gameProp.cardMatchProperties.placeholder.posy);
+        } else if (gameProp.propertiesIdentifier === "mem") {
+            translate(gameProp.cardPopUpProperties.popupPosx,
+                gameProp.cardPopUpProperties.popupPosy);
+        }
+
+        scale(scaleRatio);
+        rectMode(CENTER);
+        rect(0, 0, gameProp.cardPopUpProperties.popupWidth, gameProp.cardPopUpProperties.popupHeight, 30);
+        pop();
+
+        if (scaleRatio === 0) {
+            gameProp.cardPopUpProperties.displayPopUp = false;
+        }
+    }
 }
 
 
-function drawWinStars(gameProp) {
-    if (!gameProp.infoPopUpProperties.displayPopUp) {
+function initShowInfoPopUp(gameProp) {
+    if (!gameProp.infoPopUpProperties.showPropertiesInitialized) {
+        gameProp.infoPopUpProperties.dynamicRadius = 10;
+        gameProp.infoPopUpProperties.targetRadius = 30;
+        gameProp.infoPopUpProperties.currentSize = 20;
+        gameProp.infoPopUpProperties.elasticity = 0.07;
+        gameProp.infoPopUpProperties.velocity = 2;
+        gameProp.infoPopUpProperties.position = 0;
+        gameProp.infoPopUpProperties.inc = 3;
+
+        gameProp.infoPopUpProperties.displayPopUp = true;
+        gameProp.infoPopUpProperties.showPropertiesInitialized = true;
+        gameProp.infoPopUpProperties.hidePropertiesInitialized = false;
+    }
+}
+
+
+function initHideInfoPopUp(gameProp) {
+    if (!gameProp.infoPopUpProperties.hidePropertiesInitialized) {
+        gameProp.infoPopUpProperties.dynamicRadius = 0;
+        gameProp.infoPopUpProperties.targetRadius = 10;
+        gameProp.infoPopUpProperties.currentSize = 0;
+        gameProp.infoPopUpProperties.elasticity = 0.05;
+        gameProp.infoPopUpProperties.velocity = 12;
+        gameProp.infoPopUpProperties.position = 20;
+        gameProp.infoPopUpProperties.inc = 0;
+
+        gameProp.infoPopUpProperties.showPropertiesInitialized = false;
+        gameProp.infoPopUpProperties.hidePropertiesInitialized = true;
+    }
+}
+
+
+
+function calculatePopUpScaleRatio(properties) {
+    if (properties.dynamicRadius <= 50) {
+        properties.dynamicRadius += properties.inc;
+    }
+
+    // Apply elastic force
+    let force = (properties.targetRadius - properties.currentSize) * properties.elasticity;
+    properties.velocity += force;
+    properties.position += properties.velocity;
+
+    // Update the size
+    properties.currentSize = max(0, properties.position) + properties.dynamicRadius;
+    let scaleRatio = map(properties.currentSize, 0, 52, 0, 0.5);
+    return scaleRatio;
+}
+
+
+
+function drawInfoPopUp(posx, posy, gameProp) {
+    if (gameProp.infoPopUpProperties.displayPopUp) {
+        let scaleRatio = calculatePopUpScaleRatio(gameProp.infoPopUpProperties);
+
+        push();
+        noStroke();
+        fill(255);
+        translate(posx, posy);
+        scale(scaleRatio);
+        rectMode(CENTER);
+        rect(0, 0, 2800, 2500, 70);
+        stroke(1);
+        strokeWeight(7);
+
+        // X
+        line(1200, -1150, 1300, -1050);
+        line(1200, -1050, 1300, -1150);
+
+        // stars
+
         let {star1Win, star2Win, star3Win} = getWinStarSettings(gameProp);
-        drawRotatingStar(width/2 - 400, height/2 + 100, star1Win, gameProp);
-        drawRotatingStar(width/2, height/2 + 100, star2Win, gameProp);
-        drawRotatingStar(width/2 + 400, height/2 + 100, star3Win, gameProp);
-    }
-}
+        drawRotatingStar(0 - 400, 0 - 880, star1Win, gameProp);
+        drawRotatingStar(0, 0 - 880, star2Win, gameProp);
+        drawRotatingStar(0 + 400, 0 - 880, star3Win, gameProp);
 
+        pop();
 
-function drawRotatingStar(posx, posy, isWinStart, gameProp) {
-    gameProp.startRotationParam += gameProp.STAR_ROTATION_SPEED;
-
-    if (isWinStart) {
-        fill(255, 215, 0);
-    } else {
-        fill(120,120,120);
-    }
-
-    noStroke();
-    beginShape();
-    vertex(posx + gameProp.STAR_RADIUS * cos(TWO_PI * 0/5 + gameProp.startRotationParam),
-        posy + gameProp.STAR_RADIUS * sin(TWO_PI * 0/5 + gameProp.startRotationParam));
-    vertex(posx + gameProp.STAR_RADIUS * cos(TWO_PI * 2/5 + gameProp.startRotationParam),
-        posy +gameProp. STAR_RADIUS * sin(TWO_PI * 2/5 + gameProp.startRotationParam));
-    vertex(posx + gameProp.STAR_RADIUS * cos(TWO_PI * 4/5 + gameProp.startRotationParam),
-        posy + gameProp.STAR_RADIUS * sin(TWO_PI * 4/5 + gameProp.startRotationParam));
-    vertex(posx + gameProp.STAR_RADIUS * cos(TWO_PI * 1/5 + gameProp.startRotationParam),
-        posy + gameProp.STAR_RADIUS * sin(TWO_PI * 1/5 + gameProp.startRotationParam));
-    vertex(posx + gameProp.STAR_RADIUS * cos(TWO_PI * 3/5 + gameProp.startRotationParam),
-        posy + gameProp.STAR_RADIUS * sin(TWO_PI * 3/5 + gameProp.startRotationParam));
-    endShape(CLOSE);
-}
-
-
-function initDisplayMatchAnimation(placeholder, gameProp) {
-    gameProp.cardMatchProperties.shouldDisplay = true;
-    gameProp.cardMatchProperties.placeholder = placeholder;
-    gameProp.cardMatchProperties.particleAnimationDuration = gameProp.cardMatchProperties.WIN_PARTICLE_ANIMATION_DURATION;
-}
-
-
-
-function generateMatchParticles(gameProp) {
-    if (gameProp.cardMatchProperties.shouldDisplay) {
-        gameProp.cardMatchProperties.particleAnimationDuration--;
-        for (let i = 0; i < gameProp.cardMatchProperties.numberOfParticles; i++) {
-            let particle = new Particle(gameProp.cardMatchProperties.placeholder.posx, gameProp.cardMatchProperties.placeholder.posy);
-            gameProp.cardMatchProperties.particles.push(particle);
+        if (scaleRatio === 0) {
+            gameProp.infoPopUpProperties.displayPopUp = false;
         }
 
-        if (gameProp.cardMatchProperties.particleAnimationDuration < 0) {
-            gameProp.cardMatchProperties.shouldDisplay = false;
-        }
     }
+}
 
-    // Update and display each particle
-    for (let i = gameProp.cardMatchProperties.particles.length - 1; i >= 0; i--) {
-        gameProp.cardMatchProperties.particles[i].update();
-        gameProp.cardMatchProperties.particles[i].display();
 
-        // Remove particles that are no longer visible
-        if (gameProp.cardMatchProperties.particles[i].isOffScreen()) {
-            gameProp.cardMatchProperties.particles.splice(i, 1);
+
+function initShowPopUp(gameProp, placeholder) {
+    if (!gameProp.cardPopUpProperties.showPropertiesInitialized) {
+        if (gameProp.propertiesIdentifier === "tl") { // timeline setting.
+            gameProp.cardMatchProperties.placeholder = placeholder; // this is saved in the more general cardMatchProperties object.
+        }
+
+        gameProp.cardPopUpProperties.currentSize = 0;
+        gameProp.cardPopUpProperties.position = 0;
+        gameProp.cardPopUpProperties.velocity = 2;
+        gameProp.cardPopUpProperties.targetRadius = 30;
+        gameProp.cardPopUpProperties.elasticity = 0.07;
+        gameProp.cardPopUpProperties.dynamicRadius = 0;
+        gameProp.cardPopUpProperties.inc = 3;
+
+        gameProp.cardPopUpProperties.showPropertiesInitialized = true;
+        gameProp.cardPopUpProperties.hidePropertiesInitialized = false;
+        gameProp.cardPopUpProperties.displayPopUp = true;
+    }
+}
+
+
+function initHidePopUp(gameProp) {
+    if (!gameProp.cardPopUpProperties.hidePropertiesInitialized) {
+        gameProp.cardPopUpProperties.currentSize = 0;
+        gameProp.cardPopUpProperties.position = 20;
+        gameProp.cardPopUpProperties.velocity = 12;
+        gameProp.cardPopUpProperties.targetRadius = 10;
+        gameProp.cardPopUpProperties.elasticity = 0.05;
+        gameProp.cardPopUpProperties.dynamicRadius = 0;
+        gameProp.cardPopUpProperties.inc = 0;
+
+        gameProp.cardPopUpProperties.hidePropertiesInitialized = true;
+        gameProp.cardPopUpProperties.showPropertiesInitialized = false;
+    }
+}
+
+function checkInfoPopUpClosed(gameProp) {
+    if (mouseX > 1680 && mouseX < 1730 && mouseY < 1400 && mouseY > 1340) {
+        initHideInfoPopUp(gameProp);
+
+        if (gameProp.propertiesIdentifier === "mem"){
+            // workaround to not display final pop up anymore.
+            mem.infoPopUpProperties.showPropertiesInitialized = true;
         }
     }
 }
 
-
-function createFinalWinParticlesAnimation(posx, finalPosx, gameProp) {
-    if (posx < finalPosx) {
-        for (let i = 0; i < 1; i++) {
-            let particle = new Particle(posx, gameProp.winProperties.posy, true);
-            gameProp.winProperties.particles.push(particle);
-        }
-    }
-
-    // Update and display each particle
-    for (let i = gameProp.winProperties.particles.length - 1; i >= 0; i--) {
-        gameProp.winProperties.particles[i].update();
-        gameProp.winProperties.particles[i].display();
-
-        // Remove particles that are no longer visible
-        if (gameProp.winProperties.particles[i].isOffScreen()) {
-            gameProp.winProperties.particles.splice(i, 1);
-        }
-    }
-}
-
-function drawStar(x, y, radius, npoints) {
-    let angle = TWO_PI / npoints;
-    let halfAngle = angle / 2;
-    beginShape();
-    for (let a = -PI/2; a < TWO_PI-PI/2; a += angle) {
-        let sx = x + cos(a) * radius;
-        let sy = y + sin(a) * radius;
-        vertex(sx, sy);
-        sx = x + cos(a + halfAngle) * (radius / 2); // Adjust size of inner vertices
-        sy = y + sin(a + halfAngle) * (radius / 2);
-        vertex(sx, sy);
-    }
-    endShape(CLOSE);
-}

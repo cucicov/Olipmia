@@ -7,11 +7,16 @@ function drawPopUp(gameProp) {
 
         push();
         fill(255);
-        translate(gameProp.cardMatchProperties.placeholder.posx,
-            gameProp.cardMatchProperties.placeholder.posy);
+        if (gameProp.propertiesIdentifier === "tl"){
+            translate(gameProp.cardMatchProperties.placeholder.posx,
+                gameProp.cardMatchProperties.placeholder.posy);
+        } else if (gameProp.propertiesIdentifier === "mem") {
+            translate(gameProp.cardPopUpProperties.popupPosx,
+                gameProp.cardPopUpProperties.popupPosy);
+        }
         scale(scaleRatio);
         rectMode(CENTER);
-        rect(0, 0, 900, 1600, 30);
+        rect(0, 0, gameProp.cardPopUpProperties.popupWidth, gameProp.cardPopUpProperties.popupHeight, 30);
         pop();
 
         if (scaleRatio === 0) {
@@ -112,7 +117,7 @@ function drawInfoPopUp(posx, posy, gameProp) {
 
 function initShowPopUp(gameProp, placeholder) {
     if (!gameProp.cardPopUpProperties.showPropertiesInitialized) {
-        if (placeholder !== undefined) { // timeline setting.
+        if (gameProp.propertiesIdentifier === "tl") { // timeline setting.
             gameProp.cardMatchProperties.placeholder = placeholder; // this is saved in the more general cardMatchProperties object.
         }
 
@@ -149,6 +154,11 @@ function initHidePopUp(gameProp) {
 function checkInfoPopUpClosed(gameProp) {
     if (mouseX > 1680 && mouseX < 1730 && mouseY < 1400 && mouseY > 1340) {
         initHideInfoPopUp(gameProp);
+
+        if (gameProp.propertiesIdentifier === "mem"){
+            // workaround to not display final pop up anymore.
+            mem.infoPopUpProperties.showPropertiesInitialized = true;
+        }
     }
 }
 
