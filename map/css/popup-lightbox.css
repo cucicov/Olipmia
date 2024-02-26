@@ -6,10 +6,102 @@
  */
  
 /* File: popup-lightbox.css */
+@font-face {
+	font-family: 'NotoSans';
+	src: url('../fonts/NotoSans-VariableFont_wdth,wght.ttf') format('truetype');
+}
+
+.circle {
+	width: 15px; /* Adjust size as needed */
+	height: 15px; /* Adjust size as needed */
+	background-color: white;
+	border-radius: 50%; /* Ensures it's a circle */
+	box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25); /* Adjust shadow properties as needed */
+}
+
+.vertical-line {
+	width: 2px; /* Adjust thickness as needed */
+	background-color: white;
+}
+
+
+.select-menu{
+	width: 175px;
+	position: absolute;
+	top:0px;
+	right: 0px;
+	color: #000;
+	font-family: 'NotoSans', sans-serif;
+}
+.select-menu .select-btn{
+	display: flex;
+	height: 55px;
+	background: #fff;
+	padding: 20px;
+	font-size: 18px;
+	font-weight: 400;
+	border-radius: 8px;
+	align-items: center;
+	cursor: pointer;
+	justify-content: space-between;
+	box-shadow: 0 0 5px rgba(0,0,0,0.1);
+	border-radius: 60px;
+	margin-right: 40px;
+	margin-top: 40px;
+	border: 1px solid black;
+}
+
+.select-btn i{
+	font-size: 25px;
+	transition: 0.3s;
+	display: flex;
+	align-items: center; /* Vertical center alignment */
+}
+
+.sBtn-text, .option-text {
+	display: flex;
+	align-items: center; /* Vertical center alignment */
+}
+
+.select-menu.active .select-btn i{
+	transform: rotate(-180deg);
+}
+.select-menu .options{
+	position: relative;
+	padding: 20px;
+	margin-top: 10px;
+	border-radius: 8px;
+	background: #fff;
+	box-shadow: 0 0 3px rgba(0,0,0,0.1);
+	display: none;
+	margin-right: 40px;
+}
+.select-menu.active .options{
+	display: block;
+}
+.options .option{
+	display: flex;
+	height: 55px;
+	cursor: pointer;
+	border-radius: 8px;
+	align-items: center;
+	background: #fff;
+}
+.options .option:hover{
+	background: #F2F2F2;
+}
+.option i{
+	font-size: 25px;
+	margin-right: 12px;
+}
+.option .option-text{
+	font-size: 18px;
+	color: #333;
+}
 
 .lightbox {
 	position: fixed;
-	background: rgba(0, 0, 0, 0.90);
+	/*background: rgba(0, 0, 0, 0.90);*/
 	display: none;
 	z-index: 100;
 }
@@ -37,17 +129,18 @@
 
 .lightbox .btn-close {
 	position: absolute;
-	top: 10px;
-	right: 10px;
+	top: 30px;
+	right: 30px;
 	width: 32px;
 	height: 32px;
-	border: 1px solid #fff;
+	border: 1px solid #000;
 	background: rgba(255, 255, 255, 0.5);
 	border-radius: 50%;
 	text-align: center;
-	font-size: 18pt;
+	/*font-size: 18pt;*/
 	z-index: 101;
 	cursor: pointer;
+	color: black;
 }
 
 .lightbox .btn-close:hover {
@@ -123,7 +216,7 @@
 
 @media only screen and ( min-width: 680px) {
 	.lightbox {
-		border-radius: 5px;
-		box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.5);
+		/*border-radius: 5px;*/
+		/*box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.5);*/
 	}
 }

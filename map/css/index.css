@@ -24,7 +24,7 @@ body {
     -webkit-touch-callout: none;                /* prevent callout to copy image, etc when tap to hold */
     -webkit-text-size-adjust: none;             /* prevent webkit from resizing text to fit */
     -webkit-user-select: none;                  /* prevent copy paste, to allow, change 'none' to 'text' */
-    background-color:#FFF;
+    background-color:#F0F0F0;
     /*background-image:linear-gradient(to bottom, #A7A7A7 0%, #E4E4E4 51%);*/
     font-family: system-ui, -apple-system, -apple-system-font, 'Segoe UI', 'Roboto', sans-serif;
     font-size:12px;
@@ -33,7 +33,7 @@ body {
     padding:0px;
     /* Padding to avoid the "unsafe" areas behind notches in the screen */
     padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
-    text-transform:uppercase;
+    /*text-transform:uppercase;*/
     width:100%;
 }
 
@@ -105,7 +105,7 @@ h1 {
 
 @media screen and (prefers-color-scheme: dark) {
     body {
-        background: #FFF;
+        background: #F0F0F0;
         background-image: url("../img/map.png");
         background-position: right bottom; /*Positioning*/
         background-repeat: no-repeat; /*Prevent showing multiple background images*/

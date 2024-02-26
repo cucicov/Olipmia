@@ -33,7 +33,7 @@
 
 			var capBar = $figcaption();
 
-			var imgs = $(".img-container").find(".img_details img");
+			var imgs = target.find(".img_details img").first();
 
 			var totalImgs = imgs.length;
 
@@ -49,7 +49,7 @@
 
 			$(closeBtn).addClass("btn-close")
 				.appendTo(popupWindow)
-				.html("\&times;");
+				.html("<i class=\"fa times fa-times\"></i>");
 
 			$(imgStat).addClass("lightbox-status")
 				.appendTo(popupWindow);
@@ -137,7 +137,7 @@
 				$(imgFig).html(thisImg)
 					.parent().fadeIn();
 
-				$(capBar).html($caption).appendTo(imgFig);
+				// $(capBar).html($caption).appendTo(imgFig);
 
 			});
 

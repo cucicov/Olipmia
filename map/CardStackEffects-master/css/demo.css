@@ -13,13 +13,13 @@
 .clearfix:before, .clearfix:after {display: table;  content: ''; }
 .clearfix:after { clear: both; }
 
-body {
-	font-family: Avenir, 'Helvetica Neue', 'Lato', 'Segoe UI', Helvetica, Arial, sans-serif;
-	color: #444;
-	background: #fff;
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
-}
+/*body {*/
+/*	font-family: Avenir, 'Helvetica Neue', 'Lato', 'Segoe UI', Helvetica, Arial, sans-serif;*/
+/*	color: #444;*/
+/*	background: #fff;*/
+/*	-webkit-font-smoothing: antialiased;*/
+/*	-moz-osx-font-smoothing: grayscale;*/
+/*}*/
 
 a {
 	outline: none;
@@ -144,8 +144,8 @@ button:focus {
 .content {
 	-webkit-align-self: stretch;
 	align-self: stretch;
-	overflow: hidden;
-	padding: 2em 2em 6em;
+	/*overflow: hidden;*/
+	padding: 2em 2em 2em;
 	width: 50%;
 	position: relative;
 	display: -webkit-flex;
@@ -156,6 +156,7 @@ button:focus {
 	align-items: center;
 	-webkit-flex-direction: column;
 	flex-direction: column;
+	top: 20px;
 }
 
 .content:nth-child(even):last-child {
