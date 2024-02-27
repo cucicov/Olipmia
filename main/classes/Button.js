@@ -6,6 +6,7 @@ class Button {
         this.width = width;
         this.height = height;
         this.isVisible = false;
+        this.text = ">";
     }
 
     draw() {
@@ -18,7 +19,7 @@ class Button {
             translate(this.posx, this.posy);
             rect(0, 0, this.width, this.height);
             fill(0);
-            text(">", 0, 0);
+            text(this.text, 0, 0);
             pop();
         }
     }

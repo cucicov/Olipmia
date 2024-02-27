@@ -2,229 +2,214 @@ let fps = 0;
 let touchTargets = [];
 let activeGame;
 
-let tl = {
-    propertiesIdentifier: "tl",
-// this controls the limits of within which cards can move on posX
-    EASE_IN_FACTOR_DISPERSE_LEFT_LIMIT: -800,
-    EASE_IN_FACTOR_DISPERSE_RIGHT_LIMIT: 800,
+let SCREEN_WIDTH = 2160;
+let SCREEN_HEIGHT = 3840;
 
-    // this controls the limits within which cards can move on posY
-    POSY_OFFSET_DISPERSE_LEFT_LIMIT: -60,
-    POSY_OFFSET_DISPERSE_RIGHT_LIMIT: 30,
+let button1;
+let button2;
+let button3;
+let button4;
 
-    // position for the initial card starting the game
-    POSY_INITIAL_CARD: undefined,
-    POSX_INITIAL_CARD: undefined,
+let tl = {};
 
-    // position for the deck, how far to enter the canvas.
-    POSY_INITIAL_DECK: undefined,
-
-    // card sizes
-    CARD_WIDTH: 240,
-    CARD_HEIGHT: 500,
-    PLACEHOLDER_WIDTH: 260,
-    PLACEHOLDER_HEIGHT: 520,
-
-    //  ----- ERRORS -----
-    errors: 0,
-    persistentErrors: -1,
-    historyErrors: -1,
-
-    ERRORS_3_STARS: 3,
-    ERRORS_2_STARS: 5,
-    ERRORS_1_STARS: 10,
-    // -------------------------------
-
-    //  ----- CARDS && PLACEHOLDERS -----
-    selectedCard: undefined,
-    cards: [],
-    placeholders: [],
-
-    undiscoveredCardIds: new Set(),
-    discoveredPlaceholders: new Set(),
-    // -------------------------------
-
-    // ----- STARS VARIABLES -----
-    STAR_ROTATION_SPEED: 0.01,
-    STAR_RADIUS: 145,
-
-    startRotationParam: 0,
-    // -------------------------------
-
-    // ----- POP-UP variables -----
-    cardPopUpProperties: {
-        dynamicRadius: 0,
-        targetRadius: 30,
-        currentSize: 0,
-        elasticity: 0.07,
-        velocity: 2,
-        position: 0,
-        inc: 3,
-        displayPopUp: false,
-        showPropertiesInitialized: false,
-        hidePropertiesInitialized: false,
-        popupWidth: 900,
-        popupHeight: 1600,
-    },
-    infoPopUpProperties: {
-        dynamicRadius: 10,
-        targetRadius: 30,
-        currentSize: 20,
-        elasticity: 0.07,
-        velocity: 2,
-        position: 0,
-        inc: 3,
-        displayPopUp: false,
-        showPropertiesInitialized: false,
-        hidePropertiesInitialized: false,
-    },
-    // -------------------------------
-
-    // ----- MATCH/WIN animation variables -----
-    cardMatchProperties: {
-        WIN_PARTICLE_ANIMATION_DURATION: 2, // duration for generating particles.
-        particles: [], // list of particles for card match animation.
-        shouldDisplay: false,
-        placeholder: -1, // placeholder to use in positioning card match animation.
-        particleAnimationDuration: this.WIN_PARTICLE_ANIMATION_DURATION,
-        numberOfParticles: 55, // number of particles.
-    },
-    winProperties: {
-        particles: [], // list of particles for win animation.
-        finalWin: false, // reached the final stage where all cards match.
-        posx: undefined,
-        posy: undefined,
-        timeoutTillStart: 30, // delay before starting the final win animation.
-        placeholderModifier: {
-            red: 0, // color of the placeholder when scrolling through matching cards at the end.
-            green: 206,
-            blue: 209,
-            stroke: 0, // remove stroke at the end when changing placeholder colors.
-            scale: 2, // scale placeholder while scrolling through matching cards at the end.
-        },
-        winStarHorizontalSpeed: 5,
-    }
-
-}
-
-let mem = {
-    fps: 0,
-    propertiesIdentifier: "mem",
-    maskImg: undefined,
-    icons: [],
-    images: [],
-
-    nextButton: undefined,
-
-    gameState: {
-        isLevelOver: false,
-        isWon: false,
-        isLost: false,
-        isGameOver: false,
-        levelNumber: 1,
-        MAX_LEVELS: 5,
-        originalNumberOfIcons: undefined, // used in error calculation.
-    },
-
-
-    // ----- STARS VARIABLES -----
-    STAR_ROTATION_SPEED: 0.01,
-    STAR_RADIUS: 145,
-    startRotationParam: 0,
-    // -------------------------------
-
-
-    infoPopUpProperties: {
-        dynamicRadius: 10,
-        targetRadius: 30,
-        currentSize: 20,
-        elasticity: 0.07,
-        velocity: 2,
-        position: 0,
-        inc: 3,
-        displayPopUp: false,
-        showPropertiesInitialized: false,
-        hidePropertiesInitialized: false,
-    },
-
-    cardPopUpProperties: {
-        dynamicRadius: 0,
-        targetRadius: 30,
-        currentSize: 0,
-        elasticity: 0.07,
-        velocity: 2,
-        position: 0,
-        inc: 3,
-        displayPopUp: false,
-        showPropertiesInitialized: false,
-        hidePropertiesInitialized: false,
-        popupWidth: 2400,
-        popupHeight: 1000,
-        popupPosx: 1080,
-        popupPosy: 2720,
-    },
-
-    // levels of error
-    ERRORS_LEVEL_1: 2, // reveal first layer
-    ERRORS_LEVEL_2: 3, // reveal whole image
-    ERRORS_LEVEL_3: 4, // game over
-
-    ERRORS_3_STARS: 3,
-    ERRORS_2_STARS: 5,
-    ERRORS_1_STARS: 10,
-
-    EASE_IN_FACTOR_DISPERSE_LEFT_LIMIT: -500,
-    EASE_IN_FACTOR_DISPERSE_RIGHT_LIMIT: 500,
-
-    // this controls the limits within which cards can move on posY
-    POSY_OFFSET_DISPERSE_LEFT_LIMIT: -50,
-    POSY_OFFSET_DISPERSE_RIGHT_LIMIT: 50,
-
-
-
-    cardMatchProperties: {
-        WIN_PARTICLE_ANIMATION_DURATION: 2, // duration for generating particles.
-        particles: [], // list of particles for card match animation.
-        shouldDisplay: false,
-        particleAnimationDuration: this.WIN_PARTICLE_ANIMATION_DURATION,
-        numberOfParticles: 15, // number of particles.
-        placeholder: undefined,
-    }
-
-}
+let loadedImages = [];
+let mem = {};
 
 // -------------------------------
 
 function preload() {
 
-    // Memory game
-    mem.images.push(loadImage('img/1.jpg'));
-    mem.images.push(loadImage('img/2.jpg'));
-    mem.images.push(loadImage('img/3.jpg'));
-
-    activeGame = "tl";
+    loadedImages.push([loadImage('img/1.jpg'), '1']); // keep a unique ID of the image to keep track of the displayed images and not display them anymore in the current game.
+    loadedImages.push([loadImage('img/2.jpg'), '2']);
+    loadedImages.push([loadImage('img/3.jpg'), '3']);
+    loadedImages.push([loadImage('img/4.jpg'), '4']);
+    loadedImages.push([loadImage('img/5.jpg'), '5']);
+    loadedImages.push([loadImage('img/6.jpg'), '6']);
+    loadedImages.push([loadImage('img/7.jpg'), '7']);
+    loadedImages.push([loadImage('img/8.jpg'), '8']);
+    loadedImages.push([loadImage('img/9.jpg'), '9']);
+    loadedImages.push([loadImage('img/10.jpg'), '10']);
+    loadedImages.push([loadImage('img/11.jpg'), '11']);
+    loadedImages.push([loadImage('img/12.jpg'), '12']);
+    activeGame = "mem";
 }
 
 function setup() {
-    if (activeGame === mem.propertiesIdentifier){
+    if (activeGame === "mem"){
         initializeMemory();
     }
-    if (activeGame === tl.propertiesIdentifier){
+    if (activeGame === "tl"){
         initializeTimeline();
     }
+
+    initializeMenuButtons();
 }
 
 function draw() {
-    if (activeGame === mem.propertiesIdentifier){
+    if (activeGame === "mem"){
         drawMemory();
     }
-    if (activeGame === tl.propertiesIdentifier){
+    if (activeGame === "tl"){
         drawTimeline();
+    }
+
+    drawMenuButtons();
+}
+
+
+// ++++++++++++++++++++++++++ MENU +++++++++++++++++++++++++++++
+
+function initializeMenuButtons() {
+    button1 = new Button(SCREEN_WIDTH - 100, (SCREEN_HEIGHT/2) - 1200, 50, 50);
+    button1.isVisible = true;
+    button1.text = "1";
+    button2 = new Button(SCREEN_WIDTH - 100, (SCREEN_HEIGHT/2) - 1100, 50, 50);
+    button2.isVisible = true;
+    button2.text = "2";
+    button3 = new Button(SCREEN_WIDTH - 100, (SCREEN_HEIGHT/2) - 1000, 50, 50);
+    button3.isVisible = true;
+    button3.text = "3";
+    button4 = new Button(SCREEN_WIDTH - 100, (SCREEN_HEIGHT/2) - 900, 50, 50);
+    button4.isVisible = true;
+    button4.text = "4";
+}
+
+function drawMenuButtons() {
+    button1.draw();
+    button2.draw();
+    button3.draw();
+    button4.draw();
+
+    // timeline
+    if (button1.isClicked(mouseX, mouseY) && !tl.isInitialized) {
+        activeGame = "tl";
+        setup();
+
+        tl.isInitialized = true;
+        mem.isInitialized = false;
+    }
+
+    // memory
+    if (button2.isClicked(mouseX, mouseY) && !mem.isInitialized) {
+        activeGame = "mem";
+        setup();
+
+        mem.isInitialized = true;
+        tl.isInitialized = false;
     }
 }
 
+
+
+// ++++++++++++++++++++++++++ TIMELINE +++++++++++++++++++++++++++++
 function initializeTimeline() {
-    createCanvas(2160, 3840);
+    createCanvas(SCREEN_WIDTH, SCREEN_HEIGHT);
+
+    tl = {
+        propertiesIdentifier: "tl",
+        isInitialized: false,
+        // this controls the limits of within which cards can move on posX
+        EASE_IN_FACTOR_DISPERSE_LEFT_LIMIT: -800,
+        EASE_IN_FACTOR_DISPERSE_RIGHT_LIMIT: 800,
+
+        // this controls the limits within which cards can move on posY
+        POSY_OFFSET_DISPERSE_LEFT_LIMIT: -60,
+        POSY_OFFSET_DISPERSE_RIGHT_LIMIT: 30,
+
+        // position for the initial card starting the game
+        POSY_INITIAL_CARD: undefined,
+        POSX_INITIAL_CARD: undefined,
+
+        // position for the deck, how far to enter the canvas.
+        POSY_INITIAL_DECK: undefined,
+
+        // card sizes
+        CARD_WIDTH: 240,
+        CARD_HEIGHT: 500,
+        PLACEHOLDER_WIDTH: 260,
+        PLACEHOLDER_HEIGHT: 520,
+
+        //  ----- ERRORS -----
+        errors: 0,
+        persistentErrors: -1,
+        historyErrors: -1,
+
+        ERRORS_3_STARS: 3,
+        ERRORS_2_STARS: 5,
+        ERRORS_1_STARS: 10,
+        // -------------------------------
+
+        //  ----- CARDS && PLACEHOLDERS -----
+        selectedCard: undefined,
+        cards: [],
+        placeholders: [],
+
+        undiscoveredCardIds: new Set(),
+        discoveredPlaceholders: new Set(),
+        // -------------------------------
+
+        // ----- STARS VARIABLES -----
+        STAR_ROTATION_SPEED: 0.01,
+        STAR_RADIUS: 145,
+
+        startRotationParam: 0,
+        // -------------------------------
+
+        // ----- POP-UP variables -----
+        cardPopUpProperties: {
+            dynamicRadius: 0,
+            targetRadius: 30,
+            currentSize: 0,
+            elasticity: 0.07,
+            velocity: 2,
+            position: 0,
+            inc: 3,
+            displayPopUp: false,
+            showPropertiesInitialized: false,
+            hidePropertiesInitialized: false,
+            popupWidth: 900,
+            popupHeight: 1600,
+        },
+        infoPopUpProperties: {
+            dynamicRadius: 10,
+            targetRadius: 30,
+            currentSize: 20,
+            elasticity: 0.07,
+            velocity: 2,
+            position: 0,
+            inc: 3,
+            displayPopUp: false,
+            showPropertiesInitialized: false,
+            hidePropertiesInitialized: false,
+        },
+        // -------------------------------
+
+        // ----- MATCH/WIN animation variables -----
+        cardMatchProperties: {
+            WIN_PARTICLE_ANIMATION_DURATION: 2, // duration for generating particles.
+            particles: [], // list of particles for card match animation.
+            shouldDisplay: false,
+            placeholder: -1, // placeholder to use in positioning card match animation.
+            particleAnimationDuration: this.WIN_PARTICLE_ANIMATION_DURATION,
+            numberOfParticles: 55, // number of particles.
+        },
+        winProperties: {
+            particles: [], // list of particles for win animation.
+            finalWin: false, // reached the final stage where all cards match.
+            posx: undefined,
+            posy: undefined,
+            timeoutTillStart: 30, // delay before starting the final win animation.
+            placeholderModifier: {
+                red: 0, // color of the placeholder when scrolling through matching cards at the end.
+                green: 206,
+                blue: 209,
+                stroke: 0, // remove stroke at the end when changing placeholder colors.
+                scale: 2, // scale placeholder while scrolling through matching cards at the end.
+            },
+            winStarHorizontalSpeed: 5,
+        }
+
+    }
 
     tl.POSX_INITIAL_CARD = width/2;
     tl.POSY_INITIAL_CARD = 1300;
@@ -558,7 +543,103 @@ function touchStarted() {
 // +++++++++++++++++++++++ MEMORY GAME +++++++++++++++++++++++++
 
 function initializeMemory() {
-    createCanvas(2160, 3840);
+    createCanvas(SCREEN_WIDTH, SCREEN_HEIGHT);
+
+    mem = {
+        fps: 0,
+        propertiesIdentifier: "mem",
+        isInitialized: false,
+        maskImg: undefined,
+        icons: [],
+        images: [],
+        burnedImages: new Set(), // images that have already been selected by randomness and should not be selected anymore in current game.
+
+        nextButton: undefined,
+
+        gameState: {
+            isLevelOver: false,
+            isWon: false,
+            isLost: false,
+            isGameOver: false,
+            levelNumber: 1,
+            MAX_LEVELS: 5,
+            originalNumberOfIcons: undefined, // used in error calculation.
+        },
+
+
+        // ----- STARS VARIABLES -----
+        STAR_ROTATION_SPEED: 0.01,
+        STAR_RADIUS: 145,
+        startRotationParam: 0,
+        // -------------------------------
+
+
+        infoPopUpProperties: {
+            dynamicRadius: 10,
+            targetRadius: 30,
+            currentSize: 20,
+            elasticity: 0.07,
+            velocity: 2,
+            position: 0,
+            inc: 3,
+            displayPopUp: false,
+            showPropertiesInitialized: false,
+            hidePropertiesInitialized: false,
+        },
+
+        cardPopUpProperties: {
+            dynamicRadius: 0,
+            targetRadius: 30,
+            currentSize: 0,
+            elasticity: 0.07,
+            velocity: 2,
+            position: 0,
+            inc: 3,
+            displayPopUp: false,
+            showPropertiesInitialized: false,
+            hidePropertiesInitialized: false,
+            popupWidth: 2400,
+            popupHeight: 1000,
+            popupPosx: 1080,
+            popupPosy: 2720,
+        },
+
+        // levels of error
+        ERRORS_LEVEL_1: 2, // reveal first layer
+        ERRORS_LEVEL_2: 3, // reveal whole image
+        ERRORS_LEVEL_3: 4, // game over
+
+        ERRORS_3_STARS: 3,
+        ERRORS_2_STARS: 5,
+        ERRORS_1_STARS: 10,
+
+        EASE_IN_FACTOR_DISPERSE_LEFT_LIMIT: -500,
+        EASE_IN_FACTOR_DISPERSE_RIGHT_LIMIT: 500,
+
+        // this controls the limits within which cards can move on posY
+        POSY_OFFSET_DISPERSE_LEFT_LIMIT: -50,
+        POSY_OFFSET_DISPERSE_RIGHT_LIMIT: 50,
+
+        // ------- ERRORS ---------
+        persistentErrors: 0,
+        historyErrors: 0,
+        // ------------------------
+
+        cardMatchProperties: {
+            WIN_PARTICLE_ANIMATION_DURATION: 2, // duration for generating particles.
+            particles: [], // list of particles for card match animation.
+            shouldDisplay: false,
+            particleAnimationDuration: this.WIN_PARTICLE_ANIMATION_DURATION,
+            numberOfParticles: 15, // number of particles.
+            placeholder: undefined,
+        }
+
+    }
+
+    // Memory game
+    for (let i=0; i<loadedImages.length; i++){
+        mem.images.push(loadedImages[i]);
+    }
 
     initializeNewImage();
     initializeIcons();
@@ -576,12 +657,12 @@ function removeRemainingWrongIcons() {
 // calculate number of errors, display additional image levels as errors increase, display next
 function processErrors() {
     if (!mem.gameState.isLevelOver && !mem.gameState.isGameOver) {
-        historyErrors = mem.gameState.originalNumberOfIcons - mem.icons.length;
-        mem.maskImg.zoomLevel = historyErrors;
+        mem.historyErrors = mem.gameState.originalNumberOfIcons - mem.icons.length;
+        mem.maskImg.zoomLevel = mem.historyErrors;
 
         // if minimum numbers of icons are left -> game over and remove all other icons.
         // this also checks if last wrong icon finished animation.
-        if (historyErrors >= mem.ERRORS_LEVEL_3 && mem.icons.length <= mem.gameState.originalNumberOfIcons - mem.ERRORS_LEVEL_3) {
+        if (mem.historyErrors >= mem.ERRORS_LEVEL_3 && mem.icons.length <= mem.gameState.originalNumberOfIcons - mem.ERRORS_LEVEL_3) {
             removeRemainingWrongIcons();
         }
 
@@ -703,7 +784,12 @@ function drawMemory() {
 
 
 function initializeNewImage() {
-    let img = random(mem.images);
+    let randomImg = random(mem.images);
+    while (mem.burnedImages.has(randomImg[1])) { // keep selecting till new image is selected.
+        randomImg = random(mem.images);
+    }
+    let img = randomImg[0]; // index 0 is the loaded image, index 1 is the unique id of the image.
+    mem.burnedImages.add(randomImg[1]); // add image unique ID.
 
     let cropSize1 = 300;
     let crop1 = new CropSettings(cropSize1, cropSize1, img.width / 2 - cropSize1 / 2, img.height / 2 - cropSize1 / 2);
@@ -718,6 +804,7 @@ function initializeNewImage() {
 }
 
 function initializeIcons() {
+    mem.icons = [];
     mem.icons.push(new Icon(1, (width / 2), height / 2, 1, -0.33, mem));
     mem.icons.push(new Icon(2, (width / 2), height / 2, -1, -0.33, mem));
     mem.icons.push(new Icon(3, width / 2, height / 2, 0.33, -1, mem));
