@@ -16,6 +16,8 @@ class Placeholder {
         this.width = width;
         this.height = height;
         this.correctCardId = cardId; // correct card id.
+        this.correctCardDetailsImage = loadImage('../timelineImg/' + this.correctCardId + '_details.png');
+        this.placeholderImage = loadImage('../timelineImg/placeholder.png');
 
         this.activeCard = 0; // actively associated card.
 
@@ -52,11 +54,17 @@ class Placeholder {
         // check if should display wrong card animation on placeholder.
         this.checkWrongCardAnimation();
 
-        rectMode(CENTER);
-        stroke(this.phStroke);
-        strokeWeight(this.phStroke);
-        fill(this.rectColorR, this.rectColorG, this.rectColorB);
-        rect(this.posx, this.posy, this.width, this.height);
+        // rectMode(CENTER);
+        // stroke(this.phStroke);
+        // strokeWeight(this.phStroke);
+        // fill(this.rectColorR, this.rectColorG, this.rectColorB);
+        // rect(this.posx, this.posy, this.width, this.height);
+
+        push();
+        imageMode(CENTER);
+
+        image(this.placeholderImage, this.posx, this.posy);
+        pop();
     }
 
     checkWrongCardAnimation() {

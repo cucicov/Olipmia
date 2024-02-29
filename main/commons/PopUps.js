@@ -13,10 +13,26 @@ function drawPopUp(gameProp) {
         } else if (gameProp.propertiesIdentifier === "mem") {
             translate(gameProp.cardPopUpProperties.popupPosx,
                 gameProp.cardPopUpProperties.popupPosy);
+
         }
+
         scale(scaleRatio);
-        rectMode(CENTER);
-        rect(0, 0, gameProp.cardPopUpProperties.popupWidth, gameProp.cardPopUpProperties.popupHeight, 30);
+
+        if (gameProp.propertiesIdentifier === "tl"){
+            imageMode(CENTER);
+            //fix for displaying marginal cards.
+            let calculatedPosx = 0;
+            if (gameProp.cardMatchProperties.placeholder.id === 1) {
+                calculatedPosx =+ 280;
+            }
+            if (gameProp.cardMatchProperties.placeholder.id === 7) {
+                calculatedPosx =- 280;
+            }
+            image(gameProp.cardMatchProperties.placeholder.correctCardDetailsImage, calculatedPosx, 0);
+        } else if (gameProp.propertiesIdentifier === "mem") {
+            rectMode(CENTER);
+            rect(0, 0, gameProp.cardPopUpProperties.popupWidth, gameProp.cardPopUpProperties.popupHeight, 30);
+        }
         pop();
 
         if (scaleRatio === 0) {
@@ -73,7 +89,7 @@ function calculatePopUpScaleRatio(properties) {
 
     // Update the size
     properties.currentSize = max(0, properties.position) + properties.dynamicRadius;
-    let scaleRatio = map(properties.currentSize, 0, 52, 0, 0.5);
+    let scaleRatio = map(properties.currentSize, 0, 52, 0, 1);
     return scaleRatio;
 }
 

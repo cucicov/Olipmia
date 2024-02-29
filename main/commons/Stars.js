@@ -8,22 +8,94 @@ function getWinStarSettings(gameProp) {
 
 
 function drawWinStars(gameProp) {
-    if (!gameProp.infoPopUpProperties.displayPopUp) {
+    // if (!gameProp.infoPopUpProperties.displayPopUp) {
         let {star1Win, star2Win, star3Win} = getWinStarSettings(gameProp);
-        drawRotatingStar(width/2 - 400, height/2 + 100, star1Win, gameProp);
-        drawRotatingStar(width/2, height/2 + 100, star2Win, gameProp);
-        drawRotatingStar(width/2 + 400, height/2 + 100, star3Win, gameProp);
-    }
+
+        // start decreasing stars timeouts.
+        gameProp.timeoutStar1--;
+        gameProp.timeoutStar2--;
+        gameProp.timeoutStar3--;
+        gameProp.timeoutStarText--;
+
+        if (gameProp.timeoutStar1 < 0) {
+            drawRotatingStar(width/2 - 300, height/2 - 100 + 5, star1Win, gameProp, true); // shadow
+            drawRotatingStar(width/2 - 300, height/2 - 100, star1Win, gameProp);
+        }
+        if (gameProp.timeoutStar2 < 0) {
+            drawRotatingStar(width / 2, height / 2 - 200 + 5, star2Win, gameProp, true); // shadow
+            drawRotatingStar(width / 2, height / 2 - 200, star2Win, gameProp);
+        }
+        if (gameProp.timeoutStar3 < 0) {
+            drawRotatingStar(width / 2 + 300, height / 2 - 100 + 5, star3Win, gameProp, true); // shadow
+            drawRotatingStar(width / 2 + 300, height / 2 - 100, star3Win, gameProp);
+        }
+
+        // DRAW STAR TEXT..................
+        if (gameProp.timeoutStarText < 0) {
+            push();
+            // draw text
+            if (star1Win && star2Win && star3Win) { // 3 STAR
+                textSize(46);
+                fill(0);
+                textFont(fontNotoMedium);
+                textStyle(BOLD);
+                textAlign(CENTER);
+                text("Excelent!", width / 2, height / 2 + 100);
+                textFont(fontNotoLight);
+                textStyle(NORMAL);
+                text("Performanța ta a fost la un \n nivel istoric! Câteva ajustări și \n ești pe podium.", width / 2, height / 2 + 200);
+            }
+            if (star1Win && star2Win && !star3Win) { // 2 STAR
+                textSize(46);
+                fill(0);
+                textFont(fontNotoMedium);
+                textStyle(BOLD);
+                textAlign(CENTER);
+                text("Impresionant!", width / 2, height / 2 + 100);
+                textFont(fontNotoLight);
+                textStyle(NORMAL);
+                text("Performanța ta a fost la un \n nivel istoric! Câteva ajustări și \n ești pe podium.", width / 2, height / 2 + 200);
+            }
+            if (star1Win && !star2Win && !star3Win) { // 1 STAR
+                textSize(46);
+                fill(0);
+                textFont(fontNotoMedium);
+                textStyle(BOLD);
+                textAlign(CENTER);
+                text("Good enough!", width / 2, height / 2 + 100);
+                textFont(fontNotoLight);
+                textStyle(NORMAL);
+                text("Performanța ta a fost la un \n nivel istoric! Câteva ajustări și \n ești pe podium.", width / 2, height / 2 + 200);
+            }
+            if (!star1Win && !star2Win && !star3Win) { // 0 STAR
+                textSize(46);
+                fill(0);
+                textFont(fontNotoMedium);
+                textStyle(BOLD);
+                textAlign(CENTER);
+                text(":((((((", width / 2, height / 2 + 100);
+                textFont(fontNotoLight);
+                textStyle(NORMAL);
+                text("Performanța ta a fost la un \n nivel istoric! Câteva ajustări și \n ești pe podium.", width / 2, height / 2 + 200);
+            }
+            // restart button.
+            imageMode(CENTER);
+            image(gameProp.restartButton, width / 2, height / 2 + 500);
+            pop();
+        }
+    // }
 }
 
 
-function drawRotatingStar(posx, posy, isWinStart, gameProp) {
+function drawRotatingStar(posx, posy, isWinStart, gameProp, isShadow) {
     gameProp.startRotationParam += gameProp.STAR_ROTATION_SPEED;
 
-    if (isWinStart) {
-        fill(255, 215, 0);
+    if (isShadow) {
+        fill(200, 200, 200);
+    } else if (isWinStart) {
+        fill(255, 255, 0);
     } else {
-        fill(120,120,120);
+        fill(255,255,255);
     }
 
     noStroke();

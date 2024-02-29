@@ -12,12 +12,24 @@ let button4;
 
 let tl = {};
 
-let loadedImages = [];
 let mem = {};
+
+// +++++ PRELOADED content.
+let loadedImages = [];
+let restartTimelineButtonRo;
+let restartTimelineButtonEn;
+let fontNotoMedium;
+let fontNotoLight;
+let fontZebrra;
+
+let timelineBg;
 
 // -------------------------------
 
 function preload() {
+    fontNotoMedium = loadFont('font/NotoSans-Medium.ttf');
+    fontNotoLight = loadFont('font/NotoSans-Light.ttf');
+    fontZebrra = loadFont('font/zebrra.regular.ttf');
 
     loadedImages.push([loadImage('img/1.jpg'), '1']); // keep a unique ID of the image to keep track of the displayed images and not display them anymore in the current game.
     loadedImages.push([loadImage('img/2.jpg'), '2']);
@@ -31,10 +43,18 @@ function preload() {
     loadedImages.push([loadImage('img/10.jpg'), '10']);
     loadedImages.push([loadImage('img/11.jpg'), '11']);
     loadedImages.push([loadImage('img/12.jpg'), '12']);
+
+    restartTimelineButtonRo = loadImage('timelineImg/restart_ro.png');
+    restartTimelineButtonEn = loadImage('timelineImg/restart_ro.png'); //TODO:
+
+    timelineBg = loadImage("timelineImg/timelineBg.png");
+
     activeGame = "mem";
 }
 
 function setup() {
+    textFont(fontNotoMedium);
+
     if (activeGame === "mem"){
         initializeMemory();
     }
@@ -124,10 +144,18 @@ function initializeTimeline() {
         POSY_INITIAL_DECK: undefined,
 
         // card sizes
-        CARD_WIDTH: 240,
-        CARD_HEIGHT: 500,
+        CARD_WIDTH: 288,
+        CARD_HEIGHT: 488,
         PLACEHOLDER_WIDTH: 260,
         PLACEHOLDER_HEIGHT: 520,
+
+        // ++++ UTILS +++++
+        restartButton: restartTimelineButtonRo,
+        // timeout for final start display
+        timeoutStar1: 0,
+        timeoutStar2: 80,
+        timeoutStar3: 160,
+        timeoutStarText: 250,
 
         //  ----- ERRORS -----
         errors: 0,
@@ -149,10 +177,10 @@ function initializeTimeline() {
         // -------------------------------
 
         // ----- STARS VARIABLES -----
-        STAR_ROTATION_SPEED: 0.01,
-        STAR_RADIUS: 145,
+        STAR_ROTATION_SPEED: 0.0,
+        STAR_RADIUS: 80,
 
-        startRotationParam: 0,
+        startRotationParam: -0.3,
         // -------------------------------
 
         // ----- POP-UP variables -----
@@ -212,59 +240,64 @@ function initializeTimeline() {
     }
 
     tl.POSX_INITIAL_CARD = width/2;
-    tl.POSY_INITIAL_CARD = 1300;
-    tl.POSY_INITIAL_DECK = 1300;
+    tl.POSY_INITIAL_CARD = 1100;
+    tl.POSY_INITIAL_DECK = 1500;
 
-    tl.cards.push(new Card(1,(width/2) + 20, height+50, random(-1, - 0.9), random(-1, -0.6)));
-    tl.cards.push(new Card(2, (width/2) + 10, height+40, random(1, 0.8), random(0.6, 1)));
-    tl.cards.push(new Card(3, width/2, height+30, )); // middle card
-    tl.cards.push(new Card(4, (width/2) - 10, height+20, random(-0.5, -0.3), random(0.5, 0.9)));
-    tl.cards.push(new Card(5, (width/2) - 20, height+10, random(-0.2, 0.7), random(1, 0.6)));
-    tl.cards.push(new Card(6, (width/2) - 30, height, random(1, 0.5), random(-1, -0.6)));
-    tl.cards.push(new Card(7, (width/2) - 40, height-10, random(0.0, 0.0), random(-1, 0)));
+    // select 7 random image ids. they are ordered chronologically so should be arranged ascending.
+    let numbersArray = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+    let selectedNumbers = selectUniqueNumbers(numbersArray, 7).sort((a, b) => a - b);
+    print(selectedNumbers);
 
-    tl.placeholders.push(new Placeholder(7,
-        tl.POSX_INITIAL_CARD - tl.PLACEHOLDER_WIDTH * 3 - 48,
-        tl.POSY_INITIAL_CARD,
-        tl.PLACEHOLDER_WIDTH,
-        tl.PLACEHOLDER_HEIGHT,
-        7, 1978, "info card 7"));
+    tl.cards.push(new Card(selectedNumbers[0],(width/2) + 20, height+50, random(-1, - 0.9), random(-1, -0.6)));
+    tl.cards.push(new Card(selectedNumbers[1], (width/2) + 10, height+40, random(1, 0.8), random(0.6, 1)));
+    tl.cards.push(new Card(selectedNumbers[2], width/2, height+30, random(-0.5, -0.3), random(0.5, 0.9)));
+    tl.cards.push(new Card(selectedNumbers[3], (width/2) - 10, height+20,)); // middle card
+    tl.cards.push(new Card(selectedNumbers[4], (width/2) - 20, height+10, random(-0.2, 0.7), random(1, 0.6)));
+    tl.cards.push(new Card(selectedNumbers[5], (width/2) - 30, height, random(1, 0.5), random(-1, -0.6)));
+    tl.cards.push(new Card(selectedNumbers[6], (width/2) - 40, height-10, random(0.0, 0.0), random(-1, 0)));
+
     tl.placeholders.push(new Placeholder(1,
-        tl.POSX_INITIAL_CARD - tl.PLACEHOLDER_WIDTH * 2 - 32,
+        tl.POSX_INITIAL_CARD - tl.PLACEHOLDER_WIDTH * 3 - 90,
         tl.POSY_INITIAL_CARD,
         tl.PLACEHOLDER_WIDTH,
         tl.PLACEHOLDER_HEIGHT,
-        1, 1981, "info card 1"));
+        selectedNumbers[0], 1978, "info card 7"));
     tl.placeholders.push(new Placeholder(2,
-        tl.POSX_INITIAL_CARD - tl.PLACEHOLDER_WIDTH - 16,
+        tl.POSX_INITIAL_CARD - tl.PLACEHOLDER_WIDTH * 2 - 60,
         tl.POSY_INITIAL_CARD,
         tl.PLACEHOLDER_WIDTH,
         tl.PLACEHOLDER_HEIGHT,
-        2, 1982, "info card 2"));
+        selectedNumbers[1], 1981, "info card 1"));
     tl.placeholders.push(new Placeholder(3,
+        tl.POSX_INITIAL_CARD - tl.PLACEHOLDER_WIDTH - 30,
+        tl.POSY_INITIAL_CARD,
+        tl.PLACEHOLDER_WIDTH,
+        tl.PLACEHOLDER_HEIGHT,
+        selectedNumbers[2], 1982, "info card 2"));
+    tl.placeholders.push(new Placeholder(4,
         tl.POSX_INITIAL_CARD,
         tl.POSY_INITIAL_CARD,
         tl.PLACEHOLDER_WIDTH,
         tl.PLACEHOLDER_HEIGHT,
-        3, 1983, "info card 3"));
-    tl.placeholders.push(new Placeholder(4,
-        tl.POSX_INITIAL_CARD + tl.PLACEHOLDER_WIDTH + 16,
-        tl.POSY_INITIAL_CARD,
-        tl.PLACEHOLDER_WIDTH,
-        tl.PLACEHOLDER_HEIGHT,
-        4, 1984, "info card 4"));
+        selectedNumbers[3], 1983, "info card 3"));
     tl.placeholders.push(new Placeholder(5,
-        tl.POSX_INITIAL_CARD + tl.PLACEHOLDER_WIDTH * 2 + 32,
+        tl.POSX_INITIAL_CARD + tl.PLACEHOLDER_WIDTH + 30,
         tl.POSY_INITIAL_CARD,
         tl.PLACEHOLDER_WIDTH,
         tl.PLACEHOLDER_HEIGHT,
-        5, 1985, "info card 5"));
+        selectedNumbers[4], 1984, "info card 4"));
     tl.placeholders.push(new Placeholder(6,
-        tl.POSX_INITIAL_CARD + tl.PLACEHOLDER_WIDTH * 3 + 48,
+        tl.POSX_INITIAL_CARD + tl.PLACEHOLDER_WIDTH * 2 + 60,
         tl.POSY_INITIAL_CARD,
         tl.PLACEHOLDER_WIDTH,
         tl.PLACEHOLDER_HEIGHT,
-        6, 1986, "info card 6"));
+        selectedNumbers[5], 1985, "info card 5"));
+    tl.placeholders.push(new Placeholder(7,
+        tl.POSX_INITIAL_CARD + tl.PLACEHOLDER_WIDTH * 3 + 90,
+        tl.POSY_INITIAL_CARD,
+        tl.PLACEHOLDER_WIDTH,
+        tl.PLACEHOLDER_HEIGHT,
+        selectedNumbers[6], 1986, "info card 6"));
 
     touchTargets.push(new TouchTarget());
 
@@ -279,7 +312,7 @@ function initializeTimeline() {
 }
 
 function drawTimeline() {
-    background(220);
+    background(timelineBg);
 
     // guiding lines center of the screen.
     // line(0, 840, width, 840);
@@ -378,7 +411,7 @@ function drawTimeline() {
 
     // ++++++++ display info dialog +++++++
     if (isGameOver()) { // check if final win animation is over.
-        drawInfoPopUp(width/2, height/2, tl);
+        // drawInfoPopUp(width/2, height/2, tl);
         drawWinStars(tl);
     }
 
@@ -392,6 +425,39 @@ function drawTimeline() {
     fill(0);
     text("FPS: " + fps.toFixed(0), 20, 20);
     text("ERRORS: " + tl.historyErrors, 20, 40);
+
+    textFont(fontNotoMedium);
+    textStyle(NORMAL);
+    textAlign(CENTER);
+    textSize(90);
+    fill(0);
+    text('ISTORIA SPORTULUI', width/2, 300);
+
+    textSize(45);
+    textStyle(BOLD);
+    text('Aranjează cărțile în ordine cronologică', width/2, 400);
+
+    textFont(fontNotoLight);
+    textStyle(NORMAL);
+    text('și descoperă istoria sportului brașovean', width/2, 450);
+}
+
+function selectUniqueNumbers(arr, numToSelect) {
+    if (arr.length < numToSelect) {
+        console.log("Error: Not enough elements in the array to select from.");
+        return [];
+    }
+
+    let selectedNumbers = [];
+    let copiedArray = arr.slice(); // Create a copy of the original array to avoid modifying it
+
+    for (let i = 0; i < numToSelect; i++) {
+        const randomIndex = Math.floor(Math.random() * copiedArray.length);
+        selectedNumbers.push(copiedArray[randomIndex]);
+        copiedArray.splice(randomIndex, 1);
+    }
+
+    return selectedNumbers;
 }
 
 function isGameOver() {
@@ -458,8 +524,9 @@ function drawDiscoveredYears() {
         fill(0);
         stroke(1);
         strokeWeight(1);
-        textSize(44);
-        text(item.year, item.posx - 50, item.posy + item.height/2 + 50);
+        textSize(60);
+        textFont(fontZebrra);
+        text(item.year, item.posx, item.posy + item.height/2 + 40);
     }
 }
 
@@ -491,6 +558,12 @@ function mousePressed() {
     }
     if (activeGame === tl.propertiesIdentifier) {
         touchStarted();
+        // restart game.
+        if (isGameOver() && mouseX > 800 && mouseX < 1330 && mouseY > 2370 && mouseY < 2450) {
+            tl.isInitialized = false;
+            setup();
+            tl.isInitialized = true;
+        }
     }
 }
 

@@ -14,6 +14,8 @@ class Card {
         this.width = tl.CARD_WIDTH;
         this.height = tl.CARD_HEIGHT;
 
+        this.cardImage = loadImage('../timelineImg/' + this.id + '.png');
+
         this.initialPosY = posy;
         this.initialPosYAfterScatter = posy;
         this.initialPosX = posx;
@@ -160,10 +162,11 @@ class Card {
 
         scale(this.scaleFactor);
         rotate(radians(this.currentRotationAngle));
-        rect(0, 0, this.width, this.height);
-        fill(0);
-        textSize(44);
-        text(this.id, 0, 0);
+        image(this.cardImage, -this.width/2, -this.height/2);
+        // rect(0, 0, this.width, this.height);
+        // fill(0);
+        // textSize(44);
+        // text(this.id, 0, 0);
         pop();
     }
 
@@ -174,7 +177,7 @@ class Card {
             // check if this is the currently selected card in which case do not snap as the user still drags it.
             if (!isAnySelectedCard()) {
                 this.posx = this.activePlaceholder.posx;
-                this.posy = this.activePlaceholder.posy;
+                this.posy = this.activePlaceholder.posy+30; // +30 to compensate for the unknown offset.
             }
         } else {
             this.resetRotation(false);
