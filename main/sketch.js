@@ -8,11 +8,27 @@ let SCREEN_HEIGHT = 3840;
 let button1;
 let button2;
 let button3;
-let button4;
+
+let buttonRo, buttonEn;
+
+let buttonGameTimeline, buttonGameMemory, buttonGamePuzzle, buttonGameColaj;
 
 let tl = {};
 
 let mem = {};
+
+let menu = {
+    isVisible: false,
+    fixedPosition: 1100,
+    currentPos: 0,
+
+    // opening animation vars
+    currentValue: 0,
+    incrementAmount: 0.001,
+
+    // active menu option
+    currentOption: 0, // 0=language, 1=games, 2=info
+}
 
 // +++++ PRELOADED content.
 let loadedImages = [];
@@ -22,11 +38,28 @@ let fontNotoMedium;
 let fontNotoLight;
 let fontZebrra;
 
+let menuInfo, menuLanguage, menuGames;
+let langRo, langEn;
+
+let imgGameTimeline, imgGameMemory, imgGamePuzzle, imgGameColaj;
+
 let timelineBg;
 
 // -------------------------------
 
 function preload() {
+    menuInfo = loadImage('img/menu/info_button.png');
+    menuLanguage = loadImage('img/menu/language_en.png');
+    menuGames = loadImage('img/menu/games_ro.png');
+
+    langRo = loadImage('img/menu/lang_ro.png');
+    langEn = loadImage('img/menu/lang_en.png');
+
+    imgGameTimeline = loadImage('img/menu/game_timeline.png');
+    imgGameMemory = loadImage('img/menu/game_memory.png');
+    imgGamePuzzle = loadImage('img/menu/game_puzzle.png');
+    imgGameColaj = loadImage('img/menu/game_colaj.png');
+
     fontNotoMedium = loadFont('font/NotoSans-Medium.ttf');
     fontNotoLight = loadFont('font/NotoSans-Light.ttf');
     fontZebrra = loadFont('font/zebrra.regular.ttf');
@@ -49,7 +82,7 @@ function preload() {
 
     timelineBg = loadImage("timelineImg/timelineBg.png");
 
-    activeGame = "mem";
+    activeGame = "tl";
 }
 
 function setup() {
@@ -73,6 +106,7 @@ function draw() {
         drawTimeline();
     }
 
+    drawMenuScreen();
     drawMenuButtons();
 }
 
@@ -80,43 +114,164 @@ function draw() {
 // ++++++++++++++++++++++++++ MENU +++++++++++++++++++++++++++++
 
 function initializeMenuButtons() {
-    button1 = new Button(SCREEN_WIDTH - 100, (SCREEN_HEIGHT/2) - 1200, 50, 50);
+    button1 = new Button(SCREEN_WIDTH - 100, (SCREEN_HEIGHT/2) - 200, 128, 162, menuLanguage);
     button1.isVisible = true;
-    button1.text = "1";
-    button2 = new Button(SCREEN_WIDTH - 100, (SCREEN_HEIGHT/2) - 1100, 50, 50);
+    button2 = new Button(SCREEN_WIDTH - 100, (SCREEN_HEIGHT/2), 128, 162, menuGames);
     button2.isVisible = true;
-    button2.text = "2";
-    button3 = new Button(SCREEN_WIDTH - 100, (SCREEN_HEIGHT/2) - 1000, 50, 50);
+    button3 = new Button(SCREEN_WIDTH - 100, (SCREEN_HEIGHT/2) + 200, 128, 162, menuInfo);
     button3.isVisible = true;
-    button3.text = "3";
-    button4 = new Button(SCREEN_WIDTH - 100, (SCREEN_HEIGHT/2) - 900, 50, 50);
-    button4.isVisible = true;
-    button4.text = "4";
+
+    buttonRo = new Button(SCREEN_WIDTH + 700, (SCREEN_HEIGHT/2) - 200, 394, 408, langRo);
+    buttonEn = new Button(SCREEN_WIDTH + 270, (SCREEN_HEIGHT/2) - 200, 394, 408, langEn);
+
+    buttonGameTimeline = new Button(SCREEN_WIDTH + 700, (SCREEN_HEIGHT/2) - 200, 394, 550, imgGameTimeline);
+    buttonGameMemory = new Button(SCREEN_WIDTH + 270, (SCREEN_HEIGHT/2) - 200, 394, 550, imgGameMemory);
+    buttonGamePuzzle = new Button(SCREEN_WIDTH + 700, (SCREEN_HEIGHT/2) + 390, 394, 550, imgGamePuzzle);
+    buttonGameColaj = new Button(SCREEN_WIDTH + 270, (SCREEN_HEIGHT/2) + 390, 394, 550, imgGameColaj);
 }
 
 function drawMenuButtons() {
     button1.draw();
     button2.draw();
     button3.draw();
-    button4.draw();
 
-    // timeline
-    if (button1.isClicked(mouseX, mouseY) && !tl.isInitialized) {
+    // language
+    if (button1.isClicked(mouseX, mouseY)) {
+        menu.isVisible = true;
+        menu.currentOption = 0;
+    }
+
+    // games
+    if (button2.isClicked(mouseX, mouseY)) {
+        menu.isVisible = true;
+        menu.currentOption = 1;
+    }
+
+    // games
+    if (button3.isClicked(mouseX, mouseY)) {
+        menu.isVisible = true;
+        menu.currentOption = 2;
+    }
+}
+
+function drawMenuScreen() {
+    if (menu.isVisible) {
+        displayMenuBox();
+    } else {
+        hideMenuBox()
+    }
+}
+
+function hideMenuBox() {
+    menu.currentPos = 0; //TODO:??
+    menu.currentValue = 0;
+    menu.incrementAmount = 0.001;
+}
+
+function displayMenuBox() {
+    push();
+    if (menu.currentPos < menu.fixedPosition) {
+        // quad increments the position of the menu to the right.
+        menu.currentPos = quadraticFunction() * menu.fixedPosition;
+    }
+    translate(menu.currentPos * -1, 0);
+    fill(255);
+    noStroke();
+    rect(width, 0, width + menu.fixedPosition, height);
+
+    // draw menu contents
+    if (menu.currentOption === 0) { // Language
+        drawLanguageMenu();
+    }
+    if (menu.currentOption === 1) { // Language
+        drawGamesMenu();
+    }
+    pop();
+
+}
+
+function drawGamesMenu() {
+    buttonGameTimeline.isVisible = true;
+    buttonGameMemory.isVisible = true;
+    buttonGamePuzzle.isVisible = true;
+    buttonGameColaj.isVisible = true;
+
+    buttonGameTimeline.draw();
+    buttonGameMemory.draw();
+    buttonGamePuzzle.draw();
+    buttonGameColaj.draw();
+
+    if (buttonGameTimeline.isClicked(mouseX + menu.fixedPosition, mouseY)) {
         activeGame = "tl";
-        setup();
 
-        tl.isInitialized = true;
-        mem.isInitialized = false;
+        // hide menu after language change
+        if (menu.isVisible) {
+            menu.isVisible = false;
+        }
+
+        resetCurrentGame();
     }
 
-    // memory
-    if (button2.isClicked(mouseX, mouseY) && !mem.isInitialized) {
+    if (buttonGameMemory.isClicked(mouseX + menu.fixedPosition, mouseY)) {
         activeGame = "mem";
-        setup();
 
-        mem.isInitialized = true;
-        tl.isInitialized = false;
+        // hide menu after language change
+        if (menu.isVisible) {
+            menu.isVisible = false;
+        }
+        resetCurrentGame();
     }
+}
+
+function drawLanguageMenu() {
+    buttonRo.isVisible = true;
+    buttonEn.isVisible = true;
+    buttonRo.draw();
+    buttonEn.draw();
+
+    if (buttonRo.isClicked(mouseX + menu.fixedPosition, mouseY)) {
+        print("RO"); // TODO: add language change
+
+        // reset current game after language change
+
+        // hide menu after language change
+        if (menu.isVisible) {
+            menu.isVisible = false;
+        }
+        resetCurrentGame();
+    }
+    if (buttonEn.isClicked(mouseX + menu.fixedPosition, mouseY)) {
+        print("EN"); // TODO: add language change
+
+        //hide menu after language change
+        if (menu.isVisible) {
+            menu.isVisible = false;
+        }
+        resetCurrentGame();
+    }
+}
+
+function quadraticFunction() {
+    menu.currentValue += menu.incrementAmount;
+    menu.incrementAmount += 0.01;
+    // Ensure the value does not exceed 1
+    menu.currentValue = Math.min(menu.currentValue, 1);
+    return menu.currentValue;
+}
+
+function resetCurrentGame() {
+    // TODO: add reset functionality for the rest of the games.
+    if (activeGame === mem.propertiesIdentifier) {
+        mem.isInitialized = false;
+        setup();
+        mem.isInitialized = true;
+    }
+    if (activeGame === tl.propertiesIdentifier) {
+        tl.isInitialized = false;
+        setup();
+        tl.isInitialized = true;
+    }
+
 }
 
 
@@ -246,7 +401,6 @@ function initializeTimeline() {
     // select 7 random image ids. they are ordered chronologically so should be arranged ascending.
     let numbersArray = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
     let selectedNumbers = selectUniqueNumbers(numbersArray, 7).sort((a, b) => a - b);
-    print(selectedNumbers);
 
     tl.cards.push(new Card(selectedNumbers[0],(width/2) + 20, height+50, random(-1, - 0.9), random(-1, -0.6)));
     tl.cards.push(new Card(selectedNumbers[1], (width/2) + 10, height+40, random(1, 0.8), random(0.6, 1)));
@@ -560,10 +714,13 @@ function mousePressed() {
         touchStarted();
         // restart game.
         if (isGameOver() && mouseX > 800 && mouseX < 1330 && mouseY > 2370 && mouseY < 2450) {
-            tl.isInitialized = false;
-            setup();
-            tl.isInitialized = true;
+            resetCurrentGame()
         }
+    }
+
+    // hide menu if visible and clicked outside menu.
+    if (menu.isVisible && mouseX < width - menu.fixedPosition) {
+        menu.isVisible = false;
     }
 }
 

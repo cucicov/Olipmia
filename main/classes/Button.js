@@ -1,25 +1,28 @@
 
 class Button {
-    constructor(posx, posy, width, height) {
+    constructor(posx, posy, width, height, img) {
         this.posx = posx;
         this.posy = posy;
         this.width = width;
         this.height = height;
         this.isVisible = false;
         this.text = ">";
+        this.img = img;
     }
 
     draw() {
         if (this.isVisible) {
             push();
-            fill(255);
-            stroke(1);
-            strokeWeight(1);
-            rectMode(CENTER);
-            translate(this.posx, this.posy);
-            rect(0, 0, this.width, this.height);
-            fill(0);
-            text(this.text, 0, 0);
+            imageMode(CENTER);
+            image(this.img, this.posx, this.posy);
+            // fill(255);
+            // stroke(1);
+            // strokeWeight(1);
+            // rectMode(CENTER);
+            // translate(this.posx, this.posy);
+            // rect(0, 0, this.width, this.height);
+            // fill(0);
+            // text(this.text, 0, 0);
             pop();
         }
     }
