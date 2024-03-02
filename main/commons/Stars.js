@@ -1,8 +1,18 @@
 
 function getWinStarSettings(gameProp) {
-    let star1Win = tl.historyErrors < gameProp.ERRORS_1_STARS;
-    let star2Win = tl.historyErrors < gameProp.ERRORS_2_STARS;
-    let star3Win = tl.historyErrors < gameProp.ERRORS_3_STARS;
+    let star1Win = false;
+    let star2Win = false;
+    let star3Win = false;
+    if (gameProp.propertiesIdentifier === "tl") {
+        star1Win = tl.historyErrors < gameProp.ERRORS_1_STARS;
+        star2Win = tl.historyErrors < gameProp.ERRORS_2_STARS;
+        star3Win = tl.historyErrors < gameProp.ERRORS_3_STARS;
+    }
+    if (gameProp.propertiesIdentifier === "mem") {
+        star1Win = mem.persistentErrors < gameProp.ERRORS_1_STARS;
+        star2Win = mem.persistentErrors < gameProp.ERRORS_2_STARS;
+        star3Win = mem.persistentErrors < gameProp.ERRORS_3_STARS;
+    }
     return {star1Win, star2Win, star3Win};
 }
 

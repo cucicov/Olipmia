@@ -43,7 +43,7 @@ let langRo, langEn;
 
 let imgGameTimeline, imgGameMemory, imgGamePuzzle, imgGameColaj;
 
-let timelineBg;
+let timelineBg, memoryBg, timelineNextButton;
 
 // -------------------------------
 
@@ -64,25 +64,29 @@ function preload() {
     fontNotoLight = loadFont('font/NotoSans-Light.ttf');
     fontZebrra = loadFont('font/zebrra.regular.ttf');
 
-    loadedImages.push([loadImage('img/1.jpg'), '1']); // keep a unique ID of the image to keep track of the displayed images and not display them anymore in the current game.
-    loadedImages.push([loadImage('img/2.jpg'), '2']);
-    loadedImages.push([loadImage('img/3.jpg'), '3']);
-    loadedImages.push([loadImage('img/4.jpg'), '4']);
-    loadedImages.push([loadImage('img/5.jpg'), '5']);
-    loadedImages.push([loadImage('img/6.jpg'), '6']);
-    loadedImages.push([loadImage('img/7.jpg'), '7']);
-    loadedImages.push([loadImage('img/8.jpg'), '8']);
-    loadedImages.push([loadImage('img/9.jpg'), '9']);
-    loadedImages.push([loadImage('img/10.jpg'), '10']);
-    loadedImages.push([loadImage('img/11.jpg'), '11']);
-    loadedImages.push([loadImage('img/12.jpg'), '12']);
+    // keep a unique ID of the image to keep track of the displayed images and not display them anymore in the current game.
+    // [image path, image unique id, image title, image description, image year, correct sport id]
+    loadedImages.push([loadImage('img/1.jpg'), '1', 'title1', 'desc1', 'year1', 2]);
+    loadedImages.push([loadImage('img/2.jpg'), '2', 'title2', 'desc2', 'year2', 5]);
+    loadedImages.push([loadImage('img/3.jpg'), '3', 'title3', 'desc3', 'year3', 7]);
+    loadedImages.push([loadImage('img/4.jpg'), '4', 'title4', 'desc4', 'year4', 1]);
+    loadedImages.push([loadImage('img/5.jpg'), '5', 'title5', 'desc5', 'year5', 3]);
+    loadedImages.push([loadImage('img/6.jpg'), '6', 'title6', 'desc6', 'year6', 4]);
+    loadedImages.push([loadImage('img/7.jpg'), '7', 'title7', 'desc7', 'year7', 6]);
+    loadedImages.push([loadImage('img/8.jpg'), '8', 'title8', 'desc8', 'year8', 1]);
+    loadedImages.push([loadImage('img/9.jpg'), '9', 'title9', 'desc9', 'year9', 2]);
+    loadedImages.push([loadImage('img/10.jpg'), '10', 'title10', 'desc10', 'year10', 3]);
+    loadedImages.push([loadImage('img/11.jpg'), '11', 'title11', 'desc11', 'year11', 4]);
+    loadedImages.push([loadImage('img/12.jpg'), '12', 'title12', 'desc12', 'year12', 5]);
 
     restartTimelineButtonRo = loadImage('timelineImg/restart_ro.png');
     restartTimelineButtonEn = loadImage('timelineImg/restart_ro.png'); //TODO:
 
     timelineBg = loadImage("timelineImg/timelineBg.png");
+    memoryBg = loadImage("memoryImg/memoryBg.png");
+    timelineNextButton = loadImage("memoryImg/next_ro.png");
 
-    activeGame = "tl";
+    activeGame = "mem";
 }
 
 function setup() {
@@ -147,7 +151,7 @@ function drawMenuButtons() {
         menu.currentOption = 1;
     }
 
-    // games
+    // info
     if (button3.isClicked(mouseX, mouseY)) {
         menu.isVisible = true;
         menu.currentOption = 2;
@@ -163,7 +167,7 @@ function drawMenuScreen() {
 }
 
 function hideMenuBox() {
-    menu.currentPos = 0; //TODO:??
+    menu.currentPos = 0;
     menu.currentValue = 0;
     menu.incrementAmount = 0.001;
 }
@@ -261,12 +265,12 @@ function quadraticFunction() {
 
 function resetCurrentGame() {
     // TODO: add reset functionality for the rest of the games.
-    if (activeGame === mem.propertiesIdentifier) {
+    if (activeGame === "mem") {
         mem.isInitialized = false;
         setup();
         mem.isInitialized = true;
     }
-    if (activeGame === tl.propertiesIdentifier) {
+    if (activeGame === "tl") {
         tl.isInitialized = false;
         setup();
         tl.isInitialized = true;
@@ -709,6 +713,10 @@ function mousePressed() {
     if (activeGame === mem.propertiesIdentifier) {
         checkInfoPopUpClosed(mem);
         initHidePopUp(mem);
+        // restart game.
+        if (mem.gameState.isGameOver && mouseX > 800 && mouseX < 1330 && mouseY > 2370 && mouseY < 2450) {
+            resetCurrentGame()
+        }
     }
     if (activeGame === tl.propertiesIdentifier) {
         touchStarted();
@@ -725,10 +733,12 @@ function mousePressed() {
 }
 
 function touchEnded() {
-    for (let i = 0; i < tl.cards.length; i++) {
-        tl.cards[i].resetRotation(false);
+    if (activeGame === tl.propertiesIdentifier) {
+        for (let i = 0; i < tl.cards.length; i++) {
+            tl.cards[i].resetRotation(false);
+        }
+        clearSelectedCard();
     }
-    clearSelectedCard();
 }
 
 function mouseReleased() {
@@ -748,25 +758,28 @@ function mouseDragged() {
 }
 
 function touchStarted() {
-    // decide order of the cards based on mouseposition ------
-    if (!isAnySelectedCard()) {
-        for (let i = 0; i < tl.cards.length; i++) {
-            let activeCard = tl.cards[i];
-            if (activeCard.isActive(touchTargets[0].x, touchTargets[0].y)) {
-                tl.cards.splice(i, 1);
-                tl.cards.push(activeCard);
-                tl.selectedCard = activeCard;
-                // straighten the selected card
-                tl.selectedCard.resetRotation(true);
-                // break;
+
+    if (activeGame === tl.propertiesIdentifier) {
+        // decide order of the cards based on mouseposition ------
+        if (!isAnySelectedCard()) {
+            for (let i = 0; i < tl.cards.length; i++) {
+                let activeCard = tl.cards[i];
+                if (activeCard.isActive(touchTargets[0].x, touchTargets[0].y)) {
+                    tl.cards.splice(i, 1);
+                    tl.cards.push(activeCard);
+                    tl.selectedCard = activeCard;
+                    // straighten the selected card
+                    tl.selectedCard.resetRotation(true);
+                    // break;
+                }
             }
+
+            // clear active pop-up if any.
+            initHidePopUp(tl);
         }
 
-        // clear active pop-up if any.
-        initHidePopUp(tl);
+        checkInfoPopUpClosed(tl);
     }
-
-    checkInfoPopUpClosed(tl);
 
 }
 
@@ -794,13 +807,14 @@ function initializeMemory() {
             levelNumber: 1,
             MAX_LEVELS: 5,
             originalNumberOfIcons: undefined, // used in error calculation.
+            allIconsDispersed: false,
         },
 
 
         // ----- STARS VARIABLES -----
-        STAR_ROTATION_SPEED: 0.01,
-        STAR_RADIUS: 145,
-        startRotationParam: 0,
+        STAR_ROTATION_SPEED: 0.0,
+        STAR_RADIUS: 80,
+        startRotationParam: -0.3,
         // -------------------------------
 
 
@@ -828,10 +842,19 @@ function initializeMemory() {
             displayPopUp: false,
             showPropertiesInitialized: false,
             hidePropertiesInitialized: false,
-            popupWidth: 2400,
-            popupHeight: 1000,
+            popupWidth: 900,
+            popupHeight: 500,
             popupPosx: 1080,
-            popupPosy: 2720,
+            popupPosy: 3000,
+            currentTitle: "title",
+            // 72 chars per line for description.
+            currentDescription: "description description description description description description " +
+                "\nnew line new line2" +
+                "\nnew line new line3" +
+                "\nnew line new line4" +
+                "\nnew line new line5" +
+                "\nnew line new line6",
+            currentYear: "9999",
         },
 
         // levels of error
@@ -840,15 +863,15 @@ function initializeMemory() {
         ERRORS_LEVEL_3: 4, // game over
 
         ERRORS_3_STARS: 3,
-        ERRORS_2_STARS: 5,
-        ERRORS_1_STARS: 10,
+        ERRORS_2_STARS: 7,
+        ERRORS_1_STARS: 14,
 
         EASE_IN_FACTOR_DISPERSE_LEFT_LIMIT: -500,
         EASE_IN_FACTOR_DISPERSE_RIGHT_LIMIT: 500,
 
         // this controls the limits within which cards can move on posY
-        POSY_OFFSET_DISPERSE_LEFT_LIMIT: -50,
-        POSY_OFFSET_DISPERSE_RIGHT_LIMIT: 50,
+        POSY_OFFSET_DISPERSE_LEFT_LIMIT: -60,
+        POSY_OFFSET_DISPERSE_RIGHT_LIMIT: 60,
 
         // ------- ERRORS ---------
         persistentErrors: 0,
@@ -862,7 +885,15 @@ function initializeMemory() {
             particleAnimationDuration: this.WIN_PARTICLE_ANIMATION_DURATION,
             numberOfParticles: 15, // number of particles.
             placeholder: undefined,
-        }
+        },
+
+        // ++++ UTILS ++++++
+        // timeout for final start display
+        timeoutStar1: 30,
+        timeoutStar2: 100,
+        timeoutStar3: 180,
+        timeoutStarText: 260,
+        restartButton: restartTimelineButtonRo,
 
     }
 
@@ -878,7 +909,7 @@ function initializeMemory() {
 
 function removeRemainingWrongIcons() {
     for (let i = 0; i < mem.icons.length; i++) {
-        if (mem.icons[i].id !== mem.maskImg.associatedId) {
+        if (mem.icons[i].id !== mem.maskImg.associatedId && !mem.icons[i].wrongIconSelected) {
             mem.icons[i].wrongIconSelection();
         }
     }
@@ -935,11 +966,11 @@ function resetNewGame() {
 }
 
 function drawMemory() {
-    background(220);
+    background(memoryBg);
 
     // guiding lines center of the screen.
-    line(0, 840, width, 840);
-    line(0, height - 840, width, height - 840);
+    // line(0, 840, width, 840);
+    // line(0, height - 840, width, height - 840);
 
     if (!mem.gameState.isGameOver) {
         mem.maskImg.draw();
@@ -947,33 +978,34 @@ function drawMemory() {
         generateMatchParticles(mem);
 
         // icons display and click logic.
-        for (let i = 0; i < mem.icons.length; i++) {
-            let currentIcon = mem.icons[i];
-            currentIcon.disperse();
-            currentIcon.draw();
+        drawIcons();
 
-            if (currentIcon.isActive(mouseX, mouseY)) {
-                if (mem.maskImg.associatedId === currentIcon.id) { // correct icon selected.
-                    if (!currentIcon.correctIconSelected) {
-                        currentIcon.correctIconSelection();
-                        initDisplayMatchAnimation(currentIcon, mem);
-                        initShowPopUp(mem);
-
-                        mem.gameState.isWon = true;
-                        mem.gameState.isLevelOver = true;
-                    }
-                } else { // wrong icon selected.
-                    currentIcon.wrongIconSelection();
-                    // break;
-                }
-            }
-        }
     }
 
     removeInvisibleIcons();
     processErrors();
 
     // next button logic
+    if (mem.gameState.allIconsDispersed && !mem.gameState.isGameOver) {
+        mem.nextButton.isVisible = true; // show next button only when all icons are dispersed.
+        // display current level text
+        textFont(fontNotoMedium);
+        textStyle(NORMAL);
+        textAlign(CENTER);
+        textSize(45);
+        fill(0);
+        text(mem.gameState.levelNumber + "/5", width/2, height/2 + 1400);
+    }
+
+    if (mem.nextButton.isVisible && mem.nextButton.isClicked(mouseX, mouseY)) {
+        // penalize if image is skipped
+        if (!mem.gameState.isLevelOver) {
+            mem.persistentErrors += mem.icons.length;
+        }
+        resetNewGame();
+        mem.nextButton.isVisible = false;
+    }
+
     if (mem.gameState.isLevelOver) {
         initShowPopUp(mem);
         removeRemainingWrongIcons();
@@ -983,11 +1015,6 @@ function drawMemory() {
         if (mem.gameState.isGameOver) {
             mem.nextButton.isVisible = false;
             mem.infoPopUpProperties.displayPopUp = true;
-        } else {
-            mem.nextButton.isVisible = true;
-            if (mem.nextButton.isClicked(mouseX, mouseY)) {
-                resetNewGame();
-            }
         }
 
     }
@@ -1002,14 +1029,64 @@ function drawMemory() {
     text("FPS: " + mem.fps.toFixed(0), 20, 20);
     text("ERRORS: " + mem.persistentErrors, 20, 40);
 
+    drawMemoryHeaderText();
+
     if (mem.gameState.isGameOver) {
-        initShowInfoPopUp(mem);
+        // initShowInfoPopUp(mem);
+        drawWinStars(mem);
     }
 
     drawInfoPopUp(width / 2, height / 2, mem);
 
     drawPopUp(mem);
-    // print('popup:' + mem.cardMatchProperties.placeholder.posx + ':' + mem.cardMatchProperties.placeholder.posy);
+}
+
+
+function drawMemoryHeaderText() {
+    textFont(fontNotoMedium);
+    textStyle(NORMAL);
+    textAlign(CENTER);
+    textSize(90);
+    fill(0);
+    text('ASOCIERI', width / 2, 300);
+
+    textSize(45);
+    textStyle(BOLD);
+    text('Ce disciplină practică sportivul din imagine?', width / 2, 400);
+
+    textFont(fontNotoLight);
+    textStyle(NORMAL);
+    text('Alege pictograma potrivită și descoperă fotografia întreagă.', width / 2, 450);
+}
+
+
+function drawIcons() {
+    mem.gameState.allIconsDispersed = true;
+    for (let i = 0; i < mem.icons.length; i++) {
+        let currentIcon = mem.icons[i];
+        currentIcon.disperse();
+        currentIcon.draw();
+
+        if (currentIcon.isActive(mouseX, mouseY)) {
+            if (mem.maskImg.associatedId === currentIcon.id) { // correct icon selected.
+                if (!currentIcon.correctIconSelected) {
+                    currentIcon.correctIconSelection();
+                    if (!mem.gameState.isLevelOver) {
+                        initDisplayMatchAnimation(currentIcon, mem);
+                        // initShowPopUp(mem);
+                    }
+
+                    mem.gameState.isWon = true;
+                    mem.gameState.isLevelOver = true;
+                }
+            } else { // wrong icon selected.
+                currentIcon.wrongIconSelection();
+                // break;
+            }
+        }
+
+        mem.gameState.allIconsDispersed = mem.gameState.allIconsDispersed && currentIcon.dispersed;
+    }
 }
 
 
@@ -1020,6 +1097,9 @@ function initializeNewImage() {
     }
     let img = randomImg[0]; // index 0 is the loaded image, index 1 is the unique id of the image.
     mem.burnedImages.add(randomImg[1]); // add image unique ID.
+    mem.cardPopUpProperties.currentTitle = randomImg[2]; // index 2 is the title of the image.
+    mem.cardPopUpProperties.currentDescription = randomImg[3]; // index 3 is the description of the image.
+    mem.cardPopUpProperties.currentYear = randomImg[4]; // index 4 is the year of the image.
 
     let cropSize1 = 300;
     let crop1 = new CropSettings(cropSize1, cropSize1, img.width / 2 - cropSize1 / 2, img.height / 2 - cropSize1 / 2);
@@ -1028,21 +1108,22 @@ function initializeNewImage() {
     let cropSize3 = 1800; // whole image reveal
     let crop3 = new CropSettings(cropSize3, cropSize3, img.width / 2 - cropSize3 / 2, img.height / 2 - cropSize3 / 2);
 
-    mem.maskImg = new MaskImage(img, 2, crop1, crop2, crop3, mem);
+    let correctSportId = randomImg[5];
+    mem.maskImg = new MaskImage(img, correctSportId, crop1, crop2, crop3, mem);
 
-    mem.nextButton = new Button(width - 100, height/2, 50, 50);
+    mem.nextButton = new Button(width/2, height/2 + 1500, 600, 128, timelineNextButton);
 }
 
 function initializeIcons() {
     mem.icons = [];
-    mem.icons.push(new Icon(1, (width / 2), height / 2, 1, -0.33, mem));
-    mem.icons.push(new Icon(2, (width / 2), height / 2, -1, -0.33, mem));
-    mem.icons.push(new Icon(3, width / 2, height / 2, 0.33, -1, mem));
-    mem.icons.push(new Icon(4, (width / 2), height / 2, 0.33, 1, mem));
-    mem.icons.push(new Icon(5, (width / 2), height / 2, -0.33, -1, mem));
-    mem.icons.push(new Icon(6, (width / 2), height / 2, -0.33, 1, mem));
-    mem.icons.push(new Icon(7, (width / 2), height / 2, 1, 0.33, mem));
-    mem.icons.push(new Icon(8, (width / 2), height / 2, -1, 0.33, mem));
+    mem.icons.push(new Icon(1, (width / 2), height / 2, 1, -0.4, mem));
+    mem.icons.push(new Icon(2, (width / 2), height / 2, -1, -0.4, mem));
+    mem.icons.push(new Icon(3, width / 2, height / 2, 0.4, -1, mem));
+    mem.icons.push(new Icon(4, (width / 2), height / 2, 0.4, 1, mem));
+    mem.icons.push(new Icon(5, (width / 2), height / 2, -0.4, -1, mem));
+    mem.icons.push(new Icon(6, (width / 2), height / 2, -0.4, 1, mem));
+    mem.icons.push(new Icon(7, (width / 2), height / 2, 1, 0.4, mem));
+    mem.icons.push(new Icon(8, (width / 2), height / 2, -1, 0.4, mem));
 
     mem.gameState.originalNumberOfIcons = mem.icons.length;
 }

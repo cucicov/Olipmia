@@ -14,6 +14,10 @@ class Icon {
         this.width = 150;
         this.height = 150;
 
+        this.iconImage = loadImage('../memoryImg/icons/' + this.id + '.png');
+        this.iconErrImage = loadImage('../memoryImg/icons/' + this.id + '_err.png');
+        this.iconWinImage = loadImage('../memoryImg/icons/' + this.id + '_win.png');
+
         this.initialPosX = posx;
         this.initialPosY = posy;
 
@@ -26,6 +30,8 @@ class Icon {
         this.wrongIconSelected = false;
         this.correctIconSelected = false;
         this.scaleFactor = 1;
+
+        this.gameProp = gameProp;
     }
 
     // "randomly" scatter the card.
@@ -52,20 +58,25 @@ class Icon {
         push();
         stroke(1);
         strokeWeight(1);
-        rectMode(CENTER);
+        imageMode(CENTER);
         translate(this.posx, this.posy);
+        scale(this.scaleFactor);
 
         // check if wrong card is selected
         if (this.wrongIconSelected) {
             this.scaleFactor -= 0.03;
             fill(220, 0, 0);
+            image(this.iconErrImage, 0, 0);
+        } else if (this.correctIconSelected && !this.gameProp.gameState.isLost) {
+            fill(255);
+            image(this.iconWinImage, 0, 0);
         } else {
             fill(255);
+            image(this.iconImage, 0, 0);
         }
-        scale(this.scaleFactor);
-        rect(0, 0, this.width, this.height);
-        fill(0);
-        text(this.id, 0, 0);
+        // rect(0, 0, this.width, this.height);
+        // fill(255);
+        // text(this.id, 0, 0);
         pop();
     }
 

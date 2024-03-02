@@ -32,6 +32,22 @@ function drawPopUp(gameProp) {
         } else if (gameProp.propertiesIdentifier === "mem") {
             rectMode(CENTER);
             rect(0, 0, gameProp.cardPopUpProperties.popupWidth, gameProp.cardPopUpProperties.popupHeight, 30);
+            textFont(fontNotoMedium);
+            textStyle(NORMAL);
+            textAlign(LEFT);
+            textSize(45);
+            fill(0);
+            text(gameProp.cardPopUpProperties.currentTitle, -400, -150);
+            textFont(fontNotoLight);
+            textSize(24);
+            textAlign(LEFT);
+            fill(0);
+            text(gameProp.cardPopUpProperties.currentDescription, -400, -70);
+            textSize(60);
+            textFont(fontZebrra);
+            fill(0);
+            text(gameProp.cardPopUpProperties.currentYear, -400, 210);
+
         }
         pop();
 
