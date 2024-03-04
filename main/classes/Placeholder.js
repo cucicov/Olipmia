@@ -17,8 +17,10 @@ class Placeholder {
         this.height = height;
         this.correctCardId = cardId; // correct card id.
         this.gameProp = gameProp;
-        this.correctCardDetailsImage = loadImage('../timelineImg/' + this.correctCardId + '_details.png');
-        this.placeholderImage = loadImage('../timelineImg/placeholder.png');
+        if (gameProp.propertiesIdentifier === "tl") {
+            this.correctCardDetailsImage = loadImage('../timelineImg/' + this.correctCardId + '_details.png');
+            this.placeholderImage = loadImage('../timelineImg/placeholder.png');
+        }
 
         this.activeCard = 0; // actively associated card.
 
@@ -55,7 +57,7 @@ class Placeholder {
         // check if should display wrong card animation on placeholder.
         this.checkWrongCardAnimation();
 
-        if (this.gameProp.propertiesIdentifier === puz12.propertiesIdentifier) {
+        if (this.gameProp.propertiesIdentifier === puz.propertiesIdentifier) {
             push();
             rectMode(CENTER);
             // stroke(this.phStroke);

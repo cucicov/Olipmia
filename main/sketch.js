@@ -17,7 +17,7 @@ let tl = {};
 
 let mem = {};
 
-let puz12 = {};
+let puz = {};
 
 let menu = {
     isVisible: false,
@@ -48,7 +48,9 @@ let imgGameTimeline, imgGameMemory, imgGamePuzzle, imgGameColaj;
 let timelineBg, memoryBg, timelineNextButton, puzzleNextButton, puzzleBg;
 
 let puzzle12Images = [];
+let puzzle30Images = [];
 let puzzle12Thumbs = [];
+let puzzle30Thumbs = [];
 
 // -------------------------------
 
@@ -98,13 +100,23 @@ function preload() {
     puzzle12Images.push([loadImage('puzzle12Img/puzzles/3/image.jpg'), "title3", "desc3", "0003", 1]);
     puzzle12Images.push([loadImage('puzzle12Img/puzzles/4/image.jpg'), "title4", "desc4", "0004", 5]);
 
+    puzzle30Images.push([loadImage('puzzle30Img/puzzles/1/image.png'), "title1", "desc1", "0001", 2]);
+    puzzle30Images.push([loadImage('puzzle30Img/puzzles/2/image.png'), "title2", "desc2", "0002", 7]);
+    puzzle30Images.push([loadImage('puzzle30Img/puzzles/3/image.png'), "title3", "desc3", "0003", 1]);
+    puzzle30Images.push([loadImage('puzzle30Img/puzzles/4/image.png'), "title4", "desc4", "0004", 5]);
+
     puzzle12Thumbs.push(loadImage('puzzle12Img/puzzles/1/thumb.jpg'));
     puzzle12Thumbs.push(loadImage('puzzle12Img/puzzles/2/thumb.jpg'));
     puzzle12Thumbs.push(loadImage('puzzle12Img/puzzles/3/thumb.jpg'));
     puzzle12Thumbs.push(loadImage('puzzle12Img/puzzles/4/thumb.jpg'));
 
+    puzzle30Thumbs.push(loadImage('puzzle30Img/puzzles/1/thumb.png'));
+    puzzle30Thumbs.push(loadImage('puzzle30Img/puzzles/2/thumb.png'));
+    puzzle30Thumbs.push(loadImage('puzzle30Img/puzzles/3/thumb.png'));
+    puzzle30Thumbs.push(loadImage('puzzle30Img/puzzles/4/thumb.png'));
 
-    activeGame = "puz12";
+
+    activeGame = "puz30";
 }
 
 function setup() {
@@ -120,6 +132,10 @@ function setup() {
         initializePuz12GameProps();
         initializePuzzle12();
     }
+    if (activeGame === "puz30"){
+        initializePuz30GameProps();
+        initializePuzzle30();
+    }
 
     touchTargets.push(new TouchTarget());
 
@@ -133,7 +149,7 @@ function draw() {
     if (activeGame === "tl"){
         drawTimeline();
     }
-    if (activeGame === "puz12"){
+    if (activeGame === "puz12" || activeGame === "puz30"){
         drawPuzzle12();
     }
 
@@ -311,10 +327,10 @@ function resetCurrentGame() {
         setup();
         tl.isInitialized = true;
     }
-    if (activeGame === "puz12") {
-        puz12.isInitialized = false;
+    if (activeGame === "puz12" || activeGame === "puz30") {
+        puz.isInitialized = false;
         setup();
-        puz12.isInitialized = true;
+        puz.isInitialized = true;
     }
 
 }
@@ -738,8 +754,8 @@ function isAnySelectedCard() {
     if (activeGame === tl.propertiesIdentifier) {
         return tl.selectedCard !== undefined;
     }
-    if (activeGame === puz12.propertiesIdentifier) {
-        return puz12.selectedCard !== undefined;
+    if (activeGame === puz.propertiesIdentifier) {
+        return puz.selectedCard !== undefined;
     }
     return false;
 }
@@ -748,8 +764,8 @@ function clearSelectedCard() {
     if (activeGame === tl.propertiesIdentifier) {
         tl.selectedCard = undefined;
     }
-    if (activeGame === puz12.propertiesIdentifier) {
-        puz12.selectedCard = undefined;
+    if (activeGame === puz.propertiesIdentifier) {
+        puz.selectedCard = undefined;
     }
 }
 
@@ -1102,8 +1118,91 @@ function initializeIcons() {
 
 // ++++++++++++++++++++++ PUZZLE 12 +++++++++++++++++++++++++++++
 
+function initializePuz30GameProps() {
+    puz = {
+        propertiesIdentifier: "puz30",
+        placeholders: [],
+        cards: [],
+
+        selectedCard: undefined,
+
+        nextButton: undefined,
+
+        // other puzzles buttons
+        otherPuzzlesButtons: [],
+
+        PUZZLE_PIECE_SIZE: 230,
+        PUZZLE_AREA_TOP_OFFSET: 1200,
+
+        // card sizes
+        CARD_WIDTH: undefined,
+        CARD_HEIGHT: undefined,
+
+        // position for the initial placeholders starting the game
+        POSY_INITIAL_CARD: undefined,
+        POSX_INITIAL_CARD: undefined,
+        // position for the initial puzzle deck
+        POSX_INITIAL_PUZZLE: undefined,
+        POSY_INITIAL_PUZZLE: undefined,
+
+        // position for the deck, how far to enter the canvas.
+        POSY_INITIAL_DECK: undefined,
+
+        // this controls the limits within which cards can move on posX
+        EASE_IN_FACTOR_DISPERSE_LEFT_LIMIT: -900,
+        EASE_IN_FACTOR_DISPERSE_RIGHT_LIMIT: 900,
+
+        // this controls the limits within which cards can move on posY
+        POSY_OFFSET_DISPERSE_LEFT_LIMIT: -60,
+        POSY_OFFSET_DISPERSE_RIGHT_LIMIT: 60,
+
+        gameState: {
+            // id of the current puzzle image.
+            puzzleImageId: 1,
+            isGameOver: false,
+            puzzleRootPath: "puzzle30Img/puzzles",
+            allIconsDispersed: false,
+            thumbsAlpha: -1,
+        },
+
+        finalPuzzleImage: {
+            img: undefined, // final whole image after the puzzle is solved.
+            opacity: 0,
+        },
+
+        cardPopUpProperties: {
+            dynamicRadius: 0,
+            targetRadius: 30,
+            currentSize: 0,
+            elasticity: 0.07,
+            velocity: 2,
+            position: 0,
+            inc: 3,
+            displayPopUp: false,
+            showPropertiesInitialized: false,
+            hidePropertiesInitialized: false,
+            popupWidth: 900,
+            popupHeight: 700,
+            popupPosx: 1080,
+            popupPosy: 2800,
+            currentTitle: "title",
+            // 72 chars per line for description.
+            currentDescription: "description description description description description description " +
+                "\nnew line new line2" +
+                "\nnew line new line3" +
+                "\nnew line new line4" +
+                "\nnew line new line5" +
+                "\nnew line new line6",
+            currentYear: "9999",
+            sportId: 1,
+            sportImage: undefined,
+        },
+
+    }
+}
+
 function initializePuz12GameProps() {
-    puz12 = {
+    puz = {
         propertiesIdentifier: "puz12",
         placeholders: [],
         cards: [],
@@ -1186,142 +1285,435 @@ function initializePuz12GameProps() {
 
 }
 
+function initializePuzzle30() {
+    createCanvas(SCREEN_WIDTH, SCREEN_HEIGHT);
+
+    puz.CARD_WIDTH = puz.PUZZLE_PIECE_SIZE;
+    puz.CARD_HEIGHT = puz.PUZZLE_PIECE_SIZE;
+
+    // puz12.POSX_INITIAL_CARD = width/2;
+    // puz12.POSY_INITIAL_CARD = 1300;
+    // puz12.POSY_INITIAL_DECK = 3300;
+
+    puz.POSX_INITIAL_PUZZLE = width/2;
+    if (activeGame === "puz12"){
+        puz.POSY_INITIAL_PUZZLE = height/2 + 400;
+    }
+    if (activeGame === "puz30") {
+        puz.POSY_INITIAL_PUZZLE = height/2 + 1000;
+    }
+
+    puz.finalPuzzleImage.img = puzzle30Images[puz.gameState.puzzleImageId - 1][0]; // load the final image based on the id.
+
+    // initialize placeholders.
+    puz.placeholders.push(new Placeholder(1,
+        this.width/2 + puz.PUZZLE_PIECE_SIZE/2 - puz.PUZZLE_PIECE_SIZE * 3,
+        puz.PUZZLE_AREA_TOP_OFFSET,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        1, undefined, undefined, puz));
+    puz.placeholders.push(new Placeholder(2,
+        this.width/2 + puz.PUZZLE_PIECE_SIZE/2 - puz.PUZZLE_PIECE_SIZE * 2,
+        puz.PUZZLE_AREA_TOP_OFFSET,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        2, undefined, undefined, puz));
+    puz.placeholders.push(new Placeholder(3,
+        this.width/2 + puz.PUZZLE_PIECE_SIZE/2 - puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_AREA_TOP_OFFSET,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        3, undefined, undefined, puz));
+    puz.placeholders.push(new Placeholder(4,
+        this.width/2  + puz.PUZZLE_PIECE_SIZE/2,
+        puz.PUZZLE_AREA_TOP_OFFSET,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        4, undefined, undefined, puz));
+    puz.placeholders.push(new Placeholder(5,
+        this.width/2 + puz.PUZZLE_PIECE_SIZE/2 + puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_AREA_TOP_OFFSET,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        5, undefined, undefined, puz));
+    puz.placeholders.push(new Placeholder(6,
+        this.width/2  + puz.PUZZLE_PIECE_SIZE/2 + puz.PUZZLE_PIECE_SIZE * 2,
+        puz.PUZZLE_AREA_TOP_OFFSET,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        6, undefined, undefined, puz));
+
+    puz.placeholders.push(new Placeholder(7,
+        this.width/2 + puz.PUZZLE_PIECE_SIZE/2 - puz.PUZZLE_PIECE_SIZE * 3,
+        puz.PUZZLE_AREA_TOP_OFFSET + puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        7, undefined, undefined, puz));
+    puz.placeholders.push(new Placeholder(8,
+        this.width/2 + puz.PUZZLE_PIECE_SIZE/2 - puz.PUZZLE_PIECE_SIZE * 2,
+        puz.PUZZLE_AREA_TOP_OFFSET + puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        8, undefined, undefined, puz));
+    puz.placeholders.push(new Placeholder(9,
+        this.width/2 + puz.PUZZLE_PIECE_SIZE/2 - puz.PUZZLE_PIECE_SIZE ,
+        puz.PUZZLE_AREA_TOP_OFFSET + puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        9, undefined, undefined, puz));
+    puz.placeholders.push(new Placeholder(10,
+        this.width/2  + puz.PUZZLE_PIECE_SIZE/2,
+        puz.PUZZLE_AREA_TOP_OFFSET + puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        10, undefined, undefined, puz));
+    puz.placeholders.push(new Placeholder(11,
+        this.width/2 + puz.PUZZLE_PIECE_SIZE/2 + puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_AREA_TOP_OFFSET + puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        11, undefined, undefined, puz));
+    puz.placeholders.push(new Placeholder(12,
+        this.width/2  + puz.PUZZLE_PIECE_SIZE/2 + puz.PUZZLE_PIECE_SIZE * 2,
+        puz.PUZZLE_AREA_TOP_OFFSET + puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        12, undefined, undefined, puz));
+
+    puz.placeholders.push(new Placeholder(13,
+        this.width/2 + puz.PUZZLE_PIECE_SIZE/2 - puz.PUZZLE_PIECE_SIZE * 3,
+        puz.PUZZLE_AREA_TOP_OFFSET + puz.PUZZLE_PIECE_SIZE * 2,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        13, undefined, undefined, puz));
+    puz.placeholders.push(new Placeholder(14,
+        this.width/2 + puz.PUZZLE_PIECE_SIZE/2 - puz.PUZZLE_PIECE_SIZE * 2,
+        puz.PUZZLE_AREA_TOP_OFFSET + puz.PUZZLE_PIECE_SIZE * 2,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        14, undefined, undefined, puz));
+    puz.placeholders.push(new Placeholder(15,
+        this.width/2 + puz.PUZZLE_PIECE_SIZE/2 - puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_AREA_TOP_OFFSET + puz.PUZZLE_PIECE_SIZE * 2,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        15, undefined, undefined, puz));
+    puz.placeholders.push(new Placeholder(16,
+        this.width/2  + puz.PUZZLE_PIECE_SIZE/2,
+        puz.PUZZLE_AREA_TOP_OFFSET + puz.PUZZLE_PIECE_SIZE * 2,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        16, undefined, undefined, puz));
+    puz.placeholders.push(new Placeholder(17,
+        this.width/2 + puz.PUZZLE_PIECE_SIZE/2 + puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_AREA_TOP_OFFSET + puz.PUZZLE_PIECE_SIZE * 2,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        17, undefined, undefined, puz));
+    puz.placeholders.push(new Placeholder(18,
+        this.width/2  + puz.PUZZLE_PIECE_SIZE/2 + puz.PUZZLE_PIECE_SIZE * 2,
+        puz.PUZZLE_AREA_TOP_OFFSET + puz.PUZZLE_PIECE_SIZE * 2,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        18, undefined, undefined, puz));
+
+    puz.placeholders.push(new Placeholder(19,
+        this.width/2 + puz.PUZZLE_PIECE_SIZE/2 - puz.PUZZLE_PIECE_SIZE * 3,
+        puz.PUZZLE_AREA_TOP_OFFSET + puz.PUZZLE_PIECE_SIZE * 3,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        19, undefined, undefined, puz));
+    puz.placeholders.push(new Placeholder(20,
+        this.width/2 + puz.PUZZLE_PIECE_SIZE/2 - puz.PUZZLE_PIECE_SIZE * 2,
+        puz.PUZZLE_AREA_TOP_OFFSET + puz.PUZZLE_PIECE_SIZE * 3,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        20, undefined, undefined, puz));
+    puz.placeholders.push(new Placeholder(21,
+        this.width/2 + puz.PUZZLE_PIECE_SIZE/2 - puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_AREA_TOP_OFFSET + puz.PUZZLE_PIECE_SIZE * 3,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        21, undefined, undefined, puz));
+    puz.placeholders.push(new Placeholder(22,
+        this.width/2  + puz.PUZZLE_PIECE_SIZE/2,
+        puz.PUZZLE_AREA_TOP_OFFSET + puz.PUZZLE_PIECE_SIZE * 3,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        22, undefined, undefined, puz));
+    puz.placeholders.push(new Placeholder(23,
+        this.width/2 + puz.PUZZLE_PIECE_SIZE/2 + puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_AREA_TOP_OFFSET + puz.PUZZLE_PIECE_SIZE * 3,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        23, undefined, undefined, puz));
+    puz.placeholders.push(new Placeholder(24,
+        this.width/2  + puz.PUZZLE_PIECE_SIZE/2 + puz.PUZZLE_PIECE_SIZE * 2,
+        puz.PUZZLE_AREA_TOP_OFFSET + puz.PUZZLE_PIECE_SIZE * 3,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        24, undefined, undefined, puz));
+
+    puz.placeholders.push(new Placeholder(25,
+        this.width/2 + puz.PUZZLE_PIECE_SIZE/2 - puz.PUZZLE_PIECE_SIZE * 3,
+        puz.PUZZLE_AREA_TOP_OFFSET + puz.PUZZLE_PIECE_SIZE * 4,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        25, undefined, undefined, puz));
+    puz.placeholders.push(new Placeholder(26,
+        this.width/2 + puz.PUZZLE_PIECE_SIZE/2 - puz.PUZZLE_PIECE_SIZE * 2,
+        puz.PUZZLE_AREA_TOP_OFFSET + puz.PUZZLE_PIECE_SIZE * 4,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        26, undefined, undefined, puz));
+    puz.placeholders.push(new Placeholder(27,
+        this.width/2 + puz.PUZZLE_PIECE_SIZE/2 - puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_AREA_TOP_OFFSET + puz.PUZZLE_PIECE_SIZE * 4,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        27, undefined, undefined, puz));
+    puz.placeholders.push(new Placeholder(28,
+        this.width/2  + puz.PUZZLE_PIECE_SIZE/2,
+        puz.PUZZLE_AREA_TOP_OFFSET + puz.PUZZLE_PIECE_SIZE * 4,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        28, undefined, undefined, puz));
+    puz.placeholders.push(new Placeholder(29,
+        this.width/2 + puz.PUZZLE_PIECE_SIZE/2 + puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_AREA_TOP_OFFSET + puz.PUZZLE_PIECE_SIZE * 4,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        29, undefined, undefined, puz));
+    puz.placeholders.push(new Placeholder(30,
+        this.width/2  + puz.PUZZLE_PIECE_SIZE/2 + puz.PUZZLE_PIECE_SIZE * 2,
+        puz.PUZZLE_AREA_TOP_OFFSET + puz.PUZZLE_PIECE_SIZE * 4,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        30, undefined, undefined, puz));
+
+    // initialize cards.
+    // puz12.POSX_INITIAL_CARD = width/2;
+    // puz12.POSY_INITIAL_CARD = 1300;
+    // puz12.POSY_INITIAL_DECK = 1300;
+
+    puz.cards.push(initPuzzleCard(1, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
+    puz.cards.push(initPuzzleCard(2, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
+    puz.cards.push(initPuzzleCard(3, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
+    puz.cards.push(initPuzzleCard(4, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
+    puz.cards.push(initPuzzleCard(5, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
+    puz.cards.push(initPuzzleCard(6, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
+
+    puz.cards.push(initPuzzleCard(7, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
+    puz.cards.push(initPuzzleCard(8, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
+    puz.cards.push(initPuzzleCard(9, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
+    puz.cards.push(initPuzzleCard(10, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
+    puz.cards.push(initPuzzleCard(11, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
+    puz.cards.push(initPuzzleCard(12, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
+
+    puz.cards.push(initPuzzleCard(13, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
+    puz.cards.push(initPuzzleCard(14, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
+    puz.cards.push(initPuzzleCard(15, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
+    puz.cards.push(initPuzzleCard(16, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
+    puz.cards.push(initPuzzleCard(17, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
+    puz.cards.push(initPuzzleCard(18, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
+
+    puz.cards.push(initPuzzleCard(19, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
+    puz.cards.push(initPuzzleCard(20, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
+    puz.cards.push(initPuzzleCard(21, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
+    puz.cards.push(initPuzzleCard(22, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
+    puz.cards.push(initPuzzleCard(23, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
+    puz.cards.push(initPuzzleCard(24, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
+
+    puz.cards.push(initPuzzleCard(25, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
+    puz.cards.push(initPuzzleCard(26, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
+    puz.cards.push(initPuzzleCard(27, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
+    puz.cards.push(initPuzzleCard(28, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
+    puz.cards.push(initPuzzleCard(29, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
+    puz.cards.push(initPuzzleCard(30, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
+
+    // initialize buttons
+    puz.otherPuzzlesButtons.push(new Button(width - 1930, height/2 - 210, 300, 200, undefined));
+    puz.otherPuzzlesButtons.push(new Button(width - 1930, height/2 - 430, 300, 200, undefined));
+    puz.otherPuzzlesButtons.push(new Button(width - 1930, height/2 - 650, 300, 200, undefined));
+
+    // initialize puzzle info pop-up details.
+    puz.cardPopUpProperties.currentTitle = puzzle30Images[puz.gameState.puzzleImageId - 1][1];
+    puz.cardPopUpProperties.currentDescription = puzzle30Images[puz.gameState.puzzleImageId - 1][2];
+    puz.cardPopUpProperties.currentYear = puzzle30Images[puz.gameState.puzzleImageId - 1][3];
+    puz.cardPopUpProperties.sportId = puzzle30Images[puz.gameState.puzzleImageId - 1][4];
+    puz.cardPopUpProperties.sportImage = loadImage("memoryImg/icons/" + puz.cardPopUpProperties.sportId + ".png");
+
+    puz.nextButton = new Button(width/2, height/2 + 1400, 600, 128, puzzleNextButton);
+
+    initializeThumbnails();
+}
+
 function initializePuzzle12() {
     createCanvas(SCREEN_WIDTH, SCREEN_HEIGHT);
 
-    puz12.CARD_WIDTH = puz12.PUZZLE_PIECE_SIZE;
-    puz12.CARD_HEIGHT = puz12.PUZZLE_PIECE_SIZE;
+    puz.CARD_WIDTH = puz.PUZZLE_PIECE_SIZE;
+    puz.CARD_HEIGHT = puz.PUZZLE_PIECE_SIZE;
 
-    puz12.POSX_INITIAL_CARD = width/2;
-    puz12.POSY_INITIAL_CARD = 1300;
-    puz12.POSY_INITIAL_DECK = 1300;
+    puz.POSX_INITIAL_CARD = width/2;
+    puz.POSY_INITIAL_CARD = 1300;
+    puz.POSY_INITIAL_DECK = 1300;
 
-    puz12.POSX_INITIAL_PUZZLE = width/2;
-    puz12.POSY_INITIAL_PUZZLE = height/2 + 400;
+    puz.POSX_INITIAL_PUZZLE = width/2;
+    puz.POSY_INITIAL_PUZZLE = height/2 + 400;
 
-    puz12.finalPuzzleImage.img = puzzle12Images[puz12.gameState.puzzleImageId - 1][0]; // load the final image based on the id.
+    puz.finalPuzzleImage.img = puzzle12Images[puz.gameState.puzzleImageId - 1][0]; // load the final image based on the id.
 
     // initialize placeholders.
-    puz12.placeholders.push(new Placeholder(1,
-        this.width/2 + puz12.PUZZLE_PIECE_SIZE/2 - puz12.PUZZLE_PIECE_SIZE * 2,
-        puz12.PUZZLE_AREA_TOP_OFFSET,
-        puz12.PUZZLE_PIECE_SIZE,
-        puz12.PUZZLE_PIECE_SIZE,
-        1, undefined, undefined, puz12));
-    puz12.placeholders.push(new Placeholder(2,
-        this.width/2 + puz12.PUZZLE_PIECE_SIZE/2 - puz12.PUZZLE_PIECE_SIZE,
-        puz12.PUZZLE_AREA_TOP_OFFSET,
-        puz12.PUZZLE_PIECE_SIZE,
-        puz12.PUZZLE_PIECE_SIZE,
-        2, undefined, undefined, puz12));
-    puz12.placeholders.push(new Placeholder(3,
-        this.width/2 + puz12.PUZZLE_PIECE_SIZE/2,
-        puz12.PUZZLE_AREA_TOP_OFFSET,
-        puz12.PUZZLE_PIECE_SIZE,
-        puz12.PUZZLE_PIECE_SIZE,
-        3, undefined, undefined, puz12));
-    puz12.placeholders.push(new Placeholder(4,
-        this.width/2  + puz12.PUZZLE_PIECE_SIZE/2 + puz12.PUZZLE_PIECE_SIZE,
-        puz12.PUZZLE_AREA_TOP_OFFSET,
-        puz12.PUZZLE_PIECE_SIZE,
-        puz12.PUZZLE_PIECE_SIZE,
-        4, undefined, undefined, puz12));
+    puz.placeholders.push(new Placeholder(1,
+        this.width/2 + puz.PUZZLE_PIECE_SIZE/2 - puz.PUZZLE_PIECE_SIZE * 2,
+        puz.PUZZLE_AREA_TOP_OFFSET,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        1, undefined, undefined, puz));
+    puz.placeholders.push(new Placeholder(2,
+        this.width/2 + puz.PUZZLE_PIECE_SIZE/2 - puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_AREA_TOP_OFFSET,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        2, undefined, undefined, puz));
+    puz.placeholders.push(new Placeholder(3,
+        this.width/2 + puz.PUZZLE_PIECE_SIZE/2,
+        puz.PUZZLE_AREA_TOP_OFFSET,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        3, undefined, undefined, puz));
+    puz.placeholders.push(new Placeholder(4,
+        this.width/2  + puz.PUZZLE_PIECE_SIZE/2 + puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_AREA_TOP_OFFSET,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        4, undefined, undefined, puz));
 
-    puz12.placeholders.push(new Placeholder(5,
-        this.width/2 + puz12.PUZZLE_PIECE_SIZE/2 - puz12.PUZZLE_PIECE_SIZE * 2,
-        puz12.PUZZLE_AREA_TOP_OFFSET + puz12.PUZZLE_PIECE_SIZE,
-        puz12.PUZZLE_PIECE_SIZE,
-        puz12.PUZZLE_PIECE_SIZE,
-        5, undefined, undefined, puz12));
-    puz12.placeholders.push(new Placeholder(6,
-        this.width/2 + puz12.PUZZLE_PIECE_SIZE/2 - puz12.PUZZLE_PIECE_SIZE,
-        puz12.PUZZLE_AREA_TOP_OFFSET + puz12.PUZZLE_PIECE_SIZE,
-        puz12.PUZZLE_PIECE_SIZE,
-        puz12.PUZZLE_PIECE_SIZE,
-        6, undefined, undefined, puz12));
-    puz12.placeholders.push(new Placeholder(7,
-        this.width/2 + puz12.PUZZLE_PIECE_SIZE/2,
-        puz12.PUZZLE_AREA_TOP_OFFSET + puz12.PUZZLE_PIECE_SIZE,
-        puz12.PUZZLE_PIECE_SIZE,
-        puz12.PUZZLE_PIECE_SIZE,
-        7, undefined, undefined, puz12));
-    puz12.placeholders.push(new Placeholder(8,
-        this.width/2  + puz12.PUZZLE_PIECE_SIZE/2 + puz12.PUZZLE_PIECE_SIZE,
-        puz12.PUZZLE_AREA_TOP_OFFSET + puz12.PUZZLE_PIECE_SIZE,
-        puz12.PUZZLE_PIECE_SIZE,
-        puz12.PUZZLE_PIECE_SIZE,
-        8, undefined, undefined, puz12));
+    puz.placeholders.push(new Placeholder(5,
+        this.width/2 + puz.PUZZLE_PIECE_SIZE/2 - puz.PUZZLE_PIECE_SIZE * 2,
+        puz.PUZZLE_AREA_TOP_OFFSET + puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        5, undefined, undefined, puz));
+    puz.placeholders.push(new Placeholder(6,
+        this.width/2 + puz.PUZZLE_PIECE_SIZE/2 - puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_AREA_TOP_OFFSET + puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        6, undefined, undefined, puz));
+    puz.placeholders.push(new Placeholder(7,
+        this.width/2 + puz.PUZZLE_PIECE_SIZE/2,
+        puz.PUZZLE_AREA_TOP_OFFSET + puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        7, undefined, undefined, puz));
+    puz.placeholders.push(new Placeholder(8,
+        this.width/2  + puz.PUZZLE_PIECE_SIZE/2 + puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_AREA_TOP_OFFSET + puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        8, undefined, undefined, puz));
 
-    puz12.placeholders.push(new Placeholder(9,
-        this.width/2 + puz12.PUZZLE_PIECE_SIZE/2 - puz12.PUZZLE_PIECE_SIZE * 2,
-        puz12.PUZZLE_AREA_TOP_OFFSET + puz12.PUZZLE_PIECE_SIZE * 2,
-        puz12.PUZZLE_PIECE_SIZE,
-        puz12.PUZZLE_PIECE_SIZE,
-        9, undefined, undefined, puz12));
-    puz12.placeholders.push(new Placeholder(10,
-        this.width/2 + puz12.PUZZLE_PIECE_SIZE/2 - puz12.PUZZLE_PIECE_SIZE,
-        puz12.PUZZLE_AREA_TOP_OFFSET + puz12.PUZZLE_PIECE_SIZE * 2,
-        puz12.PUZZLE_PIECE_SIZE,
-        puz12.PUZZLE_PIECE_SIZE,
-        10, undefined, undefined, puz12));
-    puz12.placeholders.push(new Placeholder(11,
-        this.width/2 + puz12.PUZZLE_PIECE_SIZE/2,
-        puz12.PUZZLE_AREA_TOP_OFFSET + puz12.PUZZLE_PIECE_SIZE * 2,
-        puz12.PUZZLE_PIECE_SIZE,
-        puz12.PUZZLE_PIECE_SIZE,
-        11, undefined, undefined, puz12));
-    puz12.placeholders.push(new Placeholder(12,
-        this.width/2  + puz12.PUZZLE_PIECE_SIZE/2 + puz12.PUZZLE_PIECE_SIZE,
-        puz12.PUZZLE_AREA_TOP_OFFSET + puz12.PUZZLE_PIECE_SIZE * 2,
-        puz12.PUZZLE_PIECE_SIZE,
-        puz12.PUZZLE_PIECE_SIZE,
-        12, undefined, undefined, puz12));
+    puz.placeholders.push(new Placeholder(9,
+        this.width/2 + puz.PUZZLE_PIECE_SIZE/2 - puz.PUZZLE_PIECE_SIZE * 2,
+        puz.PUZZLE_AREA_TOP_OFFSET + puz.PUZZLE_PIECE_SIZE * 2,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        9, undefined, undefined, puz));
+    puz.placeholders.push(new Placeholder(10,
+        this.width/2 + puz.PUZZLE_PIECE_SIZE/2 - puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_AREA_TOP_OFFSET + puz.PUZZLE_PIECE_SIZE * 2,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        10, undefined, undefined, puz));
+    puz.placeholders.push(new Placeholder(11,
+        this.width/2 + puz.PUZZLE_PIECE_SIZE/2,
+        puz.PUZZLE_AREA_TOP_OFFSET + puz.PUZZLE_PIECE_SIZE * 2,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        11, undefined, undefined, puz));
+    puz.placeholders.push(new Placeholder(12,
+        this.width/2  + puz.PUZZLE_PIECE_SIZE/2 + puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_AREA_TOP_OFFSET + puz.PUZZLE_PIECE_SIZE * 2,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        12, undefined, undefined, puz));
 
     // initialize cards.
-    puz12.POSX_INITIAL_CARD = width/2;
-    puz12.POSY_INITIAL_CARD = 1300;
-    puz12.POSY_INITIAL_DECK = 1300;
+    puz.POSX_INITIAL_CARD = width/2;
+    puz.POSY_INITIAL_CARD = 1300;
+    puz.POSY_INITIAL_DECK = 1300;
 
-    puz12.cards.push(initPuzzleCard(1, puz12.POSX_INITIAL_PUZZLE, puz12.POSY_INITIAL_PUZZLE,
-        random(-1, 1), random(-1, 1), puz12));
-    puz12.cards.push(initPuzzleCard(2, puz12.POSX_INITIAL_PUZZLE, puz12.POSY_INITIAL_PUZZLE,
-        random(-1, 1), random(-1, 1), puz12));
-    puz12.cards.push(initPuzzleCard(3, puz12.POSX_INITIAL_PUZZLE, puz12.POSY_INITIAL_PUZZLE,
-        random(-1, 1), random(-1, 1), puz12));
-    puz12.cards.push(initPuzzleCard(4, puz12.POSX_INITIAL_PUZZLE, puz12.POSY_INITIAL_PUZZLE,
-        random(-1, 1), random(-1, 1), puz12));
+    puz.cards.push(initPuzzleCard(1, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
+    puz.cards.push(initPuzzleCard(2, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
+    puz.cards.push(initPuzzleCard(3, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
+    puz.cards.push(initPuzzleCard(4, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
 
-    puz12.cards.push(initPuzzleCard(5, puz12.POSX_INITIAL_PUZZLE, puz12.POSY_INITIAL_PUZZLE,
-        random(-1, 1), random(-1, 1), puz12));
-    puz12.cards.push(initPuzzleCard(6, puz12.POSX_INITIAL_PUZZLE, puz12.POSY_INITIAL_PUZZLE,
-        random(-1, 1), random(-1, 1), puz12));
-    puz12.cards.push(initPuzzleCard(7, puz12.POSX_INITIAL_PUZZLE, puz12.POSY_INITIAL_PUZZLE,
-        random(-1, 1), random(-1, 1), puz12));
-    puz12.cards.push(initPuzzleCard(8, puz12.POSX_INITIAL_PUZZLE, puz12.POSY_INITIAL_PUZZLE,
-        random(-1, 1), random(-1, 1), puz12));
+    puz.cards.push(initPuzzleCard(5, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
+    puz.cards.push(initPuzzleCard(6, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
+    puz.cards.push(initPuzzleCard(7, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
+    puz.cards.push(initPuzzleCard(8, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
 
-    puz12.cards.push(initPuzzleCard(9, puz12.POSX_INITIAL_PUZZLE, puz12.POSY_INITIAL_PUZZLE,
-        random(-1, 1), random(-1, 1), puz12));
-    puz12.cards.push(initPuzzleCard(10, puz12.POSX_INITIAL_PUZZLE, puz12.POSY_INITIAL_PUZZLE,
-        random(-1, 1), random(-1, 1), puz12));
-    puz12.cards.push(initPuzzleCard(11, puz12.POSX_INITIAL_PUZZLE, puz12.POSY_INITIAL_PUZZLE,
-        random(-1, 1), random(-1, 1), puz12));
-    puz12.cards.push(initPuzzleCard(12, puz12.POSX_INITIAL_PUZZLE, puz12.POSY_INITIAL_PUZZLE,
-        random(-1, 1), random(-1, 1), puz12));
+    puz.cards.push(initPuzzleCard(9, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
+    puz.cards.push(initPuzzleCard(10, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
+    puz.cards.push(initPuzzleCard(11, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
+    puz.cards.push(initPuzzleCard(12, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
 
     // initialize buttons
-    puz12.otherPuzzlesButtons.push(new Button(width - 1720, height/2 - 270, 300, 200, undefined));
-    puz12.otherPuzzlesButtons.push(new Button(width - 1720, height/2 - 490, 300, 200, undefined));
-    puz12.otherPuzzlesButtons.push(new Button(width - 1720, height/2 - 710, 300, 200, undefined));
+    puz.otherPuzzlesButtons.push(new Button(width - 1720, height/2 - 210, 300, 200, undefined));
+    puz.otherPuzzlesButtons.push(new Button(width - 1720, height/2 - 430, 300, 200, undefined));
+    puz.otherPuzzlesButtons.push(new Button(width - 1720, height/2 - 650, 300, 200, undefined));
 
     // initialize puzzle info pop-up details.
-    puz12.cardPopUpProperties.currentTitle = puzzle12Images[puz12.gameState.puzzleImageId - 1][1];
-    puz12.cardPopUpProperties.currentDescription = puzzle12Images[puz12.gameState.puzzleImageId - 1][2];
-    puz12.cardPopUpProperties.currentYear = puzzle12Images[puz12.gameState.puzzleImageId - 1][3];
-    puz12.cardPopUpProperties.sportId = puzzle12Images[puz12.gameState.puzzleImageId - 1][4];
-    puz12.cardPopUpProperties.sportImage = loadImage("memoryImg/icons/" + puz12.cardPopUpProperties.sportId + ".png");
+    puz.cardPopUpProperties.currentTitle = puzzle12Images[puz.gameState.puzzleImageId - 1][1];
+    puz.cardPopUpProperties.currentDescription = puzzle12Images[puz.gameState.puzzleImageId - 1][2];
+    puz.cardPopUpProperties.currentYear = puzzle12Images[puz.gameState.puzzleImageId - 1][3];
+    puz.cardPopUpProperties.sportId = puzzle12Images[puz.gameState.puzzleImageId - 1][4];
+    puz.cardPopUpProperties.sportImage = loadImage("memoryImg/icons/" + puz.cardPopUpProperties.sportId + ".png");
 
-    puz12.nextButton = new Button(width/2, height/2 + 780, 600, 128, puzzleNextButton);
+    puz.nextButton = new Button(width/2, height/2 + 780, 600, 128, puzzleNextButton);
 
     initializeThumbnails();
 }
@@ -1338,7 +1730,9 @@ function drawPuzzle12() {
     drawPlaceholders();
     drawCards();
 
-    drawPuzzlePreview();
+    if (activeGame === "puz12") {
+        drawPuzzlePreview();
+    }
     drawThumbPuzzles();
 
     // support for touch and desktop.
@@ -1355,18 +1749,26 @@ function drawPuzzle12() {
 
     // check is end of the game and perform cleanup and final display.
     checkEndOfTheGame();
-    drawPopUp(puz12);
+    drawPopUp(puz);
 
-    if (puz12.nextButton.isVisible && puz12.nextButton.isClicked(mouseX, mouseY)) {
+    if (puz.nextButton.isVisible && puz.nextButton.isClicked(mouseX, mouseY)) {
         // reset puzzle with new image.
-        let newActivePuzzleId = puz12.gameState.puzzleImageId + 1;
-        initializePuz12GameProps();
-        puz12.gameState.puzzleImageId = newActivePuzzleId > 4 ? 1 : newActivePuzzleId;
-        puz12.isInitialized = false;
-        initializePuzzle12();
-        puz12.isInitialized = true;
+        let newActivePuzzleId = puz.gameState.puzzleImageId + 1;
+        if (activeGame === "puz12") {
+            initializePuz12GameProps();
+        } else if (activeGame === "puz30") {
+            initializePuz30GameProps();
+        }
+        puz.gameState.puzzleImageId = newActivePuzzleId > 4 ? 1 : newActivePuzzleId;
+        puz.isInitialized = false;
+        if (activeGame === "puz12"){
+            initializePuzzle12();
+        } else if (activeGame === "puz30") {
+            initializePuzzle30();
+        }
+        puz.isInitialized = true;
     }
-    puz12.nextButton.draw();
+    puz.nextButton.draw();
 
     textFont(fontNotoMedium);
     textStyle(NORMAL);
@@ -1387,37 +1789,49 @@ function drawPuzzle12() {
 function initializeThumbnails() {
     let localIndex = 0;
     for (let i = 1; i < 5; i++) {
-        if (i !== puz12.gameState.puzzleImageId) {
+        if (i !== puz.gameState.puzzleImageId) {
 
-            puz12.otherPuzzlesButtons[localIndex].img = puzzle12Thumbs[i - 1];
-            puz12.otherPuzzlesButtons[localIndex].isVisible = true;
-            puz12.otherPuzzlesButtons[localIndex].id = i;
+            if (activeGame === "puz12") {
+                puz.otherPuzzlesButtons[localIndex].img = puzzle12Thumbs[i - 1];
+            } else if (activeGame === "puz30") {
+                puz.otherPuzzlesButtons[localIndex].img = puzzle30Thumbs[i - 1];
+            }
+            puz.otherPuzzlesButtons[localIndex].isVisible = true;
+            puz.otherPuzzlesButtons[localIndex].id = i;
             localIndex++;
         }
     }
 }
 
 function drawThumbPuzzles() {
-    for (let i = 0; i < puz12.otherPuzzlesButtons.length; i++) {
+    for (let i = 0; i < puz.otherPuzzlesButtons.length; i++) {
 
         push();
-        if (puz12.gameState.thumbsAlpha < 1) {
-            puz12.gameState.thumbsAlpha += 0.005;
+        if (puz.gameState.thumbsAlpha < 1) {
+            puz.gameState.thumbsAlpha += 0.005;
         }
-        tint(255, puz12.gameState.thumbsAlpha * 255);
-        puz12.otherPuzzlesButtons[i].draw();
+        tint(255, puz.gameState.thumbsAlpha * 255);
+        puz.otherPuzzlesButtons[i].draw();
         pop();
 
         // check click only after puzzles are dispersed in order to avoid clicking on multiple thumbs before current puzzle is loaded.
-        if (puz12.gameState.allIconsDispersed && puz12.otherPuzzlesButtons[i].isClicked(mouseX, mouseY) && puz12.selectedCard === undefined) {
-            let newActivePuzzleId = puz12.otherPuzzlesButtons[i].id;
+        if (puz.gameState.allIconsDispersed && puz.otherPuzzlesButtons[i].isClicked(mouseX, mouseY) && puz.selectedCard === undefined) {
+            let newActivePuzzleId = puz.otherPuzzlesButtons[i].id;
 
             // 'manually' reset puzzle game cu inject puzzle button id.
-            initializePuz12GameProps();
-            puz12.gameState.puzzleImageId = newActivePuzzleId;
-            puz12.isInitialized = false;
-            initializePuzzle12();
-            puz12.isInitialized = true;
+            if (activeGame === "puz12") {
+                initializePuz12GameProps();
+            } else if (activeGame === "puz30") {
+                initializePuz30GameProps();
+            }
+            puz.gameState.puzzleImageId = newActivePuzzleId;
+            puz.isInitialized = false;
+            if (activeGame === "puz12"){
+                initializePuzzle12();
+            } else if (activeGame === "puz30") {
+                initializePuzzle30();
+            }
+            puz.isInitialized = true;
         }
     }
 }
@@ -1425,11 +1839,11 @@ function drawThumbPuzzles() {
 function drawPuzzlePreview() {
     push();
     scale(0.5);
-    if (puz12.gameState.thumbsAlpha < 1) {
-        puz12.gameState.thumbsAlpha += 0.005;
+    if (puz.gameState.thumbsAlpha < 1) {
+        puz.gameState.thumbsAlpha += 0.005;
     }
-    tint(255, puz12.gameState.thumbsAlpha * 255);
-    image(puz12.finalPuzzleImage.img, this.width + 1000, this.height/2 + 270);
+    tint(255, puz.gameState.thumbsAlpha * 255);
+    image(puz.finalPuzzleImage.img, this.width + 1000, this.height/2 + 270);
     pop();
 }
 
@@ -1442,8 +1856,8 @@ function initPuzzleCard(id, posx, posy, disperseX, disperseY, gameProp) {
 
 function drawPlaceholders() {
     let counterMatches = 0;
-    for (let i = 0; i < puz12.placeholders.length; i++) {
-        let currentPlaceholder = puz12.placeholders[i];
+    for (let i = 0; i < puz.placeholders.length; i++) {
+        let currentPlaceholder = puz.placeholders[i];
         currentPlaceholder.draw();
 
         // check how many cards match.
@@ -1453,17 +1867,17 @@ function drawPlaceholders() {
         }
     }
 
-    if (counterMatches === puz12.cards.length) {
-        puz12.gameState.isGameOver = true;
+    if (counterMatches === puz.cards.length) {
+        puz.gameState.isGameOver = true;
     }
 }
 
 function drawCards() {
 
     // initialize and display the cards.
-    puz12.gameState.allIconsDispersed = true;
-    for (let i = 0; i < puz12.cards.length; i++) {
-        let currentCard = puz12.cards[i];
+    puz.gameState.allIconsDispersed = true;
+    for (let i = 0; i < puz.cards.length; i++) {
+        let currentCard = puz.cards[i];
 
         if (!currentCard.dispersed) {
             currentCard.disperse();
@@ -1472,32 +1886,37 @@ function drawCards() {
         } else {
             currentCard.draw();
         }
-        puz12.gameState.allIconsDispersed = puz12.gameState.allIconsDispersed && currentCard.dispersed;
+        puz.gameState.allIconsDispersed = puz.gameState.allIconsDispersed && currentCard.dispersed;
     }
 }
 
 
 function checkEndOfTheGame() {
-    if (puz12.gameState.isGameOver) {
+    if (puz.gameState.isGameOver) {
 
         // start fading in the final image
-        if (puz12.finalPuzzleImage.opacity < 1) {
-            puz12.finalPuzzleImage.opacity += 0.01;
+        if (puz.finalPuzzleImage.opacity < 1) {
+            puz.finalPuzzleImage.opacity += 0.01;
         }
-        tint(255, map(puz12.finalPuzzleImage.opacity, 0, 1, 0, 255));
-        image(puz12.finalPuzzleImage.img, this.width/2 - puz12.PUZZLE_PIECE_SIZE * 2,
-            puz12.PUZZLE_AREA_TOP_OFFSET - puz12.PUZZLE_PIECE_SIZE/2);
+        tint(255, map(puz.finalPuzzleImage.opacity, 0, 1, 0, 255));
+        if (activeGame === "puz12") {
+            image(puz.finalPuzzleImage.img, this.width/2 - puz.PUZZLE_PIECE_SIZE * 2,
+                puz.PUZZLE_AREA_TOP_OFFSET - puz.PUZZLE_PIECE_SIZE/2);
+        } else if (activeGame === "puz30") {
+            image(puz.finalPuzzleImage.img, this.width/2 - puz.PUZZLE_PIECE_SIZE * 3,
+                puz.PUZZLE_AREA_TOP_OFFSET - puz.PUZZLE_PIECE_SIZE/2);
+        }
         tint(255, 255);
 
         // when final image has finished fading in, remove all puzzle pieces.
-        if (puz12.finalPuzzleImage.opacity > 1 && puz12.cards.length > 0) {
-            puz12.cards = [];
-            puz12.placeholders = [];
+        if (puz.finalPuzzleImage.opacity > 1 && puz.cards.length > 0) {
+            puz.cards = [];
+            puz.placeholders = [];
         }
 
         // display info pop-up
-        initShowPopUp(puz12);
-        puz12.nextButton.isVisible = true;
+        initShowPopUp(puz);
+        puz.nextButton.isVisible = true;
     }
 
 
@@ -1505,18 +1924,18 @@ function checkEndOfTheGame() {
 
 function checkPuzzlePlaceholderCards() {
     // reset cards active placeholders and set them later together with the placeholder settings.
-    for (let i = 0; i < puz12.cards.length; i++) {
-        puz12.cards[i].activePlaceholder = undefined;
+    for (let i = 0; i < puz.cards.length; i++) {
+        puz.cards[i].activePlaceholder = undefined;
     }
 
-    for (let i = 0; i < puz12.placeholders.length; i++) {
-        let currentPlaceholder = puz12.placeholders[i];
+    for (let i = 0; i < puz.placeholders.length; i++) {
+        let currentPlaceholder = puz.placeholders[i];
         currentPlaceholder.activeCard = undefined;
         // currentPlaceholder.draw();
 
         // check if card should be snapped into placeholder.
-        for (let i = 0; i < puz12.cards.length; i++) {
-            let currentCard = puz12.cards[i];
+        for (let i = 0; i < puz.cards.length; i++) {
+            let currentCard = puz.cards[i];
             if (currentPlaceholder.isCardOver(currentCard) && currentPlaceholder.activeCard === undefined
                 && !isAnySelectedCard() && currentCard.id === currentPlaceholder.correctCardId) {
                 // set active card and placeholder to each other.
@@ -1563,7 +1982,7 @@ function touchEnded() {
         }
         clearSelectedCard();
     }
-    if (activeGame === puz12.propertiesIdentifier) {
+    if (activeGame === puz.propertiesIdentifier) {
         clearSelectedCard();
     }
 }
@@ -1579,9 +1998,9 @@ function touchMoved(){
             tl.selectedCard.posx = touchTargets[0].x;
             tl.selectedCard.posy = touchTargets[0].y;
         }
-        if (activeGame === puz12.propertiesIdentifier) {
-            puz12.selectedCard.posx = touchTargets[0].x;
-            puz12.selectedCard.posy = touchTargets[0].y;
+        if (activeGame === puz.propertiesIdentifier) {
+            puz.selectedCard.posx = touchTargets[0].x;
+            puz.selectedCard.posy = touchTargets[0].y;
         }
     }
 }
@@ -1611,16 +2030,16 @@ function touchStarted() {
         checkInfoPopUpClosed(tl);
     }
 
-    if (activeGame === puz12.propertiesIdentifier) {
+    if (activeGame === puz.propertiesIdentifier) {
         if (!isAnySelectedCard()) {
-            for (let i = 0; i < puz12.cards.length; i++) {
-                let activeCard = puz12.cards[i];
+            for (let i = 0; i < puz.cards.length; i++) {
+                let activeCard = puz.cards[i];
                 if (activeCard.isActive(touchTargets[0].x, touchTargets[0].y)) {
-                    puz12.cards.splice(i, 1);
-                    puz12.cards.push(activeCard);
-                    puz12.selectedCard = activeCard;
+                    puz.cards.splice(i, 1);
+                    puz.cards.push(activeCard);
+                    puz.selectedCard = activeCard;
                     // straighten the selected card
-                    puz12.selectedCard.resetRotation(true);
+                    puz.selectedCard.resetRotation(true);
                 }
             }
         }

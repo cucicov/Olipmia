@@ -14,7 +14,7 @@ function drawPopUp(gameProp) {
             translate(gameProp.cardPopUpProperties.popupPosx,
                 gameProp.cardPopUpProperties.popupPosy);
 
-        } else if (gameProp.propertiesIdentifier === "puz12") {
+        } else if (gameProp.propertiesIdentifier === "puz12" || gameProp.propertiesIdentifier === "puz30") {
             translate(gameProp.cardPopUpProperties.popupPosx,
                 gameProp.cardPopUpProperties.popupPosy);
 
@@ -52,7 +52,7 @@ function drawPopUp(gameProp) {
             fill(0);
             text(gameProp.cardPopUpProperties.currentYear, -400, 210);
 
-        } else if (gameProp.propertiesIdentifier === "puz12") {
+        } else if (gameProp.propertiesIdentifier === "puz12" || gameProp.propertiesIdentifier === "puz30") {
             rectMode(CENTER);
             rect(0, 0, gameProp.cardPopUpProperties.popupWidth, gameProp.cardPopUpProperties.popupHeight, 30);
             textFont(fontNotoMedium);
