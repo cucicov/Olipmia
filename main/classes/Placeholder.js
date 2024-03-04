@@ -9,13 +9,14 @@ class Placeholder {
     * @param year - year associated with the card of the placeholder.
     * @param info - the correct card id to be associated with the placeholder.
      */
-    constructor(id, posx, posy, width, height, cardId, year, info) {
+    constructor(id, posx, posy, width, height, cardId, year, info, gameProp) {
         this.id = id;
         this.posx = posx;
         this.posy = posy;
         this.width = width;
         this.height = height;
         this.correctCardId = cardId; // correct card id.
+        this.gameProp = gameProp;
         this.correctCardDetailsImage = loadImage('../timelineImg/' + this.correctCardId + '_details.png');
         this.placeholderImage = loadImage('../timelineImg/placeholder.png');
 
@@ -54,17 +55,25 @@ class Placeholder {
         // check if should display wrong card animation on placeholder.
         this.checkWrongCardAnimation();
 
-        // rectMode(CENTER);
-        // stroke(this.phStroke);
-        // strokeWeight(this.phStroke);
-        // fill(this.rectColorR, this.rectColorG, this.rectColorB);
-        // rect(this.posx, this.posy, this.width, this.height);
+        if (this.gameProp.propertiesIdentifier === puz12.propertiesIdentifier) {
+            push();
+            rectMode(CENTER);
+            // stroke(this.phStroke);
+            // strokeWeight(this.phStroke);
+            stroke('#CACACA');
+            fill('#F0F0F0');
+            // fill(this.rectColorR, this.rectColorG, this.rectColorB);
+            rect(this.posx, this.posy, this.width, this.height);
+            pop();
+        }
 
-        push();
-        imageMode(CENTER);
+        if (this.gameProp.propertiesIdentifier === tl.propertiesIdentifier) {
+            push();
+            imageMode(CENTER);
 
-        image(this.placeholderImage, this.posx, this.posy);
-        pop();
+            image(this.placeholderImage, this.posx, this.posy);
+            pop();
+        }
     }
 
     checkWrongCardAnimation() {

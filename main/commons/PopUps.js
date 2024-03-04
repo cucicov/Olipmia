@@ -14,6 +14,10 @@ function drawPopUp(gameProp) {
             translate(gameProp.cardPopUpProperties.popupPosx,
                 gameProp.cardPopUpProperties.popupPosy);
 
+        } else if (gameProp.propertiesIdentifier === "puz12") {
+            translate(gameProp.cardPopUpProperties.popupPosx,
+                gameProp.cardPopUpProperties.popupPosy);
+
         }
 
         scale(scaleRatio);
@@ -47,6 +51,27 @@ function drawPopUp(gameProp) {
             textFont(fontZebrra);
             fill(0);
             text(gameProp.cardPopUpProperties.currentYear, -400, 210);
+
+        } else if (gameProp.propertiesIdentifier === "puz12") {
+            rectMode(CENTER);
+            rect(0, 0, gameProp.cardPopUpProperties.popupWidth, gameProp.cardPopUpProperties.popupHeight, 30);
+            textFont(fontNotoMedium);
+            textStyle(NORMAL);
+            textAlign(LEFT);
+            textSize(45);
+            fill(0);
+            text(gameProp.cardPopUpProperties.currentTitle, -400, -270);
+            textFont(fontNotoLight);
+            textSize(24);
+            textAlign(LEFT);
+            fill(0);
+            text(gameProp.cardPopUpProperties.currentDescription, -400, -210);
+            textSize(60);
+            textFont(fontZebrra);
+            fill(0);
+            text(gameProp.cardPopUpProperties.currentYear, -400, 300);
+            scale(0.7);
+            image(gameProp.cardPopUpProperties.sportImage, 400, 270);
 
         }
         pop();

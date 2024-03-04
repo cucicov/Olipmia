@@ -8,6 +8,7 @@ class Button {
         this.isVisible = false;
         this.text = ">";
         this.img = img;
+        this.id = undefined;
     }
 
     draw() {
