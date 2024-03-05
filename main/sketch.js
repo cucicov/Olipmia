@@ -47,6 +47,8 @@ let imgGameTimeline, imgGameMemory, imgGamePuzzle, imgGameColaj;
 
 let timelineBg, memoryBg, timelineNextButton, puzzleNextButton, puzzleBg;
 
+let puzLevel12, puzLevel30;
+
 let puzzle12Images = [];
 let puzzle30Images = [];
 let puzzle12Thumbs = [];
@@ -115,8 +117,10 @@ function preload() {
     puzzle30Thumbs.push(loadImage('puzzle30Img/puzzles/3/thumb.png'));
     puzzle30Thumbs.push(loadImage('puzzle30Img/puzzles/4/thumb.png'));
 
+    puzLevel12 = loadImage('puzzle12Img/level_12.png');
+    puzLevel30 = loadImage('puzzle30Img/level_30.png');
 
-    activeGame = "puz30";
+    activeGame = "tl";
 }
 
 function setup() {
@@ -150,7 +154,7 @@ function draw() {
         drawTimeline();
     }
     if (activeGame === "puz12" || activeGame === "puz30"){
-        drawPuzzle12();
+        drawPuzzle();
     }
 
     drawMenuScreen();
@@ -269,15 +273,16 @@ function drawGamesMenu() {
         resetCurrentGame();
     }
 
-    if (buttonGamePuzzle.isClicked(mouseX + menu.fixedPosition, mouseY)) {
-        activeGame = "puz12";
-
-        // hide menu after language change
-        if (menu.isVisible) {
-            menu.isVisible = false;
-        }
-        resetCurrentGame();
-    }
+    // TODO: uncomment puzzle game
+    // if (buttonGamePuzzle.isClicked(mouseX + menu.fixedPosition, mouseY)) {
+    //     activeGame = "puz12";
+    //
+    //     // hide menu after language change
+    //     if (menu.isVisible) {
+    //         menu.isVisible = false;
+    //     }
+    //     resetCurrentGame();
+    // }
 }
 
 function drawLanguageMenu() {
@@ -1127,6 +1132,7 @@ function initializePuz30GameProps() {
         selectedCard: undefined,
 
         nextButton: undefined,
+        levelButton: undefined,
 
         // other puzzles buttons
         otherPuzzlesButtons: [],
@@ -1574,6 +1580,7 @@ function initializePuzzle30() {
     puz.cardPopUpProperties.sportImage = loadImage("memoryImg/icons/" + puz.cardPopUpProperties.sportId + ".png");
 
     puz.nextButton = new Button(width/2, height/2 + 1400, 600, 128, puzzleNextButton);
+    puz.levelButton = new Button(width - 300, height/2 + 200, 300, 200, puzLevel30);
 
     initializeThumbnails();
 }
@@ -1714,11 +1721,12 @@ function initializePuzzle12() {
     puz.cardPopUpProperties.sportImage = loadImage("memoryImg/icons/" + puz.cardPopUpProperties.sportId + ".png");
 
     puz.nextButton = new Button(width/2, height/2 + 780, 600, 128, puzzleNextButton);
+    puz.levelButton = new Button(width - 540, height/2 - 250, 300, 200, puzLevel12);
 
     initializeThumbnails();
 }
 
-function drawPuzzle12() {
+function drawPuzzle() {
     background(puzzleBg);
 
     // guiding lines center of the screen.
@@ -1734,6 +1742,7 @@ function drawPuzzle12() {
         drawPuzzlePreview();
     }
     drawThumbPuzzles();
+    drawLevelButton();
 
     // support for touch and desktop.
     if (touches.length == 0) {
@@ -1784,6 +1793,33 @@ function drawPuzzle12() {
     textFont(fontNotoLight);
     textStyle(NORMAL);
     text('Poți alege nivelul de dificultate, cu 12 sau 30 de piese.', width/2, 450);
+
+    fill('#AAAAAA');
+    textSize(32);
+    if (activeGame === "puz12") {
+        text('Alege alt puzzle', 460, height/2 - 800);
+    } else if (activeGame === "puz30") {
+        text('Alege alt puzzle', 230, height/2 - 800);
+    }
+}
+
+function drawLevelButton() {
+    puz.levelButton.isVisible = true;
+    puz.levelButton.draw();
+
+    if (puz.levelButton.isClicked(mouseX, mouseY) && puz.selectedCard === undefined) {
+        puz.isInitialized = false;
+        if (activeGame === "puz12") {
+            activeGame = "puz30";
+            initializePuz30GameProps();
+            initializePuzzle30();
+        } else if (activeGame === "puz30") {
+            activeGame = "puz12";
+            initializePuz12GameProps();
+            initializePuzzle12();
+        }
+        puz.isInitialized = true;
+    }
 }
 
 function initializeThumbnails() {
