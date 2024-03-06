@@ -1989,6 +1989,7 @@ function checkPuzzlePlaceholderCards() {
 
 // desktop support
 function mousePressed() {
+    fullscreen(true);
     if (activeGame === mem.propertiesIdentifier) {
         checkInfoPopUpClosed(mem);
         initHidePopUp(mem);
