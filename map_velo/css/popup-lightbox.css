@@ -1,0 +1,223 @@
+/*   Project: Popup Lightbox 
+ *   Author: Asif Mughal
+ *   URL: www.codehim.com
+ *   License: MIT License
+ *   Copyright (c) 2019 - Asif Mughal
+ */
+
+/* File: popup-lightbox.css */
+@font-face {
+    font-family: 'NotoSans';
+    src: url('../fonts/NotoSans-VariableFont_wdth,wght.ttf') format('truetype');
+}
+
+.circle {
+    width: 15px; /* Adjust size as needed */
+    height: 15px; /* Adjust size as needed */
+    background-color: white;
+    border-radius: 50%; /* Ensures it's a circle */
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25); /* Adjust shadow properties as needed */
+}
+
+.vertical-line {
+    width: 2px; /* Adjust thickness as needed */
+    background-color: white;
+}
+
+
+.select-menu{
+    width: 175px;
+    position: absolute;
+    top:0px;
+    right: 0px;
+    color: #000;
+    font-family: 'NotoSans', sans-serif;
+}
+
+.select-menu .select-btn{
+    display: flex;
+    height: 55px;
+    background: #fff;
+    padding: 20px;
+    font-size: 18px;
+    font-weight: 400;
+    border-radius: 8px;
+    align-items: center;
+    cursor: pointer;
+    justify-content: space-between;
+    box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    border-radius: 60px;
+    margin-right: 40px;
+    margin-top: 40px;
+    border: 1px solid black;
+}
+
+.select-btn i{
+    font-size: 25px;
+    transition: 0.3s;
+    display: flex;
+    align-items: center; /* Vertical center alignment */
+}
+
+.sBtn-text, .option-text {
+    display: flex;
+    align-items: center; /* Vertical center alignment */
+}
+
+.select-menu.active .select-btn i{
+    transform: rotate(-180deg);
+}
+.select-menu .options{
+    position: relative;
+    padding: 20px;
+    margin-top: 10px;
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 0 3px rgba(0,0,0,0.1);
+    display: none;
+    margin-right: 40px;
+}
+.select-menu.active .options{
+    display: block;
+}
+.options .option{
+    display: flex;
+    height: 55px;
+    cursor: pointer;
+    border-radius: 8px;
+    align-items: center;
+    background: #fff;
+}
+.options .option:hover{
+    background: #F2F2F2;
+}
+.option i{
+    font-size: 25px;
+    margin-right: 12px;
+}
+.option .option-text{
+    font-size: 18px;
+    color: #333;
+}
+
+.lightbox {
+    position: fixed;
+    /*background: rgba(0, 0, 0, 0.90);*/
+    display: none;
+    z-index: 100;
+}
+
+.lightbox .img-show {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+}
+
+.img-caption {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 10px;
+    position: absolute;
+    bottom: 0;
+    display: block;
+    z-index: 101;
+    color: #fff;
+    text-shadow: 1px 0.4px rgba(0, 0, 0, 0.5);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.lightbox .btn-close {
+    position: absolute;
+    top: 30px;
+    right: 30px;
+    width: 32px;
+    height: 32px;
+    border: 1px solid #000;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    text-align: center;
+    /*font-size: 18pt;*/
+    z-index: 101;
+    cursor: pointer;
+    color: black;
+}
+
+.lightbox .btn-close:hover {
+    background: #fff;
+}
+
+.lightbox .lightbox-status {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    color: #fff;
+    font-size: 14px;
+    z-index: 101;
+}
+
+.img-show img {
+    width: 100%;
+    height: auto;
+    position: absolute;
+    display: block;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+}
+
+
+/* Next and Previous Buttons */
+
+.btn-prev,
+.btn-next {
+    width: 32px;
+    height: 100px;
+    background: rgba(0, 0, 0, 0.30);
+    cursor: pointer;
+    position: absolute;
+    top: 50%;
+    margin-top: -50px;
+    z-index: 101;
+    border: 0;
+    font-family: FontAwesome;
+    color: #fff;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 18pt;
+    border-radius: 5px;
+}
+
+.btn-prev:hover,
+.btn-next:hover {
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    transition: .4s;
+    -webkit-transition: .4s;
+    -moz-transition: .4s;
+    -ms-transition: 0.4s;
+    -o-transition: .4s;
+}
+
+.btn-prev {
+    left: 5px;
+}
+
+.btn-next {
+    right: 5px;
+}
+
+.btn-prev:before {
+    content: "\f104";
+}
+
+.btn-next:before {
+    content: "\f105";
+}
+
+@media only screen and ( min-width: 680px) {
+    .lightbox {
+        /*border-radius: 5px;*/
+        /*box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.5);*/
+    }
+}
