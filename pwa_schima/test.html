@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Pop-up Example</title>
+    <style>
+        /* CSS for pop-up */
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border: 1px solid #ccc;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            z-index: 9999;
+        }
+    </style>
+</head>
+<body>
+<img id="museumImage" src="img/museums/mask/armemuseum.png" style="position: absolute; top: 206px; right: 170px; cursor: pointer;" />
+
+<!-- Pop-up content -->
+<div id="popupContent" class="popup">
+    <h2>Pop-up Content</h2>
+    <p>This is the content of the pop-up.</p>
+</div>
+
+<script>
+    // JavaScript to handle click event and show the pop-up
+    document.getElementById("museumImage").onclick = function() {
+        var popup = document.getElementById("popupContent");
+        popup.style.display = "block";
+    };
+</script>
+</body>
+</html>
