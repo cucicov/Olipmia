@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Easy PWA</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta id="theme-color" name="theme-color" content="#4527A0">
+    <link rel="manifest" href="manifest.json">
+    <link rel="shortcut icon" href="favicon.png" sizes="144x144" type="image/png">
+
+  </head>
+
+  <body>
+    <img src="img/header.jpg" style="text-align: center; width: 100%"/>
+    <br>
+    <h2><a href="page2.html">Page 2</a> &rarr;</h2>
+    <h3>&bullet; Add the app icon to home screen from Chrome menu</h3>
+    <h3>&bullet; Disconnect Chrome or the operating system form network and the app should be able to reload</h3>
+    <script>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js').then(function() {
+          console.log('sw: registration ok');
+        }).catch(function(error) {
+          console.error('sw: registration failed ', error);
+        })
+      }
+
+    </script>
+  </body>
+</html>

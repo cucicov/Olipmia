@@ -448,8 +448,8 @@
                     bttn.setAttribute('data-state', 'unlocked');
                 };
 
-                document.querySelector('.button--accept[data-stack = stack_yuda]').addEventListener(clickeventtype, function() { yuda.accept(buttonClickCallback.bind(this)); });
-                document.querySelector('.button--reject[data-stack = stack_yuda]').addEventListener(clickeventtype, function() { yuda.reject(buttonClickCallback.bind(this)); });
+                document.getElementById('necst-button').addEventListener(clickeventtype, function() { yuda.accept(buttonClickCallback.bind(this)); });
+                // document.querySelector('.button--reject[data-stack = stack_yuda]').addEventListener(clickeventtype, function() { yuda.reject(buttonClickCallback.bind(this)); });
 
             })();
         </script>
