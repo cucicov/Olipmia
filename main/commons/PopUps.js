@@ -65,7 +65,7 @@ function drawPopUp(gameProp) {
             textSize(24);
             textAlign(LEFT);
             fill(0);
-            text(gameProp.cardPopUpProperties.currentDescription, -400, -210);
+            text(gameProp.cardPopUpProperties.currentDescription, -400, -100);
             textSize(60);
             textFont(fontZebrra);
             fill(0);

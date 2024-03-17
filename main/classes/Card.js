@@ -14,7 +14,11 @@ class Card {
         this.width = tl.CARD_WIDTH;
         this.height = tl.CARD_HEIGHT;
 
-        this.cardImage = loadImage('../timelineImg/' + this.id + '.png');
+        if (language === LANG_RO) {
+            this.cardImage = loadImage('../timelineImg/' + this.id + '.png');
+        } else if (language === LANG_EN) {
+            this.cardImage = loadImage('../timelineImg/en/' + this.id + '.png');
+        }
 
         this.initialPosY = posy;
         this.initialPosYAfterScatter = posy;

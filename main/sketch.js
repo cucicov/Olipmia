@@ -19,6 +19,14 @@ let mem = {};
 
 let puz = {};
 
+let LANG_RO = "ro";
+let LANG_EN = "en";
+let language = LANG_RO;
+
+let IDLE_TIMEOUT_INTERACTION = 3000;
+let IDLE_TIMEOUT_NO_INTERACTION = 1000; // faster timeout if no interaction for a longer time.
+let idleTimer = IDLE_TIMEOUT_NO_INTERACTION;
+
 let menu = {
     isVisible: false,
     fixedPosition: 1100,
@@ -40,14 +48,17 @@ let fontNotoMedium;
 let fontNotoLight;
 let fontZebrra;
 
-let menuInfo, menuLanguage, menuGames;
+let menuInfo, menuLanguage_ro, menuGames_ro;
+let menuLanguage_en, menuGames_en;
 let langRo, langEn;
 
 let imgGameTimeline, imgGameMemory, imgGamePuzzle, imgGameColaj;
+let imgGameTimeline_en, imgGameMemory_en, imgGamePuzzle_en, imgGameColaj_en;
 
-let timelineBg, memoryBg, timelineNextButton, puzzleNextButton, puzzleBg;
+let timelineBg, memoryBg, timelineNextButton, puzzleNextButton_ro, puzzleNextButton_en, puzzleBg;
 
-let puzLevel12, puzLevel30;
+let puzLevel12_ro, puzLevel30_ro;
+let puzLevel12_en, puzLevel30_en;
 
 let puzzle12Images = [];
 let puzzle30Images = [];
@@ -58,16 +69,23 @@ let puzzle30Thumbs = [];
 
 function preload() {
     menuInfo = loadImage('img/menu/info_button.png');
-    menuLanguage = loadImage('img/menu/language_en.png');
-    menuGames = loadImage('img/menu/games_ro.png');
+    menuLanguage_ro = loadImage('img/menu/language_en.png');
+    menuGames_ro = loadImage('img/menu/games_ro.png');
+    menuLanguage_en = loadImage('img/menu/language_ro.png');
+    menuGames_en = loadImage('img/menu/games_en.png');
 
     langRo = loadImage('img/menu/lang_ro.png');
     langEn = loadImage('img/menu/lang_en.png');
 
-    imgGameTimeline = loadImage('img/menu/game_timeline.png');
-    imgGameMemory = loadImage('img/menu/game_memory.png');
-    imgGamePuzzle = loadImage('img/menu/game_puzzle.png');
-    imgGameColaj = loadImage('img/menu/game_colaj.png');
+    imgGameTimeline = loadImage('img/menu/game_timeline_ro.png');
+    imgGameMemory = loadImage('img/menu/game_memory_ro.png');
+    imgGamePuzzle = loadImage('img/menu/game_puzzle_ro.png');
+    imgGameColaj = loadImage('img/menu/game_colaj_ro.png');
+
+    imgGameTimeline_en = loadImage('img/menu/game_timeline_en.png');
+    imgGameMemory_en = loadImage('img/menu/game_memory_en.png');
+    imgGamePuzzle_en = loadImage('img/menu/game_puzzle_en.png');
+    imgGameColaj_en = loadImage('img/menu/game_colaj_en.png');
 
     fontNotoMedium = loadFont('font/NotoSans-Medium.ttf');
     fontNotoLight = loadFont('font/NotoSans-Light.ttf');
@@ -89,23 +107,216 @@ function preload() {
     loadedImages.push([loadImage('img/12.jpg'), '12', 'title12', 'desc12', 'year12', 5]);
 
     restartTimelineButtonRo = loadImage('timelineImg/restart_ro.png');
-    restartTimelineButtonEn = loadImage('timelineImg/restart_ro.png'); //TODO:
+    restartTimelineButtonEn = loadImage('timelineImg/restart_en.png'); //TODO:
 
     timelineBg = loadImage("timelineImg/timelineBg.png");
     memoryBg = loadImage("memoryImg/memoryBg.png");
     timelineNextButton = loadImage("memoryImg/next_ro.png");
-    puzzleNextButton = loadImage("puzzle12Img/next_ro.png");
+    puzzleNextButton_ro = loadImage("puzzle12Img/next_ro.png");
+    puzzleNextButton_en = loadImage("puzzle12Img/next_en.png");
     puzzleBg = loadImage("puzzle12Img/puzzleBg.png");
 
-    puzzle12Images.push([loadImage('puzzle12Img/puzzles/1/image.jpg'), "title1", "desc1", "0001", 2]);
-    puzzle12Images.push([loadImage('puzzle12Img/puzzles/2/image.jpg'), "title2", "desc2", "0002", 7]);
-    puzzle12Images.push([loadImage('puzzle12Img/puzzles/3/image.jpg'), "title3", "desc3", "0003", 1]);
-    puzzle12Images.push([loadImage('puzzle12Img/puzzles/4/image.jpg'), "title4", "desc4", "0004", 5]);
+    puzzle12Images.push([loadImage('puzzle12Img/puzzles/1/image.jpg'),
+        {
+            "ro": ["Zi de patinaj.\n" +
+                "Fotografie de Heinrich Lehmann",
+                "„Actul de naștere” al Olimpiei a fost decizia adunării generale a Reuniunii \n" +
+                "de patinaj din Brașov din 29 martie 1894. „Casa Reuniunii” a fost construită \n" +
+                "lângă „noul” loc de patinaj. La sfârșitul anului 1895 clădirea era gata și \n" +
+                "publicul a fost anunțat că deschiderea festivă va avea loc pe 19 ianuarie \n" +
+                "1896, cu o „petrecere costumată” pe gheață.",
+                "1905",
+                15],
+            "en": ["Skating day.\n Photo by Heinrich Lehmann",
+                "The \"birth certificate\"; of the Olimpia was the decision of the\n" +
+                "general assembly of the Skating Meeting in Brașov on March 29, 1894. The\n" +
+                "\"Meeting House\" was built next to the \"new\" skating\n" +
+                "venue. By the end of 1895 the building was ready and the public was told\n" +
+                "that the festive opening would take place on January 19, 1896, with a\n" +
+                "\"costume party\" on ice.",
+                "1905",
+                15],
+        }
+    ]);
+    puzzle12Images.push([loadImage('puzzle12Img/puzzles/2/image.jpg'),
+        {
+            "ro": ["Concurs de schi la Predeal. \nÎn imagine apare și viitorul rege \nMihai I, atunci în vârstă de 11 ani.",
+                "Pe 7 februarie 1932, la probele campionatelor organizate de Federația\n" +
+                "română de Ski la Predeal a asistat și regele Carol al II-lea, însoțit de\n" +
+                "fiul său, voevodul Mihai. Au fost de față membri ai Guvernului și\n" +
+                "oficialitățile locale. Proba de patrulă militară a fost câștigată de echipa\n" +
+                "batalionului 2 Vânători de Munte condus de căpitan Scârneci. Patrula a\n" +
+                "parcurs 12 km. în 1 oră și 32 minute. Și campionatele naționale de ski pe\n" +
+                "anul 1933, organizate tot la Predeal, au fost ținute în prezența regelui\n" +
+                "Carol al II-lea şi a fiului său, Mihai. Proba de 18 km a fost câștigată de\n" +
+                "Iosif Kovacs de la I.A.R. Brașov, urmat de norvegianul Rund Sigmund de la\n" +
+                "K.S.V.",
+                "1932", 8],
+            "en": ["Ski competition in Predeal. \nThe picture also shows the future \nKing Michael I, then aged 11.",
+                "On February 7, 1932, King Carol II, accompanied by his son, Voievod Mihai,\n" +
+                "attended the championships organised by the Romanian Ski Federation in\n" +
+                "Predeal. Members of the Government and local officials were present. The\n" +
+                "military patrol competition was won by the team of the 2nd Mountain\n" +
+                "Huntsmen Battalion led by Captain Scârneci. The patrol covered 12 km in 1\n" +
+                "hour and 32 minutes. The 1933 national ski championships, also organised in\n" +
+                "Predeal, were held in the presence of King Carol II and his son Michael\n" +
+                "too. The 18 km race was won by Iosif Kovacs from I.A.R. Brasov, followed by\n" +
+                "the Norwegian Rund Sigmund from K.S.V.",
+                "1932", 8]
+        }
+    ]);
+    puzzle12Images.push([loadImage('puzzle12Img/puzzles/3/image.jpg'),
+        {
+            "ro": ["Echipa de hochei Steagul Roșu\n Brașov pe patinoarul de la Olimpia",
+                "Între 15 și 20 ianuarie 1949, pe terenul de patinaj de sub Tâmpa, se\n" +
+                "organizează „un mare turneu de hockey” pentru „Cupa Republicii Populare\n" +
+                "Române”. Participă selecționatele orașelor București, Cluj, Miercurea Ciuc,\n" +
+                "Sighișoara, Târgu Mureș și Brașov. În primul meci, selecționata București a\n" +
+                "învins selecționata Brașov cu scorul de 11 – 1, cu trei puncte înscrise de\n" +
+                "Flamaropol. Prima ediție a cupei „R.P.R.” la hockey a fost câștigată de\n" +
+                "Echipa de hochei Steagul Roșu Brașov pe patinoarul de la Olimpia București,\n" +
+                "cu 5 victorii din 5 meciuri. Patinoarul de sub Tâmpa a fost folosit și\n" +
+                "pentru meciuri internaționale de hochei, aici jucând chiar și echipa\n" +
+                "națională.",
+                "1960", 12],
+            "en": ["Steagul Roșu Brasov hockey team\n on the Olimpia ice rink",
+                "Between 15 and 20 of January 1949, on the skating rink under Tâmpa, a\n" +
+                "\"big hockey tournament\" for the \"Romanian People\'s\n" +
+                "Republic Cup\" is organized. The teams of Bucharest, Cluj, Miercurea\n" +
+                "Ciuc, Sighișoara, Târgu Mureș and Brașov participate. In the first game,\n" +
+                "Bucharest defeated Brașov with a score of 11 to 1, three points being\n" +
+                "scored Steagul Roșu Brasov hockey team on the Olimpia ice rink by\n" +
+                "Flamaropol. The first edition of the \"R.P.R.\" hockey cup was won\n" +
+                "by Bucharest, winning 5 of 5. The rink under Tâmpa also hosted\n" +
+                "international hockey matches, even the national team playing here.\n",
+                "1960", 12]
+        }
+    ]);
+    puzzle12Images.push([loadImage('puzzle12Img/puzzles/4/image.jpg'),
+        {
+            "ro": ["Ilie Năstase și Ion Țiriac \niulie 1971",
+                "Ion Țiriac s-a născut la câteva sute de metri de terenurile de tenis de la\n" +
+                "Olimpia, pe strada Cerbului. În noiembrie 1957, pe terenul de sub Tâmpa s-a\n" +
+                "desfășurat turneul de tenis de câmp al primilor opt jucători din lotul de\n" +
+                "tineret al României. „Surpriza turneului a fost tânărul Țiriac de la\n" +
+                "Energia Steagul Roșu” (din ziarul ,,Drum Nou”). În anul 1970, Ion Țiriac a\n" +
+                "câștigat împreună cu Ilie Năstase turneul de la Roland Garros. Apoi,\n" +
+                "avându-l partener tot pe Năstase, a jucat trei finale de Cupa Davis, toate\n" +
+                "cu Statele Unite ale Americii (1969, 1970 și 1972).",
+                "1971", 4],
+            "en": ["Ilie Năstase and Ion Țiriac \nJuly 1971",
+                "Ion Țiriac was born a few hundred metres from the tennis courts at Olimpia,\n" +
+                "on Cerbului Street. In November 1957, the tennis tournament of the first\n" +
+                "eight players of Romania\'s youth team was held on the court under\n" +
+                "Tâmpa. \"The surprise of the tournament was young Țiriac from Energia\n" +
+                "Steagul Roșu\" (from the newspaper \"Drum Nou\"). In 1970, Ion\n" +
+                "Țiriac won the Roland Garros tournament together with Ilie Năstase. Then,\n" +
+                "also with Nastase as his partner, he played three Davis Cup finals, all\n" +
+                "against the United States of America (1969, 1970 and 1972).",
+                "1971", 4]
+        }
+    ]);
 
-    puzzle30Images.push([loadImage('puzzle30Img/puzzles/1/image.png'), "title1", "desc1", "0001", 2]);
-    puzzle30Images.push([loadImage('puzzle30Img/puzzles/2/image.png'), "title2", "desc2", "0002", 7]);
-    puzzle30Images.push([loadImage('puzzle30Img/puzzles/3/image.png'), "title3", "desc3", "0003", 1]);
-    puzzle30Images.push([loadImage('puzzle30Img/puzzles/4/image.png'), "title4", "desc4", "0004", 5]);
+    puzzle30Images.push([loadImage('puzzle30Img/puzzles/1/image.png'),
+        {
+            "ro": ["Zi de patinaj.\n" +
+            "Fotografie de Heinrich Lehmann",
+                "„Actul de naștere” al Olimpiei a fost decizia adunării generale a Reuniunii \n" +
+                "de patinaj din Brașov din 29 martie 1894. „Casa Reuniunii” a fost construită \n" +
+                "lângă „noul” loc de patinaj. La sfârșitul anului 1895 clădirea era gata și \n" +
+                "publicul a fost anunțat că deschiderea festivă va avea loc pe 19 ianuarie \n" +
+                "1896, cu o „petrecere costumată” pe gheață.",
+                "1905",
+                15],
+            "en": ["Skating day.\n Photo by Heinrich Lehmann",
+                "The \"birth certificate\"; of the Olimpia was the decision of the\n" +
+                "general assembly of the Skating Meeting in Brașov on March 29, 1894. The\n" +
+                "\"Meeting House\" was built next to the \"new\" skating\n" +
+                "venue. By the end of 1895 the building was ready and the public was told\n" +
+                "that the festive opening would take place on January 19, 1896, with a\n" +
+                "\"costume party\" on ice.",
+                "1905",
+                15],
+        }
+    ]);
+    puzzle30Images.push([loadImage('puzzle30Img/puzzles/2/image.png'),
+        {
+            "ro": ["Concurs de schi la Predeal. \nÎn imagine apare și viitorul rege \nMihai I, atunci în vârstă de 11 ani.",
+                "Pe 7 februarie 1932, la probele campionatelor organizate de Federația\n" +
+                "română de Ski la Predeal a asistat și regele Carol al II-lea, însoțit de\n" +
+                "fiul său, voevodul Mihai. Au fost de față membri ai Guvernului și\n" +
+                "oficialitățile locale. Proba de patrulă militară a fost câștigată de echipa\n" +
+                "batalionului 2 Vânători de Munte condus de căpitan Scârneci. Patrula a\n" +
+                "parcurs 12 km. în 1 oră și 32 minute. Și campionatele naționale de ski pe\n" +
+                "anul 1933, organizate tot la Predeal, au fost ținute în prezența regelui\n" +
+                "Carol al II-lea şi a fiului său, Mihai. Proba de 18 km a fost câștigată de\n" +
+                "Iosif Kovacs de la I.A.R. Brașov, urmat de norvegianul Rund Sigmund de la\n" +
+                "K.S.V.",
+                "1932", 8],
+            "en": ["Ski competition in Predeal. \nThe picture also shows the future \nKing Michael I, then aged 11.",
+                "On February 7, 1932, King Carol II, accompanied by his son, Voievod Mihai,\n" +
+                "attended the championships organised by the Romanian Ski Federation in\n" +
+                "Predeal. Members of the Government and local officials were present. The\n" +
+                "military patrol competition was won by the team of the 2nd Mountain\n" +
+                "Huntsmen Battalion led by Captain Scârneci. The patrol covered 12 km in 1\n" +
+                "hour and 32 minutes. The 1933 national ski championships, also organised in\n" +
+                "Predeal, were held in the presence of King Carol II and his son Michael\n" +
+                "too. The 18 km race was won by Iosif Kovacs from I.A.R. Brasov, followed by\n" +
+                "the Norwegian Rund Sigmund from K.S.V.",
+                "1932", 8]
+        }
+    ]);
+    puzzle30Images.push([loadImage('puzzle30Img/puzzles/3/image.png'),
+        {
+            "ro": ["Echipa de hochei Steagul Roșu \nBrașov pe patinoarul de la Olimpia",
+                "Între 15 și 20 ianuarie 1949, pe terenul de patinaj de sub Tâmpa, se\n" +
+                "organizează „un mare turneu de hockey” pentru „Cupa Republicii Populare\n" +
+                "Române”. Participă selecționatele orașelor București, Cluj, Miercurea Ciuc,\n" +
+                "Sighișoara, Târgu Mureș și Brașov. În primul meci, selecționata București a\n" +
+                "învins selecționata Brașov cu scorul de 11 – 1, cu trei puncte înscrise de\n" +
+                "Flamaropol. Prima ediție a cupei „R.P.R.” la hockey a fost câștigată de\n" +
+                "Echipa de hochei Steagul Roșu Brașov pe patinoarul de la Olimpia București,\n" +
+                "cu 5 victorii din 5 meciuri. Patinoarul de sub Tâmpa a fost folosit și\n" +
+                "pentru meciuri internaționale de hochei, aici jucând chiar și echipa\n" +
+                "națională.",
+                "1960", 12],
+            "en": ["Steagul Roșu Brasov hockey team \non the Olimpia ice rink",
+                "Between 15 and 20 of January 1949, on the skating rink under Tâmpa, a\n" +
+                "\"big hockey tournament\" for the \"Romanian People\'s\n" +
+                "Republic Cup\" is organized. The teams of Bucharest, Cluj, Miercurea\n" +
+                "Ciuc, Sighișoara, Târgu Mureș and Brașov participate. In the first game,\n" +
+                "Bucharest defeated Brașov with a score of 11 to 1, three points being\n" +
+                "scored Steagul Roșu Brasov hockey team on the Olimpia ice rink by\n" +
+                "Flamaropol. The first edition of the \"R.P.R.\" hockey cup was won\n" +
+                "by Bucharest, winning 5 of 5. The rink under Tâmpa also hosted\n" +
+                "international hockey matches, even the national team playing here.\n",
+                "1960", 12]
+        }
+    ]);
+    puzzle30Images.push([loadImage('puzzle30Img/puzzles/4/image.png'),
+        {
+            "ro": ["Ilie Năstase și Ion Țiriac \niulie 1971",
+                "Ion Țiriac s-a născut la câteva sute de metri de terenurile de tenis de la\n" +
+                "Olimpia, pe strada Cerbului. În noiembrie 1957, pe terenul de sub Tâmpa s-a\n" +
+                "desfășurat turneul de tenis de câmp al primilor opt jucători din lotul de\n" +
+                "tineret al României. „Surpriza turneului a fost tânărul Țiriac de la\n" +
+                "Energia Steagul Roșu” (din ziarul ,,Drum Nou”). În anul 1970, Ion Țiriac a\n" +
+                "câștigat împreună cu Ilie Năstase turneul de la Roland Garros. Apoi,\n" +
+                "avându-l partener tot pe Năstase, a jucat trei finale de Cupa Davis, toate\n" +
+                "cu Statele Unite ale Americii (1969, 1970 și 1972).",
+                "1971", 4],
+            "en": ["Ilie Năstase and Ion Țiriac \nJuly 1971",
+                "Ion Țiriac was born a few hundred metres from the tennis courts at Olimpia,\n" +
+                "on Cerbului Street. In November 1957, the tennis tournament of the first\n" +
+                "eight players of Romania\'s youth team was held on the court under\n" +
+                "Tâmpa. \"The surprise of the tournament was young Țiriac from Energia\n" +
+                "Steagul Roșu\" (from the newspaper \"Drum Nou\"). In 1970, Ion\n" +
+                "Țiriac won the Roland Garros tournament together with Ilie Năstase. Then,\n" +
+                "also with Nastase as his partner, he played three Davis Cup finals, all\n" +
+                "against the United States of America (1969, 1970 and 1972).",
+                "1971", 4]
+        }
+    ]);
 
     puzzle12Thumbs.push(loadImage('puzzle12Img/puzzles/1/thumb.jpg'));
     puzzle12Thumbs.push(loadImage('puzzle12Img/puzzles/2/thumb.jpg'));
@@ -117,8 +328,10 @@ function preload() {
     puzzle30Thumbs.push(loadImage('puzzle30Img/puzzles/3/thumb.png'));
     puzzle30Thumbs.push(loadImage('puzzle30Img/puzzles/4/thumb.png'));
 
-    puzLevel12 = loadImage('puzzle12Img/level_12.png');
-    puzLevel30 = loadImage('puzzle30Img/level_30.png');
+    puzLevel12_ro = loadImage('puzzle12Img/level_12_ro.png');
+    puzLevel30_ro = loadImage('puzzle30Img/level_30_ro.png');
+    puzLevel12_en = loadImage('puzzle12Img/level_12_en.png');
+    puzLevel30_en = loadImage('puzzle30Img/level_30_en.png');
 
     activeGame = "tl";
 }
@@ -159,15 +372,86 @@ function draw() {
 
     drawMenuScreen();
     drawMenuButtons();
+
+    // decrease idle timer
+    idleTimer -= 1;
+    if (idleTimer < 0) {
+        let newGame = random(["mem", "tl", "puz12", "puz30"]);
+        while(newGame === activeGame){
+            newGame = random(["mem", "tl", "puz12", "puz30"]);
+        }
+        activeGame = newGame;
+        resetCurrentGame();
+        idleTimer = IDLE_TIMEOUT_NO_INTERACTION;
+    }
+    if (idleTimer < 1000) {
+        drawTimeout();
+    }
 }
 
+let gamesData;
+let statsWritten = false;
+function incrementGameOverStats() {
+    if (!statsWritten) {
+        let gameOverCounter = getItem(activeGame);
+        if (gameOverCounter === null) {
+            gameOverCounter = '';
+        }
+        gameOverCounter++;
+        storeItem(activeGame, gameOverCounter);
+    }
+    statsWritten = true;
+}
+
+let timerValue = 100; // Initial timer value
+let timerDuration = 100; // Total duration of the timer
+
+function drawTimeout() {
+    let angle = map(map(idleTimer, 0, 1000, 0, 100), 0, timerDuration, 0, TWO_PI);
+
+    // Calculate the position for the center of the circle
+    let centerX = 100;
+    let centerY = 100;
+
+    // Set up the stroke and fill
+    noStroke();
+    strokeWeight(4);
+    noFill();
+
+    // Draw the background circle
+    ellipse(centerX, centerY, 100, 100);
+
+    // Set up the fill for the timer arc
+    fill(255, 255, 255);
+
+    // Draw the timer arc
+    arc(centerX, centerY, 100, 100, -HALF_PI, -HALF_PI + angle);
+
+    fill(125);
+    textSize(22);
+    let timesPlayed = getItem(activeGame);
+    if (timesPlayed === null) {
+        timesPlayed = 0;
+    }
+    text(timesPlayed, 100, 100);
+
+    // Display the timer value
+}
 
 // ++++++++++++++++++++++++++ MENU +++++++++++++++++++++++++++++
 
 function initializeMenuButtons() {
-    button1 = new Button(SCREEN_WIDTH - 100, (SCREEN_HEIGHT/2) - 200, 128, 162, menuLanguage);
+    if (language === LANG_RO) {
+        button1 = new Button(SCREEN_WIDTH - 100, (SCREEN_HEIGHT / 2) - 200, 128, 162, menuLanguage_ro);
+    } else {
+        button1 = new Button(SCREEN_WIDTH - 100, (SCREEN_HEIGHT / 2) - 200, 128, 162, menuLanguage_en);
+    }
     button1.isVisible = true;
-    button2 = new Button(SCREEN_WIDTH - 100, (SCREEN_HEIGHT/2), 128, 162, menuGames);
+    if (language === LANG_RO) {
+        button2 = new Button(SCREEN_WIDTH - 100, (SCREEN_HEIGHT / 2), 128, 162, menuGames_ro);
+    } else {
+        button2 = new Button(SCREEN_WIDTH - 100, (SCREEN_HEIGHT / 2), 128, 162, menuGames_en);
+    }
     button2.isVisible = true;
     button3 = new Button(SCREEN_WIDTH - 100, (SCREEN_HEIGHT/2) + 200, 128, 162, menuInfo);
     button3.isVisible = true;
@@ -175,10 +459,17 @@ function initializeMenuButtons() {
     buttonRo = new Button(SCREEN_WIDTH + 700, (SCREEN_HEIGHT/2) - 200, 394, 408, langRo);
     buttonEn = new Button(SCREEN_WIDTH + 270, (SCREEN_HEIGHT/2) - 200, 394, 408, langEn);
 
-    buttonGameTimeline = new Button(SCREEN_WIDTH + 700, (SCREEN_HEIGHT/2) - 200, 394, 550, imgGameTimeline);
-    buttonGameMemory = new Button(SCREEN_WIDTH + 270, (SCREEN_HEIGHT/2) - 200, 394, 550, imgGameMemory);
-    buttonGamePuzzle = new Button(SCREEN_WIDTH + 700, (SCREEN_HEIGHT/2) + 390, 394, 550, imgGamePuzzle);
-    buttonGameColaj = new Button(SCREEN_WIDTH + 270, (SCREEN_HEIGHT/2) + 390, 394, 550, imgGameColaj);
+    if (language === LANG_RO) {
+        buttonGameTimeline = new Button(SCREEN_WIDTH + 700, (SCREEN_HEIGHT / 2) - 200, 394, 550, imgGameTimeline);
+        buttonGameMemory = new Button(SCREEN_WIDTH + 270, (SCREEN_HEIGHT / 2) - 200, 394, 550, imgGameMemory);
+        buttonGamePuzzle = new Button(SCREEN_WIDTH + 700, (SCREEN_HEIGHT / 2) + 390, 394, 550, imgGamePuzzle);
+        buttonGameColaj = new Button(SCREEN_WIDTH + 270, (SCREEN_HEIGHT / 2) + 390, 394, 550, imgGameColaj);
+    } else if (language === LANG_EN) {
+        buttonGameTimeline = new Button(SCREEN_WIDTH + 700, (SCREEN_HEIGHT / 2) - 200, 394, 550, imgGameTimeline_en);
+        buttonGameMemory = new Button(SCREEN_WIDTH + 270, (SCREEN_HEIGHT / 2) - 200, 394, 550, imgGameMemory_en);
+        buttonGamePuzzle = new Button(SCREEN_WIDTH + 700, (SCREEN_HEIGHT / 2) + 390, 394, 550, imgGamePuzzle_en);
+        buttonGameColaj = new Button(SCREEN_WIDTH + 270, (SCREEN_HEIGHT / 2) + 390, 394, 550, imgGameColaj_en);
+    }
 }
 
 function drawMenuButtons() {
@@ -247,6 +538,17 @@ function drawGamesMenu() {
     buttonGamePuzzle.isVisible = true;
     buttonGameColaj.isVisible = true;
 
+    fill(0);
+    textFont(fontNotoMedium);
+    textStyle(NORMAL);
+    textAlign(CENTER);
+    textSize(45);
+    if (language === LANG_RO) {
+        text("Alege jocul preferat dintre\ncele patru variante de mai jos", SCREEN_WIDTH + 470, (SCREEN_HEIGHT/2) - 600);
+    } else if (language === LANG_EN) {
+        text("Choose your favorite game\nfrom the four options below", SCREEN_WIDTH + 470, (SCREEN_HEIGHT/2) - 600);
+    }
+
     buttonGameTimeline.draw();
     buttonGameMemory.draw();
     buttonGamePuzzle.draw();
@@ -274,15 +576,15 @@ function drawGamesMenu() {
     }
 
     // TODO: uncomment puzzle game
-    // if (buttonGamePuzzle.isClicked(mouseX + menu.fixedPosition, mouseY)) {
-    //     activeGame = "puz12";
-    //
-    //     // hide menu after language change
-    //     if (menu.isVisible) {
-    //         menu.isVisible = false;
-    //     }
-    //     resetCurrentGame();
-    // }
+    if (buttonGamePuzzle.isClicked(mouseX + menu.fixedPosition, mouseY)) {
+        activeGame = "puz12";
+
+        // hide menu after language change
+        if (menu.isVisible) {
+            menu.isVisible = false;
+        }
+        resetCurrentGame();
+    }
 }
 
 function drawLanguageMenu() {
@@ -292,7 +594,8 @@ function drawLanguageMenu() {
     buttonEn.draw();
 
     if (buttonRo.isClicked(mouseX + menu.fixedPosition, mouseY)) {
-        print("RO"); // TODO: add language change
+        language = LANG_RO;
+
 
         // reset current game after language change
 
@@ -303,7 +606,7 @@ function drawLanguageMenu() {
         resetCurrentGame();
     }
     if (buttonEn.isClicked(mouseX + menu.fixedPosition, mouseY)) {
-        print("EN"); // TODO: add language change
+        language = LANG_EN;
 
         //hide menu after language change
         if (menu.isVisible) {
@@ -338,6 +641,9 @@ function resetCurrentGame() {
         puz.isInitialized = true;
     }
 
+    idleTimer = IDLE_TIMEOUT_INTERACTION;
+    statsWritten = false;
+    print("times played: " + getItem(activeGame));
 }
 
 
@@ -460,13 +766,41 @@ function initializeTimeline() {
 
     }
 
+    if (language === LANG_EN) {
+        tl.restartButton = restartTimelineButtonEn;
+    }
+
     tl.POSX_INITIAL_CARD = width/2;
     tl.POSY_INITIAL_CARD = 1100;
     tl.POSY_INITIAL_DECK = 1500;
 
     // select 7 random image ids. they are ordered chronologically so should be arranged ascending.
-    let numbersArray = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+    let numbersArray = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21];
     let selectedNumbers = selectUniqueNumbers(numbersArray, 7).sort((a, b) => a - b);
+
+    let yearsMap = {
+        1: 1894,
+        2: 1896,
+        3: 1903,
+        4: 1905,
+        5: 1920,
+        6: 1924,
+        7: 1928,
+        8: 1930,
+        9: 1934,
+        10: 1949,
+        11: 1951,
+        12: 1956,
+        13: 1959,
+        14: 1960,
+        15: 1961,
+        16: 1963,
+        17: 1965,
+        18: 1968,
+        19: 1974,
+        20: 1986,
+        21: 1988,
+    };
 
     tl.cards.push(new Card(selectedNumbers[0],(width/2) + 20, height+50, random(-1, - 0.9), random(-1, -0.6)));
     tl.cards.push(new Card(selectedNumbers[1], (width/2) + 10, height+40, random(1, 0.8), random(0.6, 1)));
@@ -481,43 +815,43 @@ function initializeTimeline() {
         tl.POSY_INITIAL_CARD,
         tl.PLACEHOLDER_WIDTH,
         tl.PLACEHOLDER_HEIGHT,
-        selectedNumbers[0], 1978, "info card 7", tl));
+        selectedNumbers[0], yearsMap[selectedNumbers[0]], "info card 7", tl));
     tl.placeholders.push(new Placeholder(2,
         tl.POSX_INITIAL_CARD - tl.PLACEHOLDER_WIDTH * 2 - 60,
         tl.POSY_INITIAL_CARD,
         tl.PLACEHOLDER_WIDTH,
         tl.PLACEHOLDER_HEIGHT,
-        selectedNumbers[1], 1981, "info card 1", tl));
+        selectedNumbers[1], yearsMap[selectedNumbers[1]], "info card 1", tl));
     tl.placeholders.push(new Placeholder(3,
         tl.POSX_INITIAL_CARD - tl.PLACEHOLDER_WIDTH - 30,
         tl.POSY_INITIAL_CARD,
         tl.PLACEHOLDER_WIDTH,
         tl.PLACEHOLDER_HEIGHT,
-        selectedNumbers[2], 1982, "info card 2", tl));
+        selectedNumbers[2], yearsMap[selectedNumbers[2]], "info card 2", tl));
     tl.placeholders.push(new Placeholder(4,
         tl.POSX_INITIAL_CARD,
         tl.POSY_INITIAL_CARD,
         tl.PLACEHOLDER_WIDTH,
         tl.PLACEHOLDER_HEIGHT,
-        selectedNumbers[3], 1983, "info card 3", tl));
+        selectedNumbers[3], yearsMap[selectedNumbers[3]], "info card 3", tl));
     tl.placeholders.push(new Placeholder(5,
         tl.POSX_INITIAL_CARD + tl.PLACEHOLDER_WIDTH + 30,
         tl.POSY_INITIAL_CARD,
         tl.PLACEHOLDER_WIDTH,
         tl.PLACEHOLDER_HEIGHT,
-        selectedNumbers[4], 1984, "info card 4", tl));
+        selectedNumbers[4], yearsMap[selectedNumbers[4]], "info card 4", tl));
     tl.placeholders.push(new Placeholder(6,
         tl.POSX_INITIAL_CARD + tl.PLACEHOLDER_WIDTH * 2 + 60,
         tl.POSY_INITIAL_CARD,
         tl.PLACEHOLDER_WIDTH,
         tl.PLACEHOLDER_HEIGHT,
-        selectedNumbers[5], 1985, "info card 5", tl));
+        selectedNumbers[5], yearsMap[selectedNumbers[5]], "info card 5", tl));
     tl.placeholders.push(new Placeholder(7,
         tl.POSX_INITIAL_CARD + tl.PLACEHOLDER_WIDTH * 3 + 90,
         tl.POSY_INITIAL_CARD,
         tl.PLACEHOLDER_WIDTH,
         tl.PLACEHOLDER_HEIGHT,
-        selectedNumbers[6], 1986, "info card 6", tl));
+        selectedNumbers[6], yearsMap[selectedNumbers[6]], "info card 6", tl));
 
     //initialize winProperties animation to start at the position of the first placeholder.
     tl.winProperties.posx = tl.placeholders[0].posx;
@@ -567,6 +901,8 @@ function drawTimeline() {
     }
     if (tl.undiscoveredCardIds.size === 0 && tl.winProperties.timeoutTillStart < 0) {
         createFinalWinParticlesAnimation(tl.winProperties.posx, tl.placeholders[tl.placeholders.length - 1].posx + 10, tl);
+        // write stats
+        incrementGameOverStats();
     }
     // -------- END final win animation
 
@@ -636,28 +972,40 @@ function drawTimeline() {
     // ++++++++++++++++++++++++++++++++++++
 
     // DEBUG - display FPS
-    if (random() > 0.9) {
-        fps = (fps + frameRate())/2; // Get the current frames per second
-    }
-    textSize(16);
-    fill(0);
-    text("FPS: " + fps.toFixed(0), 20, 20);
-    text("ERRORS: " + tl.historyErrors, 20, 40);
+    // if (random() > 0.9) {
+    //     fps = (fps + frameRate())/2; // Get the current frames per second
+    // }
+    // textSize(16);
+    // fill(0);
+    // text("FPS: " + fps.toFixed(0), 20, 20);
+    // text("ERRORS: " + tl.historyErrors, 20, 40);
 
     textFont(fontNotoMedium);
     textStyle(NORMAL);
     textAlign(CENTER);
     textSize(90);
     fill(0);
-    text('ISTORIA SPORTULUI', width/2, 300);
+    if (language === LANG_RO) {
+        text('ISTORIA SPORTULUI', width / 2, 300);
+    } else if (language === LANG_EN) {
+        text('THE HISTORY OF SPORTS', width / 2, 300);
+    }
 
     textSize(45);
     textStyle(BOLD);
-    text('Aranjează cărțile în ordine cronologică', width/2, 400);
+    if (language === LANG_RO) {
+        text('Aranjează cărțile în ordine cronologică', width / 2, 400);
+    } else if (language === LANG_EN) {
+        text('Arrange the cards in chronological order', width / 2, 400);
+    }
 
     textFont(fontNotoLight);
     textStyle(NORMAL);
-    text('și descoperă istoria sportului brașovean', width/2, 450);
+    if (language === LANG_RO) {
+        text('și descoperă istoria sportului brașovean', width/2, 450);
+    } else if (language === LANG_EN) {
+        text('and discover the sports history of Brașov', width/2, 450);
+    }
 }
 
 function selectUniqueNumbers(arr, numToSelect) {
@@ -955,19 +1303,20 @@ function drawMemory() {
     mem.nextButton.draw();
 
     // DEBUG - display FPS
-    if (random() > 0.9) {
-        mem.fps = (mem.fps + frameRate()) / 2; // Get the current frames per second
-    }
-    textSize(16);
-    fill(0);
-    text("FPS: " + mem.fps.toFixed(0), 20, 20);
-    text("ERRORS: " + mem.persistentErrors, 20, 40);
+    // if (random() > 0.9) {
+    //     mem.fps = (mem.fps + frameRate()) / 2; // Get the current frames per second
+    // }
+    // textSize(16);
+    // fill(0);
+    // text("FPS: " + mem.fps.toFixed(0), 20, 20);
+    // text("ERRORS: " + mem.persistentErrors, 20, 40);
 
     drawMemoryHeaderText();
 
     if (mem.gameState.isGameOver) {
         // initShowInfoPopUp(mem);
         drawWinStars(mem);
+        incrementGameOverStats();
     }
 
     drawInfoPopUp(width / 2, height / 2, mem);
@@ -1573,14 +1922,19 @@ function initializePuzzle30() {
     puz.otherPuzzlesButtons.push(new Button(width - 1930, height/2 - 650, 300, 200, undefined));
 
     // initialize puzzle info pop-up details.
-    puz.cardPopUpProperties.currentTitle = puzzle30Images[puz.gameState.puzzleImageId - 1][1];
-    puz.cardPopUpProperties.currentDescription = puzzle30Images[puz.gameState.puzzleImageId - 1][2];
-    puz.cardPopUpProperties.currentYear = puzzle30Images[puz.gameState.puzzleImageId - 1][3];
-    puz.cardPopUpProperties.sportId = puzzle30Images[puz.gameState.puzzleImageId - 1][4];
+    puz.cardPopUpProperties.currentTitle = puzzle30Images[puz.gameState.puzzleImageId - 1][1][language][0];
+    puz.cardPopUpProperties.currentDescription = puzzle30Images[puz.gameState.puzzleImageId - 1][1][language][1];
+    puz.cardPopUpProperties.currentYear = puzzle30Images[puz.gameState.puzzleImageId - 1][1][language][2];
+    puz.cardPopUpProperties.sportId = puzzle30Images[puz.gameState.puzzleImageId - 1][1][language][3];
     puz.cardPopUpProperties.sportImage = loadImage("memoryImg/icons/" + puz.cardPopUpProperties.sportId + ".png");
 
-    puz.nextButton = new Button(width/2, height/2 + 1400, 600, 128, puzzleNextButton);
-    puz.levelButton = new Button(width - 300, height/2 + 200, 300, 200, puzLevel30);
+    if (language === LANG_RO) {
+        puz.nextButton = new Button(width/2, height/2 + 1400, 600, 128, puzzleNextButton_ro);
+        puz.levelButton = new Button(width - 300, height / 2 + 200, 300, 200, puzLevel30_ro);
+    } else if (language === LANG_EN) {
+        puz.nextButton = new Button(width/2, height/2 + 1400, 600, 128, puzzleNextButton_en);
+        puz.levelButton = new Button(width - 300, height / 2 + 200, 300, 200, puzLevel30_en);
+    }
 
     initializeThumbnails();
 }
@@ -1714,14 +2068,19 @@ function initializePuzzle12() {
     puz.otherPuzzlesButtons.push(new Button(width - 1720, height/2 - 650, 300, 200, undefined));
 
     // initialize puzzle info pop-up details.
-    puz.cardPopUpProperties.currentTitle = puzzle12Images[puz.gameState.puzzleImageId - 1][1];
-    puz.cardPopUpProperties.currentDescription = puzzle12Images[puz.gameState.puzzleImageId - 1][2];
-    puz.cardPopUpProperties.currentYear = puzzle12Images[puz.gameState.puzzleImageId - 1][3];
-    puz.cardPopUpProperties.sportId = puzzle12Images[puz.gameState.puzzleImageId - 1][4];
+    puz.cardPopUpProperties.currentTitle = puzzle12Images[puz.gameState.puzzleImageId - 1][1][language][0];
+    puz.cardPopUpProperties.currentDescription = puzzle12Images[puz.gameState.puzzleImageId - 1][1][language][1];
+    puz.cardPopUpProperties.currentYear = puzzle12Images[puz.gameState.puzzleImageId - 1][1][language][2];
+    puz.cardPopUpProperties.sportId = puzzle12Images[puz.gameState.puzzleImageId - 1][1][language][3];
     puz.cardPopUpProperties.sportImage = loadImage("memoryImg/icons/" + puz.cardPopUpProperties.sportId + ".png");
 
-    puz.nextButton = new Button(width/2, height/2 + 780, 600, 128, puzzleNextButton);
-    puz.levelButton = new Button(width - 540, height/2 - 250, 300, 200, puzLevel12);
+    if (language === LANG_RO) {
+        puz.nextButton = new Button(width/2, height/2 + 780, 600, 128, puzzleNextButton_ro);
+        puz.levelButton = new Button(width - 540, height / 2 - 250, 300, 200, puzLevel12_ro);
+    } else if (language === LANG_EN) {
+        puz.nextButton = new Button(width/2, height/2 + 780, 600, 128, puzzleNextButton_en);
+        puz.levelButton = new Button(width - 540, height / 2 - 250, 300, 200, puzLevel12_en);
+    }
 
     initializeThumbnails();
 }
@@ -1788,18 +2147,37 @@ function drawPuzzle() {
 
     textSize(45);
     textStyle(BOLD);
-    text('Rezolvă fiecare puzzle și vei afla mai multe despre imagine.', width/2, 400);
+    let text1 = 'Rezolvă fiecare puzzle și vei afla mai multe despre imagine.';
+    if (language === LANG_EN) {
+        text1 = 'Solve each puzzle and you will find out more about the image.';
+    }
+    text(text1, width/2, 400);
 
     textFont(fontNotoLight);
     textStyle(NORMAL);
-    text('Poți alege nivelul de dificultate, cu 12 sau 30 de piese.', width/2, 450);
+    let text2 = 'Poți alege nivelul de dificultate, cu 12 sau 30 de piese.';
+    if (language === LANG_EN) {
+        text2 = 'You can choose the difficulty level, with 12 or 30 pieces.';
+    }
+    text(text2, width/2, 450);
 
     fill('#AAAAAA');
     textSize(32);
+
+    let choose_new_text;
+    let left_offset = 0;
+    if (language === LANG_RO) {
+        choose_new_text = "Alege alt puzzle";
+    } else if (language === LANG_EN) {
+        choose_new_text = "Choose another puzzle";
+        left_offset = -40;
+    }
     if (activeGame === "puz12") {
-        text('Alege alt puzzle', 460, height/2 - 800);
+        noStroke();
+        text(choose_new_text, 460 + left_offset, height/2 - 800);
     } else if (activeGame === "puz30") {
-        text('Alege alt puzzle', 230, height/2 - 800);
+        noStroke();
+        text(choose_new_text, 230 + left_offset, height/2 - 800);
     }
 }
 
@@ -1819,6 +2197,7 @@ function drawLevelButton() {
             initializePuzzle12();
         }
         puz.isInitialized = true;
+        print("times played: " + getItem(activeGame));
     }
 }
 
@@ -1953,6 +2332,8 @@ function checkEndOfTheGame() {
         // display info pop-up
         initShowPopUp(puz);
         puz.nextButton.isVisible = true;
+
+        incrementGameOverStats();
     }
 
 
@@ -1989,7 +2370,8 @@ function checkPuzzlePlaceholderCards() {
 
 // desktop support
 function mousePressed() {
-    fullscreen(true);
+    // fullscreen(true); //TODO: uncomment
+    idleTimer = IDLE_TIMEOUT_INTERACTION;
     if (activeGame === mem.propertiesIdentifier) {
         checkInfoPopUpClosed(mem);
         initHidePopUp(mem);

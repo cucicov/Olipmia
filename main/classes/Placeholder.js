@@ -18,7 +18,11 @@ class Placeholder {
         this.correctCardId = cardId; // correct card id.
         this.gameProp = gameProp;
         if (gameProp.propertiesIdentifier === "tl") {
-            this.correctCardDetailsImage = loadImage('../timelineImg/' + this.correctCardId + '_details.png');
+            if (language === LANG_RO) {
+                this.correctCardDetailsImage = loadImage('../timelineImg/' + this.correctCardId + '_details.png');
+            } else if (language === LANG_EN) {
+                this.correctCardDetailsImage = loadImage('../timelineImg/en/' + this.correctCardId + '_details.png');
+            }
             this.placeholderImage = loadImage('../timelineImg/placeholder.png');
         }
 

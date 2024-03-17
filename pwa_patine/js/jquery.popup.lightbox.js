@@ -34,18 +34,25 @@
 			var capBar = $figcaption();
 
 			var imgs = target.find(".img_details img").first();
+			var imgs2 = target.find(".img_details2 img").first();
+			// if (imgs2.length > 0) {
+			// 	imgs = imgs.add(imgs2.get(0));
+			// }
 
 			var totalImgs = imgs.length;
+			var totalImgs2 = imgs2.length;
 
 			var imgNum = 0;
 			var current, thisCaption;
 
 
-			// $(nextBtn).addClass("btn-next")
-			// 	.appendTo(popupWindow);
-			//
-			// $(prevBtn).addClass("btn-prev")
-			// 	.appendTo(popupWindow);
+			if (totalImgs2 > 0) {
+				$(nextBtn).addClass("btn-next")
+					.appendTo(popupWindow);
+
+				$(prevBtn).addClass("btn-prev")
+					.appendTo(popupWindow);
+			}
 
 			$(closeBtn).addClass("btn-close")
 				.appendTo(popupWindow)
@@ -63,15 +70,15 @@
 
 			//set up unique number for each image 
 
-			for (var i = 0; i < imgs.length; i++) {
-
-				$(imgs).eq(i).attr({
-					'data-num': i,
-					'id': '#img' + i,
-				});
-
-
-			}
+			// for (var i = 0; i < imgs.length; i++) {
+			//
+			// 	$(imgs).eq(i).attr({
+			// 		'data-num': i,
+			// 		'id': '#img' + i,
+			// 	});
+			//
+			//
+			// }
 
 			if ($(window).width() > 620) {
 
@@ -103,7 +110,7 @@
 			}
 
 
-			$(capBar).addClass("img-caption animated fadeInUp");
+			// $(capBar).addClass("img-caption animated fadeInUp");
 
 
 			$(target).click(function () {
@@ -111,37 +118,27 @@
 				document.getElementById('overlay').style.display = 'block';
 
 				var thisImg = imgs;
-				var thisNum = $(this).attr("data-num") * 1;
-				var $caption = $(this).attr('alt');
-				if ($(this).prop('alt') == false) {
-					$caption = "This image has no caption";
-				}
-
+				// var thisNum = $(this).attr("data-num") * 1;
+				var thisNum = 0;
 
 				imgs.show();
 
 
 				imgNum = thisNum;
 
-				if (thisNum + 1 == totalImgs) {
-					$(nextBtn).hide();
-					$(prevBtn).show();
-				} else if (thisNum == 0) {
-					$(prevBtn).hide();
-					$(nextBtn).show();
-				} else {
-					$(nextBtn).show();
-					$(prevBtn).show();
+				$(prevBtn).hide();
+				$(nextBtn).show();
+
+				if (totalImgs2 > 0) {
+					$(imgStat).html("1/2");
 				}
 
-				// $(imgStat).html(thisNum + 1 + " / " + totalImgs);
-
-				if (totalImgs > 0) {
-					$(imgFig).html(thisImg)
-						.parent().fadeIn();
-				}
+				$(imgFig).html(thisImg)
+					.parent().fadeIn();
 
 				// $(capBar).html($caption).appendTo(imgFig);
+				var imgElement = $("figure.img-show img");
+				imgElement.css("display", "");
 
 			});
 
@@ -150,41 +147,19 @@
 
 			$(nextBtn).click(function () {
 
-				var y = totalImgs - 1;
-
-
-				if (imgNum < y) {
-					imgNum += 1;
-				}
-
-				if (imgNum + 1 == totalImgs) {
-					$(nextBtn).hide();
-				}
-
 				$(prevBtn).fadeIn();
+				$(nextBtn).hide();
 
+				imgs2.fadeIn();
+				imgs.hide();
+				$(imgFig).html(imgs2);
 
-				$(imgFig).find("img").animate({
-					'left': '-100%',
-					'opacity': 0,
-				}, 200, function () {
+				var imgElement = $("figure.img-show img");
+				imgElement.css("display", "");
 
-					$(imgFig).html($(imgs).eq(imgNum).clone());
-
-					current = $(imgFig).find("img");
-
-					thisCaption = $(current).attr("alt");
-
-					if ($(current).prop('alt') == false) {
-						thisCaption = "This image has no caption";
-					}
-
-					$(capBar).html(thisCaption).appendTo(imgFig);
-
-					$(imgStat).html(imgNum + 1 + " / " + totalImgs);
-
-				});
-
+				if (totalImgs2 > 0) {
+					$(imgStat).html("2/2");
+				}
 
 			});
 
@@ -192,34 +167,19 @@
 
 			$(prevBtn).click(function () {
 
-
-				if (imgNum > 0) {
-
-					imgNum -= 1;
-				}
 				$(nextBtn).fadeIn();
+				$(prevBtn).hide();
 
+				imgs.fadeIn();
+				imgs2.hide();
+				$(imgFig).html(imgs);
 
-				$(imgFig).find("img").animate({
-					'right': '-100%',
-					'opacity': 0,
-				}, 200, function () {
-					$(imgFig).html($(imgs).eq(imgNum).clone());
+				var imgElement = $("figure.img-show img");
+				imgElement.css("display", "");
 
-					current = $(imgFig).find("img");
-
-					thisCaption = $(current).attr("alt");
-					$(capBar).html(thisCaption).appendTo(imgFig);
-
-
-					$(imgStat).html(imgNum + 1 + " / " + totalImgs);
-
-				});
-
-				if (imgNum == 0) {
-					$(prevBtn).hide();
+				if (totalImgs2 > 0) {
+					$(imgStat).html("1/2");
 				}
-
 
 			});
 

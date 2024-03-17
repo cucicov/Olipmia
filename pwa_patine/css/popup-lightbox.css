@@ -150,10 +150,10 @@
 
 .lightbox .lightbox-status {
     position: absolute;
-    top: 20px;
+    top: 30px;
     left: 20px;
     color: #fff;
-    font-size: 14px;
+    font-size: 20px;
     z-index: 101;
 }
 
@@ -172,12 +172,12 @@
 
 .btn-prev,
 .btn-next {
-    width: 32px;
-    height: 100px;
+    width: 70px;
+    height: 70px;
     background: rgba(0, 0, 0, 0.30);
     cursor: pointer;
     position: absolute;
-    top: 50%;
+    top: 25%;
     margin-top: -50px;
     z-index: 101;
     border: 0;
@@ -200,11 +200,11 @@
 }
 
 .btn-prev {
-    left: 5px;
+    left: 15px;
 }
 
 .btn-next {
-    right: 5px;
+    right: 25px;
 }
 
 .btn-prev:before {

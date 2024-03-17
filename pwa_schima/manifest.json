@@ -1,6 +1,6 @@
 {
-	"name": "Olimpia Velo",
-	"short_name": "Olimpia Velo",
+	"name": "Olimpia Scrima",
+	"short_name": "Olimpia Scrima",
 	"display": "fullscreen",
 	"start_url": "./?fullscreen=true",
 	"scope": ".",

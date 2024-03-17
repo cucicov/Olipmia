@@ -50,10 +50,18 @@ function drawWinStars(gameProp) {
                 textFont(fontNotoMedium);
                 textStyle(BOLD);
                 textAlign(CENTER);
-                text("Excelent!", width / 2, height / 2 + 100);
+                if (language === LANG_RO) {
+                    text("Excelent!", width / 2, height / 2 + 100);
+                } else if (language === LANG_EN) {
+                    text("Excellent!", width / 2, height / 2 + 100);
+                }
                 textFont(fontNotoLight);
                 textStyle(NORMAL);
-                text("Performanța ta a fost la un \n nivel istoric! Câteva ajustări și \n ești pe podium.", width / 2, height / 2 + 200);
+                if (language === LANG_RO) {
+                    text("Performanța ta a fost la un \n nivel istoric!", width / 2, height / 2 + 200);
+                } else if (language === LANG_EN) {
+                    text("Your performance was at a \n historic level!", width / 2, height / 2 + 200);
+                }
             }
             if (star1Win && star2Win && !star3Win) { // 2 STAR
                 textSize(46);
@@ -61,10 +69,18 @@ function drawWinStars(gameProp) {
                 textFont(fontNotoMedium);
                 textStyle(BOLD);
                 textAlign(CENTER);
-                text("Impresionant!", width / 2, height / 2 + 100);
+                if (language === LANG_RO) {
+                    text("Impresionant!", width / 2, height / 2 + 100);
+                } else if (language === LANG_EN) {
+                    text("Impressive!", width / 2, height / 2 + 100);
+                }
                 textFont(fontNotoLight);
                 textStyle(NORMAL);
-                text("Performanța ta a fost la un \n nivel istoric! Câteva ajustări și \n ești pe podium.", width / 2, height / 2 + 200);
+                if (language === LANG_RO) {
+                    text("Performanța ta a fost la un \n nivel istoric! Câteva ajustări și \n ești pe podium.", width / 2, height / 2 + 200);
+                } else if (language === LANG_EN) {
+                    text("Your performance was at a \n historic level! A few adjustments \n and you're on the podium.", width / 2, height / 2 + 200);
+                }
             }
             if (star1Win && !star2Win && !star3Win) { // 1 STAR
                 textSize(46);
@@ -72,10 +88,18 @@ function drawWinStars(gameProp) {
                 textFont(fontNotoMedium);
                 textStyle(BOLD);
                 textAlign(CENTER);
-                text("Good enough!", width / 2, height / 2 + 100);
+                if (language === LANG_RO) {
+                    text("Satisfăcător", width / 2, height / 2 + 100);
+                } else if (language === LANG_EN) {
+                    text("Satisfactory", width / 2, height / 2 + 100);
+                }
                 textFont(fontNotoLight);
                 textStyle(NORMAL);
-                text("Performanța ta a fost la un \n nivel istoric! Câteva ajustări și \n ești pe podium.", width / 2, height / 2 + 200);
+                if (language === LANG_RO) {
+                    text("Performanța ta a fost la un \n nivel istoric! Câteva ajustări și \n ești pe podium.", width / 2, height / 2 + 200);
+                } else if (language === LANG_EN) {
+                    text("Your performance was at a \n historic level! A few adjustments \n and you're on the podium.", width / 2, height / 2 + 200);
+                }
             }
             if (!star1Win && !star2Win && !star3Win) { // 0 STAR
                 textSize(46);
@@ -83,10 +107,18 @@ function drawWinStars(gameProp) {
                 textFont(fontNotoMedium);
                 textStyle(BOLD);
                 textAlign(CENTER);
-                text(":((((((", width / 2, height / 2 + 100);
+                if (language === LANG_RO) {
+                    text("Mai încearcă", width / 2, height / 2 + 100);
+                } else if (language === LANG_EN) {
+                    text("Try again", width / 2, height / 2 + 100);
+                }
                 textFont(fontNotoLight);
                 textStyle(NORMAL);
-                text("Performanța ta a fost la un \n nivel istoric! Câteva ajustări și \n ești pe podium.", width / 2, height / 2 + 200);
+                if (language === LANG_RO) {
+                    text("Performanța ta a fost la un \n nivel istoric! Câteva ajustări și \n ești pe podium.", width / 2, height / 2 + 200);
+                } else if (language === LANG_EN) {
+                    text("Your performance was at a \n historic level! A few adjustments \n and you're on the podium.", width / 2, height / 2 + 200);
+                }
             }
             // restart button.
             imageMode(CENTER);
