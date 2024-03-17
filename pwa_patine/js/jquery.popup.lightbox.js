@@ -35,9 +35,6 @@
 
 			var imgs = target.find(".img_details img").first();
 			var imgs2 = target.find(".img_details2 img").first();
-			// if (imgs2.length > 0) {
-			// 	imgs = imgs.add(imgs2.get(0));
-			// }
 
 			var totalImgs = imgs.length;
 			var totalImgs2 = imgs2.length;
@@ -67,18 +64,6 @@
 
 			$(popupWindow).addClass("lightbox animated faster " + setting.inAnimation).appendTo("body");
 
-
-			//set up unique number for each image 
-
-			// for (var i = 0; i < imgs.length; i++) {
-			//
-			// 	$(imgs).eq(i).attr({
-			// 		'data-num': i,
-			// 		'id': '#img' + i,
-			// 	});
-			//
-			//
-			// }
 
 			if ($(window).width() > 620) {
 

@@ -356,12 +356,13 @@
 				 var currentSrc = $(this).find('img').first().attr('src');
 
 				 // Find the index of the third slash symbol
-				 // console.log($(this).find('img') + ":::" + currentSrc);
+				 console.log(currentSrc);
 				 if (currentSrc !== undefined){
 					 var indexOfThirdSlash = currentSrc.indexOf('/', currentSrc.indexOf('/') + 1);
 
 					 // Extract the substring starting from the position of the third slash symbol
 					 var newSrc = currentSrc.substring(indexOfThirdSlash + 1);
+					 console.log("newSrc:" + 'img/' + lang + '/' + newSrc);
 
 					 // Set the modified src attribute value of the image within this div
 					 $(this).find('img').attr('src', 'img/' + lang + '/' + newSrc);
@@ -386,12 +387,14 @@
 					 modifyImageSrc('.stack__item', 'ro');
 					 modifyImageSrc('.img_icon', 'ro');
 					 modifyImageSrc('.museum__item > .img_details', 'ro');
+					 modifyImageSrc('.museum__item > .img_details2', 'ro');
 					 modifyImageSrc('.img-show', 'ro');
 				 } else {
 					 $('html').attr('lang', 'en');
 					 modifyImageSrc('.stack__item', 'en');
 					 modifyImageSrc('.img_icon', 'en');
 					 modifyImageSrc('.museum__item > .img_details', 'en');
+					 modifyImageSrc('.museum__item > .img_details2', 'en');
 					 modifyImageSrc('.img-show', 'en');
 				 }
 				 sBtn_text.innerText = selectedOption;
