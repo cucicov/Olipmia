@@ -19,6 +19,8 @@ let mem = {};
 
 let puz = {};
 
+let col = {};
+
 let LANG_RO = "ro";
 let LANG_EN = "en";
 let language = LANG_RO;
@@ -55,7 +57,7 @@ let langRo, langEn;
 let imgGameTimeline, imgGameMemory, imgGamePuzzle, imgGameColaj;
 let imgGameTimeline_en, imgGameMemory_en, imgGamePuzzle_en, imgGameColaj_en;
 
-let timelineBg, memoryBg, timelineNextButton, puzzleNextButton_ro, puzzleNextButton_en, puzzleBg;
+let timelineBg, memoryBg, timelineNextButton_ro, timelineNextButton_en, puzzleNextButton_ro, puzzleNextButton_en, puzzleBg;
 
 let puzLevel12_ro, puzLevel30_ro;
 let puzLevel12_en, puzLevel30_en;
@@ -91,27 +93,71 @@ function preload() {
     fontNotoLight = loadFont('font/NotoSans-Light.ttf');
     fontZebrra = loadFont('font/zebrra.regular.ttf');
 
+    // memory images below.
     // keep a unique ID of the image to keep track of the displayed images and not display them anymore in the current game.
     // [image path, image unique id, image title, image description, image year, correct sport id]
-    loadedImages.push([loadImage('img/1.jpg'), '1', 'title1', 'desc1', 'year1', 2]);
-    loadedImages.push([loadImage('img/2.jpg'), '2', 'title2', 'desc2', 'year2', 5]);
-    loadedImages.push([loadImage('img/3.jpg'), '3', 'title3', 'desc3', 'year3', 7]);
-    loadedImages.push([loadImage('img/4.jpg'), '4', 'title4', 'desc4', 'year4', 1]);
-    loadedImages.push([loadImage('img/5.jpg'), '5', 'title5', 'desc5', 'year5', 3]);
-    loadedImages.push([loadImage('img/6.jpg'), '6', 'title6', 'desc6', 'year6', 4]);
-    loadedImages.push([loadImage('img/7.jpg'), '7', 'title7', 'desc7', 'year7', 6]);
-    loadedImages.push([loadImage('img/8.jpg'), '8', 'title8', 'desc8', 'year8', 1]);
-    loadedImages.push([loadImage('img/9.jpg'), '9', 'title9', 'desc9', 'year9', 2]);
-    loadedImages.push([loadImage('img/10.jpg'), '10', 'title10', 'desc10', 'year10', 3]);
-    loadedImages.push([loadImage('img/11.jpg'), '11', 'title11', 'desc11', 'year11', 4]);
-    loadedImages.push([loadImage('img/12.jpg'), '12', 'title12', 'desc12', 'year12', 5]);
+    loadedImages.push([loadImage('memoryImg/main_images/1.png'), '1',
+        {
+            "ro": ["titlu1", "descriere1", "an1"],
+            "en": ["title1", "desc1", "year1"]
+        },
+        1]);
+    loadedImages.push([loadImage('memoryImg/main_images/2.png'), '2',
+        {
+            "ro": ["titlu1", "descriere1", "an1"],
+            "en": ["title1", "desc1", "year1"]
+        },
+        1]);
+    loadedImages.push([loadImage('memoryImg/main_images/3.png'), '3',
+        {
+            "ro": ["titlu1", "descriere1", "an1"],
+            "en": ["title1", "desc1", "year1"]
+        },
+        1]);
+    loadedImages.push([loadImage('memoryImg/main_images/4.jpg'), '4',
+        {
+            "ro": ["titlu1", "descriere1", "an1"],
+            "en": ["title1", "desc1", "year1"]
+        },
+        1]);
+    loadedImages.push([loadImage('memoryImg/main_images/5.jpg'), '5',
+        {
+            "ro": ["titlu1", "descriere1", "an1"],
+            "en": ["title1", "desc1", "year1"]
+        },
+        1]);
+    loadedImages.push([loadImage('memoryImg/main_images/6.jpg'), '6',
+        {
+            "ro": ["titlu1", "descriere1", "an1"],
+            "en": ["title1", "desc1", "year1"]
+        },
+        1]);
+    loadedImages.push([loadImage('memoryImg/main_images/7.jpg'), '7',
+        {
+            "ro": ["titlu1", "descriere1", "an1"],
+            "en": ["title1", "desc1", "year1"]
+        },
+        1]);
+    loadedImages.push([loadImage('memoryImg/main_images/8.jpg'), '8',
+        {
+            "ro": ["titlu1", "descriere1", "an1"],
+            "en": ["title1", "desc1", "year1"]
+        },
+        1]);
+    loadedImages.push([loadImage('memoryImg/main_images/9.jpg'), '9',
+        {
+            "ro": ["titlu1", "descriere1", "an1"],
+            "en": ["title1", "desc1", "year1"]
+        },
+        1]);
 
     restartTimelineButtonRo = loadImage('timelineImg/restart_ro.png');
     restartTimelineButtonEn = loadImage('timelineImg/restart_en.png'); //TODO:
 
     timelineBg = loadImage("timelineImg/timelineBg.png");
     memoryBg = loadImage("memoryImg/memoryBg.png");
-    timelineNextButton = loadImage("memoryImg/next_ro.png");
+    timelineNextButton_ro = loadImage("memoryImg/next_ro.png");
+    timelineNextButton_en = loadImage("memoryImg/next_en.png");
     puzzleNextButton_ro = loadImage("puzzle12Img/next_ro.png");
     puzzleNextButton_en = loadImage("puzzle12Img/next_en.png");
     puzzleBg = loadImage("puzzle12Img/puzzleBg.png");
@@ -353,6 +399,9 @@ function setup() {
         initializePuz30GameProps();
         initializePuzzle30();
     }
+    if (activeGame === "col"){
+        initializeCollage();
+    }
 
     touchTargets.push(new TouchTarget());
 
@@ -368,6 +417,9 @@ function draw() {
     }
     if (activeGame === "puz12" || activeGame === "puz30"){
         drawPuzzle();
+    }
+    if (activeGame === "col"){
+        drawCollage();
     }
 
     drawMenuScreen();
@@ -988,7 +1040,7 @@ function drawTimeline() {
     if (language === LANG_RO) {
         text('ISTORIA SPORTULUI', width / 2, 300);
     } else if (language === LANG_EN) {
-        text('THE HISTORY OF SPORTS', width / 2, 300);
+        text('SPORT’S HISTORY', width / 2, 300);
     }
 
     textSize(45);
@@ -1146,7 +1198,7 @@ function initializeMemory() {
             isLost: false,
             isGameOver: false,
             levelNumber: 1,
-            MAX_LEVELS: 5,
+            MAX_LEVELS: 3,
             originalNumberOfIcons: undefined, // used in error calculation.
             allIconsDispersed: false,
         },
@@ -1205,7 +1257,7 @@ function initializeMemory() {
 
         ERRORS_3_STARS: 3,
         ERRORS_2_STARS: 7,
-        ERRORS_1_STARS: 14,
+        ERRORS_1_STARS: 22,
 
         EASE_IN_FACTOR_DISPERSE_LEFT_LIMIT: -500,
         EASE_IN_FACTOR_DISPERSE_RIGHT_LIMIT: 500,
@@ -1276,7 +1328,7 @@ function drawMemory() {
         textAlign(CENTER);
         textSize(45);
         fill(0);
-        text(mem.gameState.levelNumber + "/5", width/2, height/2 + 1400);
+        text(mem.gameState.levelNumber + "/3", width/2, height/2 + 1400);
     }
 
     if (mem.nextButton.isVisible && mem.nextButton.isClicked(mouseX, mouseY)) {
@@ -1388,15 +1440,27 @@ function drawMemoryHeaderText() {
     textAlign(CENTER);
     textSize(90);
     fill(0);
-    text('ASOCIERI', width / 2, 300);
+    if (language === LANG_RO) {
+        text('SIMBOLURILE SPORTULUI', width / 2, 300);
+    } else if (language === LANG_EN) {
+        text('SPORTS ICONS', width / 2, 300);
+    }
 
     textSize(45);
     textStyle(BOLD);
-    text('Ce disciplină practică sportivul din imagine?', width / 2, 400);
+    if (language === LANG_RO) {
+        text('La ce disciplină a devenit un simbol personajul din imagine?', width / 2, 400);
+    } else if (language === LANG_EN) {
+        text('Which sport gave the person in the image an icon status?', width / 2, 400);
+    }
 
     textFont(fontNotoLight);
     textStyle(NORMAL);
-    text('Alege pictograma potrivită și descoperă fotografia întreagă.', width / 2, 450);
+    if (language === LANG_RO) {
+        text('Alege pictograma potrivită și descoperă legende ale sportului brașovean.', width / 2, 450);
+    } else if (language === LANG_EN) {
+        text('Pick the right pictogram and discover Brașov sports legends.', width / 2, 450);
+    }
 }
 
 function drawIcons() {
@@ -1435,9 +1499,9 @@ function initializeNewImage() {
     }
     let img = randomImg[0]; // index 0 is the loaded image, index 1 is the unique id of the image.
     mem.burnedImages.add(randomImg[1]); // add image unique ID.
-    mem.cardPopUpProperties.currentTitle = randomImg[2]; // index 2 is the title of the image.
-    mem.cardPopUpProperties.currentDescription = randomImg[3]; // index 3 is the description of the image.
-    mem.cardPopUpProperties.currentYear = randomImg[4]; // index 4 is the year of the image.
+    mem.cardPopUpProperties.currentTitle = randomImg[2][language][0]; // index 2 is the title of the image.
+    mem.cardPopUpProperties.currentDescription = randomImg[2][language][1]; // index 3 is the description of the image.
+    mem.cardPopUpProperties.currentYear = randomImg[2][language][2]; // index 4 is the year of the image.
 
     let cropSize1 = 300;
     let crop1 = new CropSettings(cropSize1, cropSize1, img.width / 2 - cropSize1 / 2, img.height / 2 - cropSize1 / 2);
@@ -1446,10 +1510,14 @@ function initializeNewImage() {
     let cropSize3 = 1800; // whole image reveal
     let crop3 = new CropSettings(cropSize3, cropSize3, img.width / 2 - cropSize3 / 2, img.height / 2 - cropSize3 / 2);
 
-    let correctSportId = randomImg[5];
+    let correctSportId = randomImg[3];
     mem.maskImg = new MaskImage(img, correctSportId, crop1, crop2, crop3, mem);
 
-    mem.nextButton = new Button(width/2, height/2 + 1500, 600, 128, timelineNextButton);
+    if (language === LANG_RO) {
+        mem.nextButton = new Button(width / 2, height / 2 + 1500, 600, 128, timelineNextButton_ro);
+    } else if(language === LANG_EN) {
+        mem.nextButton = new Button(width / 2, height / 2 + 1500, 600, 128, timelineNextButton_en);
+    }
 }
 
 function initializeIcons() {
@@ -2147,17 +2215,17 @@ function drawPuzzle() {
 
     textSize(45);
     textStyle(BOLD);
-    let text1 = 'Rezolvă fiecare puzzle și vei afla mai multe despre imagine.';
+    let text1 = 'Recompune piesă cu piesă momente marcante din sportul brașovean.';
     if (language === LANG_EN) {
-        text1 = 'Solve each puzzle and you will find out more about the image.';
+        text1 = 'Piece by piece, recreate significant moments for sports in Brașov.';
     }
     text(text1, width/2, 400);
 
     textFont(fontNotoLight);
     textStyle(NORMAL);
-    let text2 = 'Poți alege nivelul de dificultate, cu 12 sau 30 de piese.';
+    let text2 = 'Poți alege nivelul de dificultate: cu 12 sau 30 de piese.';
     if (language === LANG_EN) {
-        text2 = 'You can choose the difficulty level, with 12 or 30 pieces.';
+        text2 = 'You can choose the difficulty level: with 12 or 30 pieces.';
     }
     text(text2, width/2, 450);
 

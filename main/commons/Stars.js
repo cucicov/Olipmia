@@ -4,7 +4,8 @@ function getWinStarSettings(gameProp) {
     let star2Win = false;
     let star3Win = false;
     if (gameProp.propertiesIdentifier === "tl") {
-        star1Win = tl.historyErrors < gameProp.ERRORS_1_STARS;
+        // star1Win = tl.historyErrors < gameProp.ERRORS_1_STARS;
+        star1Win = true; // always win 1 star.
         star2Win = tl.historyErrors < gameProp.ERRORS_2_STARS;
         star3Win = tl.historyErrors < gameProp.ERRORS_3_STARS;
     }
@@ -13,6 +14,7 @@ function getWinStarSettings(gameProp) {
         star2Win = mem.persistentErrors < gameProp.ERRORS_2_STARS;
         star3Win = mem.persistentErrors < gameProp.ERRORS_3_STARS;
     }
+    print("errors: " + mem.persistentErrors);
     return {star1Win, star2Win, star3Win};
 }
 
@@ -51,16 +53,16 @@ function drawWinStars(gameProp) {
                 textStyle(BOLD);
                 textAlign(CENTER);
                 if (language === LANG_RO) {
-                    text("Excelent!", width / 2, height / 2 + 100);
+                    text("Legendar!", width / 2, height / 2 + 100);
                 } else if (language === LANG_EN) {
-                    text("Excellent!", width / 2, height / 2 + 100);
+                    text("Legend!", width / 2, height / 2 + 100);
                 }
                 textFont(fontNotoLight);
                 textStyle(NORMAL);
                 if (language === LANG_RO) {
-                    text("Performanța ta a fost la un \n nivel istoric!", width / 2, height / 2 + 200);
+                    text("Performanța ta a fost la un\n nivel istoric!", width / 2, height / 2 + 200);
                 } else if (language === LANG_EN) {
-                    text("Your performance was at a \n historic level!", width / 2, height / 2 + 200);
+                    text("You’ve had\na historic performance!", width / 2, height / 2 + 200);
                 }
             }
             if (star1Win && star2Win && !star3Win) { // 2 STAR
@@ -77,9 +79,9 @@ function drawWinStars(gameProp) {
                 textFont(fontNotoLight);
                 textStyle(NORMAL);
                 if (language === LANG_RO) {
-                    text("Performanța ta a fost la un \n nivel istoric! Câteva ajustări și \n ești pe podium.", width / 2, height / 2 + 200);
+                    text("Câteva ajustări\nși ești pe podium!", width / 2, height / 2 + 200);
                 } else if (language === LANG_EN) {
-                    text("Your performance was at a \n historic level! A few adjustments \n and you're on the podium.", width / 2, height / 2 + 200);
+                    text("Few adjustments\nand you’re on top!", width / 2, height / 2 + 200);
                 }
             }
             if (star1Win && !star2Win && !star3Win) { // 1 STAR
@@ -89,16 +91,16 @@ function drawWinStars(gameProp) {
                 textStyle(BOLD);
                 textAlign(CENTER);
                 if (language === LANG_RO) {
-                    text("Satisfăcător", width / 2, height / 2 + 100);
+                    text("Felicitări!", width / 2, height / 2 + 100);
                 } else if (language === LANG_EN) {
-                    text("Satisfactory", width / 2, height / 2 + 100);
+                    text("Congratulations!", width / 2, height / 2 + 100);
                 }
                 textFont(fontNotoLight);
                 textStyle(NORMAL);
                 if (language === LANG_RO) {
-                    text("Performanța ta a fost la un \n nivel istoric! Câteva ajustări și \n ești pe podium.", width / 2, height / 2 + 200);
+                    text("După o cursă de anduranță\nai ajuns la finiș.", width / 2, height / 2 + 200);
                 } else if (language === LANG_EN) {
-                    text("Your performance was at a \n historic level! A few adjustments \n and you're on the podium.", width / 2, height / 2 + 200);
+                    text("You’ve reached the finish line\nafter an endurance race.", width / 2, height / 2 + 200);
                 }
             }
             if (!star1Win && !star2Win && !star3Win) { // 0 STAR
@@ -108,16 +110,16 @@ function drawWinStars(gameProp) {
                 textStyle(BOLD);
                 textAlign(CENTER);
                 if (language === LANG_RO) {
-                    text("Mai încearcă", width / 2, height / 2 + 100);
+                    text("Felicitări!", width / 2, height / 2 + 100);
                 } else if (language === LANG_EN) {
-                    text("Try again", width / 2, height / 2 + 100);
+                    text("Congratulations!", width / 2, height / 2 + 100);
                 }
                 textFont(fontNotoLight);
                 textStyle(NORMAL);
                 if (language === LANG_RO) {
-                    text("Performanța ta a fost la un \n nivel istoric! Câteva ajustări și \n ești pe podium.", width / 2, height / 2 + 200);
+                    text("După o cursă de anduranță\nai ajuns la finiș.", width / 2, height / 2 + 200);
                 } else if (language === LANG_EN) {
-                    text("Your performance was at a \n historic level! A few adjustments \n and you're on the podium.", width / 2, height / 2 + 200);
+                    text("You’ve reached the finish line\nafter an endurance race.", width / 2, height / 2 + 200);
                 }
             }
             // restart button.
