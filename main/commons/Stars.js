@@ -14,7 +14,6 @@ function getWinStarSettings(gameProp) {
         star2Win = mem.persistentErrors < gameProp.ERRORS_2_STARS;
         star3Win = mem.persistentErrors < gameProp.ERRORS_3_STARS;
     }
-    print("errors: " + mem.persistentErrors);
     return {star1Win, star2Win, star3Win};
 }
 

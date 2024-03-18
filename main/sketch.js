@@ -57,7 +57,10 @@ let langRo, langEn;
 let imgGameTimeline, imgGameMemory, imgGamePuzzle, imgGameColaj;
 let imgGameTimeline_en, imgGameMemory_en, imgGamePuzzle_en, imgGameColaj_en;
 
-let timelineBg, memoryBg, timelineNextButton_ro, timelineNextButton_en, puzzleNextButton_ro, puzzleNextButton_en, puzzleBg;
+let timelineBg, memoryBg, collageBg, timelineNextButton_ro, timelineNextButton_en, puzzleNextButton_ro, puzzleNextButton_en, puzzleBg;
+
+let collageImg1, collageImg2, collageImg3, collageImg1Small, collageImg2Small, collageImg3Small, collageAreas;
+let collagePiece1, collagePiece2, collagePiece3;
 
 let puzLevel12_ro, puzLevel30_ro;
 let puzLevel12_en, puzLevel30_en;
@@ -156,11 +159,20 @@ function preload() {
 
     timelineBg = loadImage("timelineImg/timelineBg.png");
     memoryBg = loadImage("memoryImg/memoryBg.png");
+    collageBg = loadImage("collageImg/collageBg.png");
     timelineNextButton_ro = loadImage("memoryImg/next_ro.png");
     timelineNextButton_en = loadImage("memoryImg/next_en.png");
     puzzleNextButton_ro = loadImage("puzzle12Img/next_ro.png");
     puzzleNextButton_en = loadImage("puzzle12Img/next_en.png");
     puzzleBg = loadImage("puzzle12Img/puzzleBg.png");
+
+    collageImg1 = loadImage("collageImg/backgrounds/1.png");
+    collageImg2 = loadImage("collageImg/backgrounds/2.png");
+    collageImg3 = loadImage("collageImg/backgrounds/3.png");
+    collageImg1Small = loadImage("collageImg/backgrounds/1_small.png");
+    collageImg2Small = loadImage("collageImg/backgrounds/2_small.png");
+    collageImg3Small = loadImage("collageImg/backgrounds/3_small.png");
+    collageAreas = loadImage("collageImg/areas.png");
 
     puzzle12Images.push([loadImage('puzzle12Img/puzzles/1/image.jpg'),
         {
@@ -428,9 +440,9 @@ function draw() {
     // decrease idle timer
     idleTimer -= 1;
     if (idleTimer < 0) {
-        let newGame = random(["mem", "tl", "puz12", "puz30"]);
+        let newGame = random(["mem", "tl", "puz12", "puz30", "col"]);
         while(newGame === activeGame){
-            newGame = random(["mem", "tl", "puz12", "puz30"]);
+            newGame = random(["mem", "tl", "puz12", "puz30", "col"]);
         }
         activeGame = newGame;
         resetCurrentGame();
@@ -438,6 +450,15 @@ function draw() {
     }
     if (idleTimer < 1000) {
         drawTimeout();
+    }
+
+    // support for touch and desktop.
+    if (touches.length == 0) {
+        touchTargets[0].x=mouseX;
+        touchTargets[0].y=mouseY;
+    } else {
+        touchTargets[0].x=touches[0].x;
+        touchTargets[0].y=touches[0].y;
     }
 }
 
@@ -627,9 +648,18 @@ function drawGamesMenu() {
         resetCurrentGame();
     }
 
-    // TODO: uncomment puzzle game
     if (buttonGamePuzzle.isClicked(mouseX + menu.fixedPosition, mouseY)) {
         activeGame = "puz12";
+
+        // hide menu after language change
+        if (menu.isVisible) {
+            menu.isVisible = false;
+        }
+        resetCurrentGame();
+    }
+
+    if (buttonGameColaj.isClicked(mouseX + menu.fixedPosition, mouseY)) {
+        activeGame = "col";
 
         // hide menu after language change
         if (menu.isVisible) {
@@ -691,6 +721,11 @@ function resetCurrentGame() {
         puz.isInitialized = false;
         setup();
         puz.isInitialized = true;
+    }
+    if (activeGame === "col") {
+        col.isInitialized = false;
+        setup();
+        col.isInitialized = true;
     }
 
     idleTimer = IDLE_TIMEOUT_INTERACTION;
@@ -964,15 +999,6 @@ function drawTimeline() {
     drawDiscoveredYears();
     // ----------------------------------
 
-    // support for touch and desktop.
-    if (touches.length == 0) {
-        touchTargets[0].x=mouseX;
-        touchTargets[0].y=mouseY;
-    } else {
-        touchTargets[0].x=touches[0].x;
-        touchTargets[0].y=touches[0].y;
-    }
-
 
     let winCard = undefined;
     // initialize and display the cards.
@@ -1162,6 +1188,9 @@ function isAnySelectedCard() {
     if (activeGame === puz.propertiesIdentifier) {
         return puz.selectedCard !== undefined;
     }
+    if (activeGame === col.propertiesIdentifier) {
+        return col.selectedCard !== undefined;
+    }
     return false;
 }
 
@@ -1171,6 +1200,9 @@ function clearSelectedCard() {
     }
     if (activeGame === puz.propertiesIdentifier) {
         puz.selectedCard = undefined;
+    }
+    if (activeGame === col.propertiesIdentifier) {
+        col.selectedCard = undefined;
     }
 }
 
@@ -1536,6 +1568,153 @@ function initializeIcons() {
 
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
+
+// +++++++++++++++++++++++ COLLAGE +++++++++++++++++++++++++
+
+function initializeCollage() {
+    createCanvas(SCREEN_WIDTH, SCREEN_HEIGHT);
+
+    col = {
+        propertiesIdentifier: "col",
+
+        selectedCard: undefined,
+
+        activeBackground: 2, // id of the image
+        leftBackground: 1,
+        rightBackground: 3,
+
+        buttons: [],
+        buttonClickTimer: 50,
+
+        pieces: [],
+    }
+
+    initCollageButtons();
+    initCollagePieces();
+
+}
+
+function initCollageButtons() {
+    col.buttons = [];
+    col.buttons.push(new Button(width / 2 - 700, height / 2 - 700, 420, 420, getCollageImage(col.leftBackground, false)));
+    col.buttons.push(new Button(width / 2, height / 2 - 700, 750, 750, getCollageImage(col.activeBackground, true)));
+    col.buttons.push(new Button(width / 2 + 700, height / 2 - 700, 420, 420, getCollageImage(col.rightBackground, false)));
+}
+
+function initCollagePieces() {
+    col.pieces = [];
+    col.pieces.push(new CollagePiece(1, 500, 2000, 219, 288));
+    col.pieces.push(new CollagePiece(1, 800, 2000, 219, 288));
+    col.pieces.push(new CollagePiece(1, 500, 2300, 219, 288));
+}
+
+function getCollageImage(imageId, isFullImage) {
+    if (isFullImage) {
+        if (imageId === 1) {
+            return collageImg1;
+        } else if (imageId === 2) {
+            return collageImg2;
+        } else if (imageId === 3) {
+            return collageImg3;
+        }
+    } else {
+        if (imageId === 1) {
+            return collageImg1Small;
+        } else if (imageId === 2) {
+            return collageImg2Small;
+        } else if (imageId === 3) {
+            return collageImg3Small;
+        }
+    }
+}
+
+function drawCollage() {
+    background(collageBg);
+
+    // guiding lines center of the screen.
+    // line(0, 840, width, 840);
+    // line(0, height - 840, width, height - 840);
+
+    drawCollageHeaderText();
+
+    for (let i = 0; i < col.buttons.length; i++) {
+        let currentButton = col.buttons[i];
+
+        // check if background clicked and switch places with the active background.
+        if (!isAnySelectedCard() && currentButton.isClicked(mouseX, mouseY) && i !== 1 && col.buttonClickTimer < 0) { // avoid click detection on middle button.
+            let activeButton = col.activeBackground;
+            if (i === 0) {
+                col.activeBackground = col.leftBackground;
+                col.leftBackground = activeButton;
+            }
+            if (i === 2) {
+                col.activeBackground = col.rightBackground;
+                col.rightBackground = activeButton;
+            }
+            initCollageButtons();
+            col.buttonClickTimer = 50;
+        }
+        currentButton.isVisible = true;
+        currentButton.draw();
+    }
+    col.buttonClickTimer--;
+
+    push();
+    imageMode(CENTER);
+    image(collageAreas, width / 2, height / 2 + 500);
+    pop();
+
+
+    // draw pieces
+    for (let i = 0; i < col.pieces.length; i++) {
+        col.pieces[i].draw();
+    }
+
+    // DEBUG - display FPS
+    // if (random() > 0.9) {
+    //     mem.fps = (mem.fps + frameRate()) / 2; // Get the current frames per second
+    // }
+    // textSize(16);
+    // fill(0);
+    // text("FPS: " + mem.fps.toFixed(0), 20, 20);
+    // text("ERRORS: " + mem.persistentErrors, 20, 40);
+
+}
+
+function drawCollageHeaderText() {
+    textFont(fontNotoMedium);
+    textStyle(NORMAL);
+    textAlign(CENTER);
+    textSize(90);
+    fill(0);
+    if (language === LANG_RO) {
+        text('COLAJ', width / 2, 300);
+    } else if (language === LANG_EN) {
+        text('COLLAGE', width / 2, 300);
+    }
+
+    textSize(45);
+    textStyle(BOLD);
+    if (language === LANG_RO) {
+        text('Creează-ți sportivul fantastic!', width / 2, 400);
+    } else if (language === LANG_EN) {
+        text('Create your fantastic sportsman!', width / 2, 400);
+    }
+
+    textFont(fontNotoLight);
+    textStyle(NORMAL);
+    if (language === LANG_RO) {
+        text('Alege perioada, apoi fă un colaj folosind piesele de mai jos.', width / 2, 450);
+    } else if (language === LANG_EN) {
+        text('Choose the period, then make a collage using the pieces below.', width / 2, 450);
+    }
+}
+
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 
 
 // ++++++++++++++++++++++ PUZZLE 12 +++++++++++++++++++++++++++++
@@ -2171,15 +2350,6 @@ function drawPuzzle() {
     drawThumbPuzzles();
     drawLevelButton();
 
-    // support for touch and desktop.
-    if (touches.length == 0) {
-        touchTargets[0].x=mouseX;
-        touchTargets[0].y=mouseY;
-    } else {
-        touchTargets[0].x=touches[0].x;
-        touchTargets[0].y=touches[0].y;
-    }
-
     // check correct placements.
     checkPuzzlePlaceholderCards();
 
@@ -2472,6 +2642,9 @@ function touchEnded() {
     if (activeGame === puz.propertiesIdentifier) {
         clearSelectedCard();
     }
+    if (activeGame === col.propertiesIdentifier) {
+        clearSelectedCard();
+    }
 }
 
 function mouseReleased() {
@@ -2488,6 +2661,11 @@ function touchMoved(){
         if (activeGame === puz.propertiesIdentifier) {
             puz.selectedCard.posx = touchTargets[0].x;
             puz.selectedCard.posy = touchTargets[0].y;
+        }
+
+        if (activeGame === col.propertiesIdentifier) {
+            col.selectedCard.posx = touchTargets[0].x;
+            col.selectedCard.posy = touchTargets[0].y;
         }
     }
 }
@@ -2527,6 +2705,19 @@ function touchStarted() {
                     puz.selectedCard = activeCard;
                     // straighten the selected card
                     puz.selectedCard.resetRotation(true);
+                }
+            }
+        }
+    }
+
+    if (activeGame === col.propertiesIdentifier) {
+        if (!isAnySelectedCard()) {
+            for (let i = 0; i < col.pieces.length; i++) {
+                let activeCard = col.pieces[i];
+                if (activeCard.isActive(touchTargets[0].x, touchTargets[0].y)) {
+                    col.pieces.splice(i, 1);
+                    col.pieces.push(activeCard);
+                    col.selectedCard = activeCard;
                 }
             }
         }
