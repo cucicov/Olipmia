@@ -56,6 +56,7 @@ let langRo, langEn;
 
 let imgGameTimeline, imgGameMemory, imgGamePuzzle, imgGameColaj;
 let imgGameTimeline_en, imgGameMemory_en, imgGamePuzzle_en, imgGameColaj_en;
+let infoRo, infoEn;
 
 let timelineBg, memoryBg, collageBg, timelineNextButton_ro, timelineNextButton_en, puzzleNextButton_ro, puzzleNextButton_en, puzzleBg;
 
@@ -91,6 +92,9 @@ function preload() {
     imgGameMemory_en = loadImage('img/menu/game_memory_en.png');
     imgGamePuzzle_en = loadImage('img/menu/game_puzzle_en.png');
     imgGameColaj_en = loadImage('img/menu/game_colaj_en.png');
+
+    infoRo = loadImage('img/menu/info_ro.png');
+    infoEn = loadImage('img/menu/info_en.png');
 
     fontNotoMedium = loadFont('font/NotoSans-Medium.ttf');
     fontNotoLight = loadFont('font/NotoSans-Light.ttf');
@@ -601,6 +605,9 @@ function displayMenuBox() {
     if (menu.currentOption === 1) { // Language
         drawGamesMenu();
     }
+    if (menu.currentOption === 2) { // Language
+        drawInfoMenu();
+    }
     pop();
 
 }
@@ -695,6 +702,14 @@ function drawLanguageMenu() {
             menu.isVisible = false;
         }
         resetCurrentGame();
+    }
+}
+
+function drawInfoMenu() {
+    if (language === LANG_RO) {
+        image(infoRo, SCREEN_WIDTH, 0);
+    } else if (language === LANG_EN) {
+        image(infoEn, SCREEN_WIDTH, 0);
     }
 }
 
