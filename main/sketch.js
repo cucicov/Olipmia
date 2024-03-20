@@ -457,6 +457,10 @@ function draw() {
     }
 
     // support for touch and desktop.
+    setTouchTargets();
+}
+
+function setTouchTargets() {
     if (touches.length == 0) {
         touchTargets[0].x=mouseX;
         touchTargets[0].y=mouseY;
@@ -820,7 +824,7 @@ function initializeTimeline() {
             elasticity: 0.07,
             velocity: 2,
             position: 0,
-            inc: 3,
+            inc: 10,
             displayPopUp: false,
             showPropertiesInitialized: false,
             hidePropertiesInitialized: false,
@@ -2623,7 +2627,7 @@ function checkPuzzlePlaceholderCards() {
 
 // desktop support
 function mousePressed() {
-    // fullscreen(true); //TODO: uncomment
+    fullscreen(true);
     idleTimer = IDLE_TIMEOUT_INTERACTION;
     if (activeGame === mem.propertiesIdentifier) {
         checkInfoPopUpClosed(mem);
@@ -2690,6 +2694,8 @@ function mouseDragged() {
 }
 
 function touchStarted() {
+
+    setTouchTargets();
 
     if (activeGame === tl.propertiesIdentifier) {
         // decide order of the cards based on mouseposition ------

@@ -29,6 +29,7 @@
 	-ms-user-select: none;
 	user-select: none;
 	pointer-events: auto;
+	top:20px;
 }
 
 .stack__item img {

@@ -9,8 +9,8 @@
 	$.fn.popupLightbox = function (options) {
 
 		var setting = $.extend({
-			width: 480,
-			height: 880,
+			width: 510,
+			height: 910,
 			inAnimation: "ZoomIn",
 
 		}, options);
