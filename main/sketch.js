@@ -232,10 +232,12 @@ function preload() {
     loadedImages.push([loadImage('memoryImg/main_images/7.png'), '7',
         {
             "ro": ["Constantin Stere", 
-                    "Component al echipei naționale de volei, câștigător al medaliei de bronz la Jocurile Olimpice de la Moscova din 1980.", 
+                    "Component al echipei naționale de volei, câștigător al medaliei de bronz\n"+ 
+                    "la Jocurile Olimpice de la Moscova din 1980.", 
                     "198O"],
             "en": ["Constantin Stere", 
-                    "Member of the national volleyball team, bronze medal winner at the 1980 Moscow Olympics.", 
+                    "Member of the national volleyball team, bronze medal winner at the 1980\n"+
+                    "Moscow Olympics.", 
                     "198O"]
         }, 5]);
     loadedImages.push([loadImage('memoryImg/main_images/8.png'), '8',
@@ -827,9 +829,9 @@ function initializeTimeline() {
         restartButton: restartTimelineButtonRo,
         // timeout for final start display
         timeoutStar1: 0,
-        timeoutStar2: 50,
-        timeoutStar3: 100,
-        timeoutStarText: 200,
+        timeoutStar2: 25,
+        timeoutStar3: 50,
+        timeoutStarText: 75,
 
         //  ----- ERRORS -----
         errors: 0,
@@ -1375,10 +1377,10 @@ function initializeMemory() {
 
         // ++++ UTILS ++++++
         // timeout for final start display
-        timeoutStar1: 30,
-        timeoutStar2: 80,
-        timeoutStar3: 130,
-        timeoutStarText: 200,
+        timeoutStar1: 25,
+        timeoutStar2: 50,
+        timeoutStar3: 75,
+        timeoutStarText: 100,
         restartButton: restartTimelineButtonRo,
 
     }
