@@ -1167,7 +1167,6 @@ function selectUniqueNumbers(arr, numToSelect) {
 }
 
 function isGameOver() {
-    print(tl.winProperties.posx > 1900);
     return tl.winProperties.posx > 1900;
         // && !tl.winProperties.finalWin
         // && tl.undiscoveredCardIds.size === 0 && tl.cardMatchProperties.particles.length === 0 && tl.winProperties.timeoutTillStart < 0;;
@@ -2438,7 +2437,6 @@ function drawPuzzle() {
     }
     drawThumbPuzzles();
     drawLevelButton();
-
     // check correct placements.
     checkPuzzlePlaceholderCards();
 
@@ -2516,11 +2514,15 @@ function drawLevelButton() {
         puz.isInitialized = false;
         if (activeGame === "puz12") {
             activeGame = "puz30";
+            let currentPuzzleId = puz.gameState.puzzleImageId;
             initializePuz30GameProps();
+            puz.gameState.puzzleImageId = currentPuzzleId;
             initializePuzzle30();
         } else if (activeGame === "puz30") {
             activeGame = "puz12";
+            let currentPuzzleId = puz.gameState.puzzleImageId;
             initializePuz12GameProps();
+            puz.gameState.puzzleImageId = currentPuzzleId;
             initializePuzzle12();
         }
         puz.isInitialized = true;
