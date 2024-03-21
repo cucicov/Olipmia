@@ -2724,6 +2724,7 @@ function mousePressed() {
 }
 
 function touchEnded() {
+    fullscreen(true);
     idleTimer = IDLE_TIMEOUT_INTERACTION;
     if (activeGame === tl.propertiesIdentifier) {
         for (let i = 0; i < tl.cards.length; i++) {
@@ -2740,11 +2741,13 @@ function touchEnded() {
 }
 
 function mouseReleased() {
+    fullscreen(true);
     idleTimer = IDLE_TIMEOUT_INTERACTION;
     touchEnded();
 }
 
 function touchMoved(){
+    fullscreen(true);
     idleTimer = IDLE_TIMEOUT_INTERACTION;
     touchStarted();
     if (isAnySelectedCard()) {
@@ -2765,11 +2768,13 @@ function touchMoved(){
 }
 
 function mouseDragged() {
+    fullscreen(true);
     idleTimer = IDLE_TIMEOUT_INTERACTION;
     touchMoved();
 }
 
 function touchStarted() {
+    fullscreen(true);
     idleTimer = IDLE_TIMEOUT_INTERACTION;
 
     setTouchTargets();
