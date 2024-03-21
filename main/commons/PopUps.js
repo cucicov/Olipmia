@@ -41,16 +41,16 @@ function drawPopUp(gameProp) {
             textAlign(LEFT);
             textSize(45);
             fill(0);
-            text(gameProp.cardPopUpProperties.currentTitle, -400, -150);
+            text(gameProp.cardPopUpProperties.currentTitle, -400, -170);
             textFont(fontNotoLight);
             textSize(24);
             textAlign(LEFT);
             fill(0);
-            text(gameProp.cardPopUpProperties.currentDescription, -400, -70);
+            text(gameProp.cardPopUpProperties.currentDescription, -400, -90);
             textSize(60);
             textFont(fontZebrra);
             fill(0);
-            text(gameProp.cardPopUpProperties.currentYear, -400, 210);
+            text(gameProp.cardPopUpProperties.currentYear, -400, 230);
 
         } else if (gameProp.propertiesIdentifier === "puz12" || gameProp.propertiesIdentifier === "puz30") {
             rectMode(CENTER);

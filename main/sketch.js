@@ -105,58 +105,155 @@ function preload() {
     // [image path, image unique id, image title, image description, image year, correct sport id]
     loadedImages.push([loadImage('memoryImg/main_images/1.png'), '1',
         {
-            "ro": ["titlu1", "descriere1", "an1"],
-            "en": ["title1", "desc1", "year1"]
-        },
-        1]);
+            "ro": ["Adolf Haltrich", 
+                    "Titlul de campion al Transilvaniei pentru sezonul 1898/1899 la ciclism,\n"+
+                    "cursa de 50 km., a fost câștigat de Adolf Haltrich la concursul de la \n"+
+                    "Brașov, organizat de „Asociația bicicliștilor germani din \n"+
+                    "Transilvania”, pe 23 august 1898. Fotografia este o „amintirea \n"+
+                    "prietenească” a cursei de 60 kilometri Cluj – Dej ținută pe 23 mai 1897,\n"+
+                    "cu cicliștii Haltrich, Barabás, Appel, Szentpétery.", 
+                    "1899"],
+            "en": ["Adolf Haltrich", 
+                    "Adolf Haltrich won the title of Transylvanian champion for the 1898/1899\n"+
+                    "season in cycling, 50 km race, at the competition organized in Brașov by\n"+
+                    "the \"Association of German Cyclists from Transylvania\" on August 23, \n"+
+                    "1898. The photo is a \"friendly souvenir\" from the 60 km race between\n"+
+                    "Cluj and Dej held on May 23, 1897, with cyclists Haltrich, Barabás, \n"+
+                    "Appel, Szentpétery.", 
+                    "1899"]
+        }, 9]);
     loadedImages.push([loadImage('memoryImg/main_images/2.png'), '2',
         {
-            "ro": ["titlu1", "descriere1", "an1"],
-            "en": ["title1", "desc1", "year1"]
-        },
-        1]);
+            "ro": ["Miți de Lemeny", 
+                    "Prima campioană a Brașovului. S-a întâmplat la patinaj, în concursul\n"+
+                    "ținut la Viena, în 1913. În 1925, între 23 și 25 ianuarie, pe patinoarul\n"+
+                    "Brașovia au avut loc campionatele naționale de hochei pe gheață și \n"+
+                    "campionatele naționale de patinaj artistic. În concursul „damelor”,\n"+
+                    "premiul I a fost câștigat de doamna Maria Popp-Lemeny. În fotografie, \n"+
+                    "Maria („Miți”) Victoria de Lemény, 1910 (poză de studio realizată de \n"+
+                    "Josif Schuller &amp; fiu).", 
+                    "1913"],
+            "en": ["Miți de Lemeny", 
+                    "Brasov\'s first champion. It happened in skating, in the competition\n"+
+                    "held in Vienna in 1913. In 1925, between 23 and 25 January, the national\n"+
+                    "ice hockey championships and the national figure skating championships \n"+
+                    "were held on the Brașovia ice rink. In the ladies\' competition,\n"+
+                    "first prize was won by Mrs Maria Popp-Lemeny. In the photo, \n"+
+                    "Maria (\"Miți\") Victoria de Lemény, 1910 \n"+
+                    "(studio photo by Josif Schuller \& son).", 
+                    "1913"]
+        }, 15]);
     loadedImages.push([loadImage('memoryImg/main_images/3.png'), '3',
         {
-            "ro": ["titlu1", "descriere1", "an1"],
-            "en": ["title1", "desc1", "year1"]
-        },
-        1]);
-    loadedImages.push([loadImage('memoryImg/main_images/4.jpg'), '4',
+            "ro": ["Ludovic Gall", 
+                    "Ludovic Gall, atletul asociației sportive I.A.R. Brașov, a câștigat \n"+
+                    "primul titlu de campion balcanic la maraton în anul 1933. A doua oară\n"+
+                    "a devenit campion balcanic pe 26 mai 1935, la Atena, când a trecut \n"+
+                    "primul linia de sosire după 3 ore 7 min. și 40 sec. A participat și la\n"+
+                    "Jocurilor Olimpice de vară de la Berlin din 1936 (locul 23). În imagine,\n"+
+                    "Ludovic Gall la o cursă de maraton ținută lângă București, în Bragadiru\n"+
+                    "(„Universul”, 8 mai 1935).",
+                    "1935"],
+            "en": ["Ludovic Gall", 
+                    "Ludovic Gall, athlete of the I.A.R. Brasov sports association, won the\n"+
+                    "first Balkan marathon champion title in 1933. The second time he became\n"+
+                    "Balkan champion on May 26, 1935, in Athens, when he crossed the finish\n"+
+                    "line first after 3 hours 7 minutes and 40 seconds. He also took part in\n"+
+                    "the 1936 Summer Olympics in Berlin (23rd place). In the picture, \n"+
+                    "Ludovic Gall at a marathon race held near Bucharest, in Bragadiru \n"+
+                    "(\"Universul\", 8 May 1935).",, 
+                    "1935"]
+        }, 10]);
+    loadedImages.push([loadImage('memoryImg/main_images/4.png'), '4',
         {
-            "ro": ["titlu1", "descriere1", "an1"],
-            "en": ["title1", "desc1", "year1"]
-        },
-        1]);
-    loadedImages.push([loadImage('memoryImg/main_images/5.jpg'), '5',
+            "ro": ["Ilona Micloș", 
+                    "Deținătoarea recordului de titluri republicane în istoria sportului\n"+
+                    "brașovean: 32 titluri, dintre care 26 la schi și 6 la atletism. În 1964,\n"+
+                    "Ilona a câștigat medalia de bronz la combinată alpină, în cadrul \n"+
+                    "Jocurilor Mondiale Universitare de Iarnă, ținute la Spindleruv Mlyn – \n"+
+                    "Pardubice (Cehoslovacia). În fotografie, Ilona în antrenament pentru\n"+
+                    "stabilirea poziției de coborâre. („Sport”, noiembrie 1965). \n",
+                    "1965"],
+            "en": ["Ilona Micloș", 
+                    "Record holder of national titles in the history of Brașov sport: \n"+
+                    "32 titles, of which 26 in skiing and 6 in athletics. In 1964, Ilona \n"+
+                    "won the bronze medal in the Alpine skiing combined at the World \n"+
+                    "University Winter Games held in Spindleruv Mlyn - \n"+
+                    "Pardubice (Czechoslovakia). In the photo, Ilona in training for the\n"+
+                    "downhill position (\"Sport\", November 1965).", 
+                    "1965"]
+        }, 8]);
+    loadedImages.push([loadImage('memoryImg/main_images/5.png'), '5',
         {
-            "ro": ["titlu1", "descriere1", "an1"],
-            "en": ["title1", "desc1", "year1"]
-        },
-        1]);
-    loadedImages.push([loadImage('memoryImg/main_images/6.jpg'), '6',
+            "ro": ["Prof. Dumitru Popescu-Colibași", 
+                    "În 1956, echipa feminină de handbal Progresul Orașul Stalin, antrenată\n"+
+                    "de D. Popescu-Colibași, a câștigat titlul de campioană republicană. \n"+
+                    "În același an, jucătoarele sale Ana Stark, Mora Windt și Maria Scheip \n"+
+                    "au devenit campioane mondiale la handbal în 11. La Tractorul Brașov a \n"+
+                    "antrenat-o pe Iuliana Nako, campioană mondială la handbal în 7, \n"+
+                    "în 1962. A antrenat şi loturile naţionale cucerind medalia de aur la\n"+
+                    "CM de juniori – tineret în 1967. În fotografie, Dumitru \n"+
+                    "Popescu-Colibași la un antrenament cu portărițele echipei Liceului \n"+
+                    "nr. 2 din Brașov („Sport”, martie 1966).", 
+                    "197O"],
+            "en": ["Prof. Dumitru Popescu-Colibași", 
+                    "In 1956, the women\'s handball team of Progresul Orașul Stalin, coached\n"+
+                    "by D. Popescu-Colibași, won the republican championship title. In the \n"+
+                    "same year, its players Ana Stark, Mora Windt and Maria Scheip became \n"+ 
+                    "world champions in 11-a-side handball. At Tractorul Brașov he coached \n"+
+                    "Iuliana Nako, world champion in 7-a-side handball in 1962. He also \n"+
+                    "coached the national teams, winning the gold medal at the World Youth \n"+
+                    "Championship in 1967. In the photo, Dumitru Popescu-Colibași at a \n"+
+                    "training session with the goalkeepers of the team of Brașov High School\n"+
+                    "no.2. („Sport”, March 1966).", 
+                    "197O"]
+        }, 6]);
+    loadedImages.push([loadImage('memoryImg/main_images/6.png'), '6',
         {
-            "ro": ["titlu1", "descriere1", "an1"],
-            "en": ["title1", "desc1", "year1"]
-        },
-        1]);
-    loadedImages.push([loadImage('memoryImg/main_images/7.jpg'), '7',
+            "ro": ["Silviu Ploeșteanu", 
+                    "În noeimbrie 1956, echipa de fotbal Energia Metalul „Steagul Roșu” Orașul \n"+
+                    "Stalin, antrenată de Silviu Ploeșteanu a jucat, în premieră, în campionatul \n"+
+                    "Categoriei A. În 1960, Steagul Roșu Orașul Stalin a câștigat titlul de \n"+
+                    "vicecampioană națională, la 7 puncte după C.C.A. București. Astfel, Steagul \n"+
+                    "Roșu a reprezentat România în prima ediție a Cupei Balcanice, pe care a și\n"+
+                    "câștigat-o în noiembrie 1961. Silviu Ploeșteanu (în mijloc) și echipa de \n"+
+                    "fotbal Steagul Roșu Brașov în sezonul 1967 - 1968 („Sport”, februarie 1968).", 
+                    "1961"],
+            "en": ["Silviu Ploeșteanu", 
+                    "In November 1956, the football team Energia Metalul \"Steagul Roșu\" Orașul \n"+
+                    "Stalin, coached by Silviu Ploeșteanu, played, for the first time, in the \n"+
+                    "Category A championship. In 1960, Steagul Roșu Orașul Stalin became \n"+
+                    "national vice-champion, 7 points behind C.C.A. Bucharest. Thus, Steagul \n"+
+                    "Roșu represented Romania in the first edition of the Balkan Cup, which it \n"+
+                    "also won in November 1961. Silviu Ploeșteanu (middle) and the Steagul Roșu \n"+
+                    "Brașov football team in the 1967 - 1968 season (\"Sport\", February 1968).", 
+                    "1961"]
+        }, 2]);
+    loadedImages.push([loadImage('memoryImg/main_images/7.png'), '7',
         {
-            "ro": ["titlu1", "descriere1", "an1"],
-            "en": ["title1", "desc1", "year1"]
-        },
-        1]);
-    loadedImages.push([loadImage('memoryImg/main_images/8.jpg'), '8',
+            "ro": ["Constantin Stere", 
+                    "", 
+                    ""],
+            "en": ["Constantin Stere", 
+                    "", 
+                    ""]
+        }, 5]);
+    loadedImages.push([loadImage('memoryImg/main_images/8.png'), '8',
         {
-            "ro": ["titlu1", "descriere1", "an1"],
-            "en": ["title1", "desc1", "year1"]
-        },
-        1]);
-    loadedImages.push([loadImage('memoryImg/main_images/9.jpg'), '9',
-        {
-            "ro": ["titlu1", "descriere1", "an1"],
-            "en": ["title1", "desc1", "year1"]
-        },
-        1]);
+            "ro": ["Mihai Covaliu", 
+                    "În anul 2000, brașoveanul Mihai Covaliu a cucerit medalia de aur la sabie\n"+
+                    "individual, la Jocurile Olimpice de vară de la Sidney, devenind primul \n"+
+                    "campion olimpic la sabie din România. A devenit și campion mondial, \n"+
+                    "în anul 2005, la Leipzig. În anul 2008, la Jocurile Olimpice de la \n"+
+                    "Beijing a obținut medalia de bronz.", 
+                    "2OOO"],
+            "en": ["Mihai Covaliu", 
+                    "In 2000, Mihai Covaliu, a Brașov native, won the gold medal in individual\n"+
+                    "sabre at the Summer Olympics in Sydney, becoming the first Romanian \n"+
+                    "Olympic sabre champion. He also became world champion in Leipzig in 2005. \n"+
+                    "In 2008, he won the bronze medal at the Olympic Games in Beijing.", 
+                    "2OOO"]
+        }, 17]);
 
     restartTimelineButtonRo = loadImage('timelineImg/restart_ro.png');
     restartTimelineButtonEn = loadImage('timelineImg/restart_en.png'); //TODO:
@@ -187,7 +284,7 @@ function preload() {
                 "lângă „noul” loc de patinaj. La sfârșitul anului 1895 clădirea era gata și \n" +
                 "publicul a fost anunțat că deschiderea festivă va avea loc pe 19 ianuarie \n" +
                 "1896, cu o „petrecere costumată” pe gheață.",
-                "1905",
+                "19O5",
                 15],
             "en": ["Skating day.\n Photo by Heinrich Lehmann",
                 "The \"birth certificate\"; of the Olimpia was the decision of the\n" +
@@ -196,37 +293,37 @@ function preload() {
                 "venue. By the end of 1895 the building was ready and the public was told\n" +
                 "that the festive opening would take place on January 19, 1896, with a\n" +
                 "\"costume party\" on ice.",
-                "1905",
+                "19O5",
                 15],
         }
     ]);
-    puzzle12Images.push([loadImage('puzzle12Img/puzzles/2/image.jpg'),
-        {
-            "ro": ["Concurs de schi la Predeal. \nÎn imagine apare și viitorul rege \nMihai I, atunci în vârstă de 11 ani.",
-                "Pe 7 februarie 1932, la probele campionatelor organizate de Federația\n" +
-                "română de Ski la Predeal a asistat și regele Carol al II-lea, însoțit de\n" +
-                "fiul său, voevodul Mihai. Au fost de față membri ai Guvernului și\n" +
-                "oficialitățile locale. Proba de patrulă militară a fost câștigată de echipa\n" +
-                "batalionului 2 Vânători de Munte condus de căpitan Scârneci. Patrula a\n" +
-                "parcurs 12 km. în 1 oră și 32 minute. Și campionatele naționale de ski pe\n" +
-                "anul 1933, organizate tot la Predeal, au fost ținute în prezența regelui\n" +
-                "Carol al II-lea şi a fiului său, Mihai. Proba de 18 km a fost câștigată de\n" +
-                "Iosif Kovacs de la I.A.R. Brașov, urmat de norvegianul Rund Sigmund de la\n" +
-                "K.S.V.",
-                "1932", 8],
-            "en": ["Ski competition in Predeal. \nThe picture also shows the future \nKing Michael I, then aged 11.",
-                "On February 7, 1932, King Carol II, accompanied by his son, Voievod Mihai,\n" +
-                "attended the championships organised by the Romanian Ski Federation in\n" +
-                "Predeal. Members of the Government and local officials were present. The\n" +
-                "military patrol competition was won by the team of the 2nd Mountain\n" +
-                "Huntsmen Battalion led by Captain Scârneci. The patrol covered 12 km in 1\n" +
-                "hour and 32 minutes. The 1933 national ski championships, also organised in\n" +
-                "Predeal, were held in the presence of King Carol II and his son Michael\n" +
-                "too. The 18 km race was won by Iosif Kovacs from I.A.R. Brasov, followed by\n" +
-                "the Norwegian Rund Sigmund from K.S.V.",
-                "1932", 8]
-        }
-    ]);
+    // puzzle12Images.push([loadImage('puzzle12Img/puzzles/2/image.jpg'),
+    //     {
+    //         "ro": ["Concurs de schi la Predeal. \nÎn imagine apare și viitorul rege \nMihai I, atunci în vârstă de 11 ani.",
+    //             "Pe 7 februarie 1932, la probele campionatelor organizate de Federația\n" +
+    //             "română de Ski la Predeal a asistat și regele Carol al II-lea, însoțit de\n" +
+    //             "fiul său, voevodul Mihai. Au fost de față membri ai Guvernului și\n" +
+    //             "oficialitățile locale. Proba de patrulă militară a fost câștigată de echipa\n" +
+    //             "batalionului 2 Vânători de Munte condus de căpitan Scârneci. Patrula a\n" +
+    //             "parcurs 12 km. în 1 oră și 32 minute. Și campionatele naționale de ski pe\n" +
+    //             "anul 1933, organizate tot la Predeal, au fost ținute în prezența regelui\n" +
+    //             "Carol al II-lea şi a fiului său, Mihai. Proba de 18 km a fost câștigată de\n" +
+    //             "Iosif Kovacs de la I.A.R. Brașov, urmat de norvegianul Rund Sigmund de la\n" +
+    //             "K.S.V.",
+    //             "1932", 8],
+    //         "en": ["Ski competition in Predeal. \nThe picture also shows the future \nKing Michael I, then aged 11.",
+    //             "On February 7, 1932, King Carol II, accompanied by his son, Voievod Mihai,\n" +
+    //             "attended the championships organised by the Romanian Ski Federation in\n" +
+    //             "Predeal. Members of the Government and local officials were present. The\n" +
+    //             "military patrol competition was won by the team of the 2nd Mountain\n" +
+    //             "Huntsmen Battalion led by Captain Scârneci. The patrol covered 12 km in 1\n" +
+    //             "hour and 32 minutes. The 1933 national ski championships, also organised in\n" +
+    //             "Predeal, were held in the presence of King Carol II and his son Michael\n" +
+    //             "too. The 18 km race was won by Iosif Kovacs from I.A.R. Brasov, followed by\n" +
+    //             "the Norwegian Rund Sigmund from K.S.V.",
+    //             "1932", 8]
+    //     }
+    // ]);
     puzzle12Images.push([loadImage('puzzle12Img/puzzles/3/image.jpg'),
         {
             "ro": ["Echipa de hochei Steagul Roșu\n Brașov pe patinoarul de la Olimpia",
@@ -240,7 +337,7 @@ function preload() {
                 "cu 5 victorii din 5 meciuri. Patinoarul de sub Tâmpa a fost folosit și\n" +
                 "pentru meciuri internaționale de hochei, aici jucând chiar și echipa\n" +
                 "națională.",
-                "1960", 12],
+                "196O", 12],
             "en": ["Steagul Roșu Brasov hockey team\n on the Olimpia ice rink",
                 "Between 15 and 20 of January 1949, on the skating rink under Tâmpa, a\n" +
                 "\"big hockey tournament\" for the \"Romanian People\'s\n" +
@@ -251,7 +348,7 @@ function preload() {
                 "Flamaropol. The first edition of the \"R.P.R.\" hockey cup was won\n" +
                 "by Bucharest, winning 5 of 5. The rink under Tâmpa also hosted\n" +
                 "international hockey matches, even the national team playing here.\n",
-                "1960", 12]
+                "196O", 12]
         }
     ]);
     puzzle12Images.push([loadImage('puzzle12Img/puzzles/4/image.jpg'),
@@ -288,7 +385,7 @@ function preload() {
                 "lângă „noul” loc de patinaj. La sfârșitul anului 1895 clădirea era gata și \n" +
                 "publicul a fost anunțat că deschiderea festivă va avea loc pe 19 ianuarie \n" +
                 "1896, cu o „petrecere costumată” pe gheață.",
-                "1905",
+                "19O5",
                 15],
             "en": ["Skating day.\n Photo by Heinrich Lehmann",
                 "The \"birth certificate\"; of the Olimpia was the decision of the\n" +
@@ -297,7 +394,7 @@ function preload() {
                 "venue. By the end of 1895 the building was ready and the public was told\n" +
                 "that the festive opening would take place on January 19, 1896, with a\n" +
                 "\"costume party\" on ice.",
-                "1905",
+                "19O5",
                 15],
         }
     ]);
@@ -341,7 +438,7 @@ function preload() {
                 "cu 5 victorii din 5 meciuri. Patinoarul de sub Tâmpa a fost folosit și\n" +
                 "pentru meciuri internaționale de hochei, aici jucând chiar și echipa\n" +
                 "națională.",
-                "1960", 12],
+                "196O", 12],
             "en": ["Steagul Roșu Brasov hockey team \non the Olimpia ice rink",
                 "Between 15 and 20 of January 1949, on the skating rink under Tâmpa, a\n" +
                 "\"big hockey tournament\" for the \"Romanian People\'s\n" +
@@ -352,7 +449,7 @@ function preload() {
                 "Flamaropol. The first edition of the \"R.P.R.\" hockey cup was won\n" +
                 "by Bucharest, winning 5 of 5. The rink under Tâmpa also hosted\n" +
                 "international hockey matches, even the national team playing here.\n",
-                "1960", 12]
+                "196O", 12]
         }
     ]);
     puzzle30Images.push([loadImage('puzzle30Img/puzzles/4/image.png'),
@@ -885,27 +982,27 @@ function initializeTimeline() {
     let selectedNumbers = selectUniqueNumbers(numbersArray, 7).sort((a, b) => a - b);
 
     let yearsMap = {
-        1: 1894,
-        2: 1896,
-        3: 1903,
-        4: 1905,
-        5: 1920,
-        6: 1924,
-        7: 1928,
-        8: 1930,
-        9: 1934,
-        10: 1949,
-        11: 1951,
-        12: 1956,
-        13: 1959,
-        14: 1960,
-        15: 1961,
-        16: 1963,
-        17: 1965,
-        18: 1968,
-        19: 1974,
-        20: 1986,
-        21: 1988,
+        1: "1894",
+        2: "1896",
+        3: "19O3",
+        4: "19O5",
+        5: "192O",
+        6: "1924",
+        7: "1928",
+        8: "193O",
+        9: "1934",
+        10: "1949",
+        11: "1951",
+        12: "1956",
+        13: "1959",
+        14: "196O",
+        15: "1961",
+        16: "1963",
+        17: "1965",
+        18: "1968",
+        19: "1974",
+        20: "1986",
+        21: "1988",
     };
 
     tl.cards.push(new Card(selectedNumbers[0],(width/2) + 20, height+50, random(-1, - 0.9), random(-1, -0.6)));
@@ -1287,7 +1384,7 @@ function initializeMemory() {
             showPropertiesInitialized: false,
             hidePropertiesInitialized: false,
             popupWidth: 900,
-            popupHeight: 500,
+            popupHeight: 530,
             popupPosx: 1080,
             popupPosy: 3000,
             currentTitle: "title",
@@ -1299,6 +1396,7 @@ function initializeMemory() {
                 "\nnew line new line5" +
                 "\nnew line new line6",
             currentYear: "9999",
+            currentImageObject: undefined,
         },
 
         // levels of error
@@ -1379,7 +1477,7 @@ function drawMemory() {
         textAlign(CENTER);
         textSize(45);
         fill(0);
-        text(mem.gameState.levelNumber + "/3", width/2, height/2 + 1400);
+        text(mem.gameState.levelNumber + "/3", width/2, height/2 - 1000);
     }
 
     if (mem.nextButton.isVisible && mem.nextButton.isClicked(mouseX, mouseY)) {
@@ -1392,6 +1490,7 @@ function drawMemory() {
     }
 
     if (mem.gameState.isLevelOver) {
+        initializeImagePoupInfo();
         initShowPopUp(mem);
         removeRemainingWrongIcons();
 
@@ -1543,6 +1642,12 @@ function drawIcons() {
     }
 }
 
+function initializeImagePoupInfo(){
+    mem.cardPopUpProperties.currentTitle = mem.cardPopUpProperties.currentImageObject[2][language][0]; // index 2 is the title of the image.
+    mem.cardPopUpProperties.currentDescription = mem.cardPopUpProperties.currentImageObject[2][language][1]; // index 3 is the description of the image.
+    mem.cardPopUpProperties.currentYear = mem.cardPopUpProperties.currentImageObject[2][language][2]; // index 4 is the year of the image.
+}
+
 function initializeNewImage() {
     let randomImg = random(mem.images);
     while (mem.burnedImages.has(randomImg[1])) { // keep selecting till new image is selected.
@@ -1550,9 +1655,7 @@ function initializeNewImage() {
     }
     let img = randomImg[0]; // index 0 is the loaded image, index 1 is the unique id of the image.
     mem.burnedImages.add(randomImg[1]); // add image unique ID.
-    mem.cardPopUpProperties.currentTitle = randomImg[2][language][0]; // index 2 is the title of the image.
-    mem.cardPopUpProperties.currentDescription = randomImg[2][language][1]; // index 3 is the description of the image.
-    mem.cardPopUpProperties.currentYear = randomImg[2][language][2]; // index 4 is the year of the image.
+    mem.cardPopUpProperties.currentImageObject = randomImg;
 
     let cropSize1 = 300;
     let crop1 = new CropSettings(cropSize1, cropSize1, img.width / 2 - cropSize1 / 2, img.height / 2 - cropSize1 / 2);
@@ -1565,22 +1668,22 @@ function initializeNewImage() {
     mem.maskImg = new MaskImage(img, correctSportId, crop1, crop2, crop3, mem);
 
     if (language === LANG_RO) {
-        mem.nextButton = new Button(width / 2, height / 2 + 1500, 600, 128, timelineNextButton_ro);
+        mem.nextButton = new Button(width / 2, height / 2 - 900, 600, 128, timelineNextButton_ro);
     } else if(language === LANG_EN) {
-        mem.nextButton = new Button(width / 2, height / 2 + 1500, 600, 128, timelineNextButton_en);
+        mem.nextButton = new Button(width / 2, height / 2 - 900, 600, 128, timelineNextButton_en);
     }
 }
 
 function initializeIcons() {
     mem.icons = [];
-    mem.icons.push(new Icon(1, (width / 2), height / 2, 1, -0.4, mem));
-    mem.icons.push(new Icon(2, (width / 2), height / 2, -1, -0.4, mem));
-    mem.icons.push(new Icon(3, width / 2, height / 2, 0.4, -1, mem));
-    mem.icons.push(new Icon(4, (width / 2), height / 2, 0.4, 1, mem));
-    mem.icons.push(new Icon(5, (width / 2), height / 2, -0.4, -1, mem));
-    mem.icons.push(new Icon(6, (width / 2), height / 2, -0.4, 1, mem));
-    mem.icons.push(new Icon(7, (width / 2), height / 2, 1, 0.4, mem));
-    mem.icons.push(new Icon(8, (width / 2), height / 2, -1, 0.4, mem));
+    mem.icons.push(new Icon(9, (width / 2), height / 2, 1, -0.4, mem));
+    mem.icons.push(new Icon(15, (width / 2), height / 2, -1, -0.4, mem));
+    mem.icons.push(new Icon(10, width / 2, height / 2, 0.4, -1, mem));
+    mem.icons.push(new Icon(8, (width / 2), height / 2, 0.4, 1, mem));
+    mem.icons.push(new Icon(6, (width / 2), height / 2, -0.4, -1, mem));
+    mem.icons.push(new Icon(2, (width / 2), height / 2, -0.4, 1, mem));
+    mem.icons.push(new Icon(5, (width / 2), height / 2, 1, 0.4, mem));
+    mem.icons.push(new Icon(17, (width / 2), height / 2, -1, 0.4, mem));
 
     mem.gameState.originalNumberOfIcons = mem.icons.length;
 }
