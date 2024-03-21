@@ -5,8 +5,8 @@ class Particle {
         this.alpha = 255;
         if (multicolor) {
             this.color = color(random(0, 120), random(80, 220), random(180, 255));
-            this.vx = random(-17, 17);
-            this.vy = random(-17, 17);
+            this.vx = random(-25, 25);
+            this.vy = random(-25, 25);
             this.scaleFactor = 0.1;
             this.size = random(10, 50);
             this.alphaFactor = 3;

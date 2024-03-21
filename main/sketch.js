@@ -910,7 +910,7 @@ function initializeTimeline() {
                 stroke: 0, // remove stroke at the end when changing placeholder colors.
                 scale: 2, // scale placeholder while scrolling through matching cards at the end.
             },
-            winStarHorizontalSpeed: 5,
+            winStarHorizontalSpeed: 15,
         }
 
     }
@@ -1167,9 +1167,10 @@ function selectUniqueNumbers(arr, numToSelect) {
 }
 
 function isGameOver() {
-    return tl.winProperties.particles.length === 0
-        && !tl.winProperties.finalWin
-        && tl.undiscoveredCardIds.size === 0 && tl.cardMatchProperties.particles.length === 0 && tl.winProperties.timeoutTillStart < 0;;
+    print(tl.winProperties.posx > 1900);
+    return tl.winProperties.posx > 1900;
+        // && !tl.winProperties.finalWin
+        // && tl.undiscoveredCardIds.size === 0 && tl.cardMatchProperties.particles.length === 0 && tl.winProperties.timeoutTillStart < 0;;
 }
 
 function checkPlaceholderCards() {
