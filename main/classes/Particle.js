@@ -13,8 +13,8 @@ class Particle {
             this.gravity = 0; // Gravity force
         } else {
             this.color = color(random([[255, 236, 139], [255, 215, 0], [184, 134, 11], [218, 165, 32], [238, 232, 170]]));
-            this.vx = random(-15, 15);
-            this.vy = random(-15, 15);
+            this.vx = random(-25, 25);
+            this.vy = random(-25, 25);
             this.scaleFactor = 0.5;
             this.size = random(10, 50);
             this.alphaFactor = 3;

@@ -190,7 +190,7 @@ class Card {
 
     scaleImageWhenActive() {
         if (this.isActive(touchTargets[0].x, touchTargets[0].y)) {
-            if (this.scaleFactor < 2) {
+            if (this.scaleFactor < 1.4) {
                 this.scaleFactor += 0.1;
             }
         } else {
