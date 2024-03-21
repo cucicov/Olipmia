@@ -1680,24 +1680,31 @@ function initCollagePieces() {
     col.pieces.push(new CollagePiece(2, 700, 2200, 86, 92));
     col.pieces.push(new CollagePiece(3, 910, 2250, 78, 123));
     col.pieces.push(new CollagePiece(4, 900, 2000, 69, 106));
+    col.pieces.push(new CollagePiece(18, 800, 2200, 66, 111));
+    col.pieces.push(new CollagePiece(21, 600, 2300, 66, 111));
 
     // // GROUP 2
     col.pieces.push(new CollagePiece(5, 1200, 2200, 130, 336));
     col.pieces.push(new CollagePiece(6, 1300, 2100, 213, 296));
     col.pieces.push(new CollagePiece(7, 1400, 2150, 148, 383));
     col.pieces.push(new CollagePiece(8, 1500, 2150, 351, 405));
+    col.pieces.push(new CollagePiece(20, 1630, 2200, 351, 405));
 
     // // GROUP 3
-    col.pieces.push(new CollagePiece(9, 1650, 2750, 72, 74));
+    col.pieces.push(new CollagePiece(9, 1200, 2600, 72, 74));
     col.pieces.push(new CollagePiece(10, 1300, 2700, 85, 184));
     col.pieces.push(new CollagePiece(11, 1400, 2900, 51, 44));
-    col.pieces.push(new CollagePiece(12, 1460, 2620, 218, 297));
+    col.pieces.push(new CollagePiece(12, 1460, 2680, 218, 297));
+    col.pieces.push(new CollagePiece(23, 1600, 2620, 164, 205));
+
 
     // // GROUP 4
-    col.pieces.push(new CollagePiece(13, 800, 2550, 218, 297));
+    col.pieces.push(new CollagePiece(13, 950, 2550, 218, 297));
+    col.pieces.push(new CollagePiece(19, 700, 2820, 394, 420));
     col.pieces.push(new CollagePiece(14, 600, 2800, 203, 195));
     col.pieces.push(new CollagePiece(15, 900, 2750, 150, 160));
-    col.pieces.push(new CollagePiece(16, 700, 2650, 164, 205));
+    col.pieces.push(new CollagePiece(16, 760, 2700, 164, 205));
+    col.pieces.push(new CollagePiece(17, 600, 2600, 175, 203));
 }
 
 function getCollageImage(imageId, isFullImage) {
