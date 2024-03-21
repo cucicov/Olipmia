@@ -25,7 +25,7 @@ let LANG_RO = "ro";
 let LANG_EN = "en";
 let language = LANG_RO;
 
-let IDLE_TIMEOUT_INTERACTION = 3000;
+let IDLE_TIMEOUT_INTERACTION = 6000;
 let IDLE_TIMEOUT_NO_INTERACTION = 1000; // faster timeout if no interaction for a longer time.
 let idleTimer = IDLE_TIMEOUT_NO_INTERACTION;
 
@@ -232,11 +232,11 @@ function preload() {
     loadedImages.push([loadImage('memoryImg/main_images/7.png'), '7',
         {
             "ro": ["Constantin Stere", 
-                    "", 
-                    ""],
+                    "Component al echipei naționale de volei, câștigător al medaliei de bronz la Jocurile Olimpice de la Moscova din 1980.", 
+                    "198O"],
             "en": ["Constantin Stere", 
-                    "", 
-                    ""]
+                    "Member of the national volleyball team, bronze medal winner at the 1980 Moscow Olympics.", 
+                    "198O"]
         }, 5]);
     loadedImages.push([loadImage('memoryImg/main_images/8.png'), '8',
         {
@@ -267,12 +267,12 @@ function preload() {
     puzzleNextButton_en = loadImage("puzzle12Img/next_en.png");
     puzzleBg = loadImage("puzzle12Img/puzzleBg.png");
 
-    collageImg1 = loadImage("collageImg/backgrounds/1.png");
-    collageImg2 = loadImage("collageImg/backgrounds/2.png");
-    collageImg3 = loadImage("collageImg/backgrounds/3.png");
-    collageImg1Small = loadImage("collageImg/backgrounds/1_small.png");
-    collageImg2Small = loadImage("collageImg/backgrounds/2_small.png");
-    collageImg3Small = loadImage("collageImg/backgrounds/3_small.png");
+    collageImg1 = loadImage("collageImg/backgrounds/1.jpg");
+    collageImg2 = loadImage("collageImg/backgrounds/2.jpg");
+    collageImg3 = loadImage("collageImg/backgrounds/3.jpg");
+    collageImg1Small = loadImage("collageImg/backgrounds/1_small.jpg");
+    collageImg2Small = loadImage("collageImg/backgrounds/2_small.jpg");
+    collageImg3Small = loadImage("collageImg/backgrounds/3_small.jpg");
     collageAreas = loadImage("collageImg/areas.png");
 
     puzzle12Images.push([loadImage('puzzle12Img/puzzles/1/image.jpg'),
@@ -297,34 +297,7 @@ function preload() {
                 15],
         }
     ]);
-    // puzzle12Images.push([loadImage('puzzle12Img/puzzles/2/image.jpg'),
-    //     {
-    //         "ro": ["Concurs de schi la Predeal. \nÎn imagine apare și viitorul rege \nMihai I, atunci în vârstă de 11 ani.",
-    //             "Pe 7 februarie 1932, la probele campionatelor organizate de Federația\n" +
-    //             "română de Ski la Predeal a asistat și regele Carol al II-lea, însoțit de\n" +
-    //             "fiul său, voevodul Mihai. Au fost de față membri ai Guvernului și\n" +
-    //             "oficialitățile locale. Proba de patrulă militară a fost câștigată de echipa\n" +
-    //             "batalionului 2 Vânători de Munte condus de căpitan Scârneci. Patrula a\n" +
-    //             "parcurs 12 km. în 1 oră și 32 minute. Și campionatele naționale de ski pe\n" +
-    //             "anul 1933, organizate tot la Predeal, au fost ținute în prezența regelui\n" +
-    //             "Carol al II-lea şi a fiului său, Mihai. Proba de 18 km a fost câștigată de\n" +
-    //             "Iosif Kovacs de la I.A.R. Brașov, urmat de norvegianul Rund Sigmund de la\n" +
-    //             "K.S.V.",
-    //             "1932", 8],
-    //         "en": ["Ski competition in Predeal. \nThe picture also shows the future \nKing Michael I, then aged 11.",
-    //             "On February 7, 1932, King Carol II, accompanied by his son, Voievod Mihai,\n" +
-    //             "attended the championships organised by the Romanian Ski Federation in\n" +
-    //             "Predeal. Members of the Government and local officials were present. The\n" +
-    //             "military patrol competition was won by the team of the 2nd Mountain\n" +
-    //             "Huntsmen Battalion led by Captain Scârneci. The patrol covered 12 km in 1\n" +
-    //             "hour and 32 minutes. The 1933 national ski championships, also organised in\n" +
-    //             "Predeal, were held in the presence of King Carol II and his son Michael\n" +
-    //             "too. The 18 km race was won by Iosif Kovacs from I.A.R. Brasov, followed by\n" +
-    //             "the Norwegian Rund Sigmund from K.S.V.",
-    //             "1932", 8]
-    //     }
-    // ]);
-    puzzle12Images.push([loadImage('puzzle12Img/puzzles/3/image.jpg'),
+    puzzle12Images.push([loadImage('puzzle12Img/puzzles/2/image.jpg'),
         {
             "ro": ["Echipa de hochei Steagul Roșu\n Brașov pe patinoarul de la Olimpia",
                 "Între 15 și 20 ianuarie 1949, pe terenul de patinaj de sub Tâmpa, se\n" +
@@ -351,7 +324,7 @@ function preload() {
                 "196O", 12]
         }
     ]);
-    puzzle12Images.push([loadImage('puzzle12Img/puzzles/4/image.jpg'),
+    puzzle12Images.push([loadImage('puzzle12Img/puzzles/3/image.jpg'),
         {
             "ro": ["Ilie Năstase și Ion Țiriac \niulie 1971",
                 "Ion Țiriac s-a născut la câteva sute de metri de terenurile de tenis de la\n" +
@@ -400,33 +373,6 @@ function preload() {
     ]);
     puzzle30Images.push([loadImage('puzzle30Img/puzzles/2/image.png'),
         {
-            "ro": ["Concurs de schi la Predeal. \nÎn imagine apare și viitorul rege \nMihai I, atunci în vârstă de 11 ani.",
-                "Pe 7 februarie 1932, la probele campionatelor organizate de Federația\n" +
-                "română de Ski la Predeal a asistat și regele Carol al II-lea, însoțit de\n" +
-                "fiul său, voevodul Mihai. Au fost de față membri ai Guvernului și\n" +
-                "oficialitățile locale. Proba de patrulă militară a fost câștigată de echipa\n" +
-                "batalionului 2 Vânători de Munte condus de căpitan Scârneci. Patrula a\n" +
-                "parcurs 12 km. în 1 oră și 32 minute. Și campionatele naționale de ski pe\n" +
-                "anul 1933, organizate tot la Predeal, au fost ținute în prezența regelui\n" +
-                "Carol al II-lea şi a fiului său, Mihai. Proba de 18 km a fost câștigată de\n" +
-                "Iosif Kovacs de la I.A.R. Brașov, urmat de norvegianul Rund Sigmund de la\n" +
-                "K.S.V.",
-                "1932", 8],
-            "en": ["Ski competition in Predeal. \nThe picture also shows the future \nKing Michael I, then aged 11.",
-                "On February 7, 1932, King Carol II, accompanied by his son, Voievod Mihai,\n" +
-                "attended the championships organised by the Romanian Ski Federation in\n" +
-                "Predeal. Members of the Government and local officials were present. The\n" +
-                "military patrol competition was won by the team of the 2nd Mountain\n" +
-                "Huntsmen Battalion led by Captain Scârneci. The patrol covered 12 km in 1\n" +
-                "hour and 32 minutes. The 1933 national ski championships, also organised in\n" +
-                "Predeal, were held in the presence of King Carol II and his son Michael\n" +
-                "too. The 18 km race was won by Iosif Kovacs from I.A.R. Brasov, followed by\n" +
-                "the Norwegian Rund Sigmund from K.S.V.",
-                "1932", 8]
-        }
-    ]);
-    puzzle30Images.push([loadImage('puzzle30Img/puzzles/3/image.png'),
-        {
             "ro": ["Echipa de hochei Steagul Roșu \nBrașov pe patinoarul de la Olimpia",
                 "Între 15 și 20 ianuarie 1949, pe terenul de patinaj de sub Tâmpa, se\n" +
                 "organizează „un mare turneu de hockey” pentru „Cupa Republicii Populare\n" +
@@ -452,7 +398,7 @@ function preload() {
                 "196O", 12]
         }
     ]);
-    puzzle30Images.push([loadImage('puzzle30Img/puzzles/4/image.png'),
+    puzzle30Images.push([loadImage('puzzle30Img/puzzles/3/image.png'),
         {
             "ro": ["Ilie Năstase și Ion Țiriac \niulie 1971",
                 "Ion Țiriac s-a născut la câteva sute de metri de terenurile de tenis de la\n" +
@@ -480,12 +426,10 @@ function preload() {
     puzzle12Thumbs.push(loadImage('puzzle12Img/puzzles/1/thumb.jpg'));
     puzzle12Thumbs.push(loadImage('puzzle12Img/puzzles/2/thumb.jpg'));
     puzzle12Thumbs.push(loadImage('puzzle12Img/puzzles/3/thumb.jpg'));
-    puzzle12Thumbs.push(loadImage('puzzle12Img/puzzles/4/thumb.jpg'));
 
     puzzle30Thumbs.push(loadImage('puzzle30Img/puzzles/1/thumb.png'));
     puzzle30Thumbs.push(loadImage('puzzle30Img/puzzles/2/thumb.png'));
     puzzle30Thumbs.push(loadImage('puzzle30Img/puzzles/3/thumb.png'));
-    puzzle30Thumbs.push(loadImage('puzzle30Img/puzzles/4/thumb.png'));
 
     puzLevel12_ro = loadImage('puzzle12Img/level_12_ro.png');
     puzLevel30_ro = loadImage('puzzle30Img/level_30_ro.png');
@@ -883,9 +827,9 @@ function initializeTimeline() {
         restartButton: restartTimelineButtonRo,
         // timeout for final start display
         timeoutStar1: 0,
-        timeoutStar2: 80,
-        timeoutStar3: 160,
-        timeoutStarText: 250,
+        timeoutStar2: 50,
+        timeoutStar3: 100,
+        timeoutStarText: 200,
 
         //  ----- ERRORS -----
         errors: 0,
@@ -1432,9 +1376,9 @@ function initializeMemory() {
         // ++++ UTILS ++++++
         // timeout for final start display
         timeoutStar1: 30,
-        timeoutStar2: 100,
-        timeoutStar3: 180,
-        timeoutStarText: 260,
+        timeoutStar2: 80,
+        timeoutStar3: 130,
+        timeoutStarText: 200,
         restartButton: restartTimelineButtonRo,
 
     }
@@ -1728,9 +1672,30 @@ function initCollageButtons() {
 
 function initCollagePieces() {
     col.pieces = [];
-    col.pieces.push(new CollagePiece(1, 500, 2000, 219, 288));
-    col.pieces.push(new CollagePiece(1, 800, 2000, 219, 288));
-    col.pieces.push(new CollagePiece(1, 500, 2300, 219, 288));
+
+    // GROUP 1
+    col.pieces.push(new CollagePiece(1, 600, 2050, 80, 119));
+    col.pieces.push(new CollagePiece(2, 700, 2200, 86, 92));
+    col.pieces.push(new CollagePiece(3, 910, 2250, 78, 123));
+    col.pieces.push(new CollagePiece(4, 900, 2000, 69, 106));
+
+    // // GROUP 2
+    col.pieces.push(new CollagePiece(5, 1200, 2200, 130, 336));
+    col.pieces.push(new CollagePiece(6, 1300, 2100, 213, 296));
+    col.pieces.push(new CollagePiece(7, 1400, 2150, 148, 383));
+    col.pieces.push(new CollagePiece(8, 1500, 2150, 351, 405));
+
+    // // GROUP 3
+    col.pieces.push(new CollagePiece(9, 1650, 2750, 72, 74));
+    col.pieces.push(new CollagePiece(10, 1300, 2700, 85, 184));
+    col.pieces.push(new CollagePiece(11, 1400, 2900, 51, 44));
+    col.pieces.push(new CollagePiece(12, 1460, 2620, 218, 297));
+
+    // // GROUP 4
+    col.pieces.push(new CollagePiece(13, 800, 2550, 218, 297));
+    col.pieces.push(new CollagePiece(14, 600, 2800, 203, 195));
+    col.pieces.push(new CollagePiece(15, 900, 2750, 150, 160));
+    col.pieces.push(new CollagePiece(16, 700, 2650, 164, 205));
 }
 
 function getCollageImage(imageId, isFullImage) {
@@ -1778,6 +1743,7 @@ function drawCollage() {
             }
             initCollageButtons();
             col.buttonClickTimer = 50;
+            incrementGameOverStats();
         }
         currentButton.isVisible = true;
         currentButton.draw();
@@ -1965,7 +1931,7 @@ function initializePuz12GameProps() {
 
         gameState: {
             // id of the current puzzle image.
-            puzzleImageId: 2,
+            puzzleImageId: 1,
             isGameOver: false,
             puzzleRootPath: "puzzle12Img/puzzles",
             allIconsDispersed: false,
@@ -2286,7 +2252,6 @@ function initializePuzzle30() {
         random(-1, 1), random(-1, 1), puz));
 
     // initialize buttons
-    puz.otherPuzzlesButtons.push(new Button(width - 1930, height/2 - 210, 300, 200, undefined));
     puz.otherPuzzlesButtons.push(new Button(width - 1930, height/2 - 430, 300, 200, undefined));
     puz.otherPuzzlesButtons.push(new Button(width - 1930, height/2 - 650, 300, 200, undefined));
 
@@ -2432,7 +2397,6 @@ function initializePuzzle12() {
         random(-1, 1), random(-1, 1), puz));
 
     // initialize buttons
-    puz.otherPuzzlesButtons.push(new Button(width - 1720, height/2 - 210, 300, 200, undefined));
     puz.otherPuzzlesButtons.push(new Button(width - 1720, height/2 - 430, 300, 200, undefined));
     puz.otherPuzzlesButtons.push(new Button(width - 1720, height/2 - 650, 300, 200, undefined));
 
@@ -2529,8 +2493,8 @@ function drawPuzzle() {
     if (language === LANG_RO) {
         choose_new_text = "Alege alt puzzle";
     } else if (language === LANG_EN) {
-        choose_new_text = "Choose another puzzle";
-        left_offset = -40;
+        choose_new_text = "Choose another";
+        left_offset = 0;
     }
     if (activeGame === "puz12") {
         noStroke();
@@ -2563,7 +2527,7 @@ function drawLevelButton() {
 
 function initializeThumbnails() {
     let localIndex = 0;
-    for (let i = 1; i < 5; i++) {
+    for (let i = 1; i < 4; i++) {
         if (i !== puz.gameState.puzzleImageId) {
 
             if (activeGame === "puz12") {
@@ -2755,6 +2719,7 @@ function mousePressed() {
 }
 
 function touchEnded() {
+    idleTimer = IDLE_TIMEOUT_INTERACTION;
     if (activeGame === tl.propertiesIdentifier) {
         for (let i = 0; i < tl.cards.length; i++) {
             tl.cards[i].resetRotation(false);
@@ -2770,10 +2735,12 @@ function touchEnded() {
 }
 
 function mouseReleased() {
+    idleTimer = IDLE_TIMEOUT_INTERACTION;
     touchEnded();
 }
 
 function touchMoved(){
+    idleTimer = IDLE_TIMEOUT_INTERACTION;
     touchStarted();
     if (isAnySelectedCard()) {
         if (activeGame === tl.propertiesIdentifier) {
@@ -2793,10 +2760,12 @@ function touchMoved(){
 }
 
 function mouseDragged() {
+    idleTimer = IDLE_TIMEOUT_INTERACTION;
     touchMoved();
 }
 
 function touchStarted() {
+    idleTimer = IDLE_TIMEOUT_INTERACTION;
 
     setTouchTargets();
 
