@@ -63,12 +63,15 @@ let timelineBg, memoryBg, collageBg, timelineNextButton_ro, timelineNextButton_e
 let collageImg1, collageImg2, collageImg3, collageImg1Small, collageImg2Small, collageImg3Small, collageAreas;
 let collagePiece1, collagePiece2, collagePiece3;
 
-let puzLevel12_ro, puzLevel30_ro;
-let puzLevel12_en, puzLevel30_en;
+let puzLevel12_ro_active, puzLevel12_ro_inactive, puzLevel30_ro_active, puzLevel30_ro_inactive, puzLevel20_ro_active, puzLevel20_ro_inactive;
+let puzLevel12_en_active, puzLevel12_en_inactive, puzLevel30_en_active, puzLevel30_en_inactive, puzLevel20_en_active, puzLevel20_en_inactive;
+let puzButtonBg_ro, puzButtonBg_en;
 
 let puzzle12Images = [];
+let puzzle20Images = [];
 let puzzle30Images = [];
 let puzzle12Thumbs = [];
+let puzzle20Thumbs = [];
 let puzzle30Thumbs = [];
 
 // -------------------------------
@@ -351,6 +354,80 @@ function preload() {
         }
     ]);
 
+    puzzle20Images.push([loadImage('puzzle20Img/puzzles/1/image.jpg'),
+        {
+            "ro": ["Zi de patinaj.\n" +
+            "Fotografie de Heinrich Lehmann",
+                "„Actul de naștere” al Olimpiei a fost decizia adunării generale a Reuniunii \n" +
+                "de patinaj din Brașov din 29 martie 1894. „Casa Reuniunii” a fost construită \n" +
+                "lângă „noul” loc de patinaj. La sfârșitul anului 1895 clădirea era gata și \n" +
+                "publicul a fost anunțat că deschiderea festivă va avea loc pe 19 ianuarie \n" +
+                "1896, cu o „petrecere costumată” pe gheață.",
+                "19O5",
+                15],
+            "en": ["Skating day.\n Photo by Heinrich Lehmann",
+                "The \"birth certificate\"; of the Olimpia was the decision of the\n" +
+                "general assembly of the Skating Meeting in Brașov on March 29, 1894. The\n" +
+                "\"Meeting House\" was built next to the \"new\" skating\n" +
+                "venue. By the end of 1895 the building was ready and the public was told\n" +
+                "that the festive opening would take place on January 19, 1896, with a\n" +
+                "\"costume party\" on ice.",
+                "19O5",
+                15],
+        }
+    ]);
+    puzzle20Images.push([loadImage('puzzle20Img/puzzles/2/image.jpg'),
+        {
+            "ro": ["Echipa de hochei Steagul Roșu\n Brașov pe patinoarul de la Olimpia",
+                "Între 15 și 20 ianuarie 1949, pe terenul de patinaj de sub Tâmpa, se\n" +
+                "organizează „un mare turneu de hockey” pentru „Cupa Republicii Populare\n" +
+                "Române”. Participă selecționatele orașelor București, Cluj, Miercurea Ciuc,\n" +
+                "Sighișoara, Târgu Mureș și Brașov. În primul meci, selecționata București a\n" +
+                "învins selecționata Brașov cu scorul de 11 – 1, cu trei puncte înscrise de\n" +
+                "Flamaropol. Prima ediție a cupei „R.P.R.” la hockey a fost câștigată de\n" +
+                "Echipa de hochei Steagul Roșu Brașov pe patinoarul de la Olimpia București,\n" +
+                "cu 5 victorii din 5 meciuri. Patinoarul de sub Tâmpa a fost folosit și\n" +
+                "pentru meciuri internaționale de hochei, aici jucând chiar și echipa\n" +
+                "națională.",
+                "196O", 12],
+            "en": ["Steagul Roșu Brasov hockey team\n on the Olimpia ice rink",
+                "Between 15 and 20 of January 1949, on the skating rink under Tâmpa, a\n" +
+                "\"big hockey tournament\" for the \"Romanian People\'s\n" +
+                "Republic Cup\" is organized. The teams of Bucharest, Cluj, Miercurea\n" +
+                "Ciuc, Sighișoara, Târgu Mureș and Brașov participate. In the first game,\n" +
+                "Bucharest defeated Brașov with a score of 11 to 1, three points being\n" +
+                "scored Steagul Roșu Brasov hockey team on the Olimpia ice rink by\n" +
+                "Flamaropol. The first edition of the \"R.P.R.\" hockey cup was won\n" +
+                "by Bucharest, winning 5 of 5. The rink under Tâmpa also hosted\n" +
+                "international hockey matches, even the national team playing here.\n",
+                "196O", 12]
+        }
+    ]);
+    puzzle20Images.push([loadImage('puzzle20Img/puzzles/3/image.jpg'),
+        {
+            "ro": ["Ilie Năstase și Ion Țiriac \niulie 1971",
+                "Ion Țiriac s-a născut la câteva sute de metri de terenurile de tenis de la\n" +
+                "Olimpia, pe strada Cerbului. În noiembrie 1957, pe terenul de sub Tâmpa s-a\n" +
+                "desfășurat turneul de tenis de câmp al primilor opt jucători din lotul de\n" +
+                "tineret al României. „Surpriza turneului a fost tânărul Țiriac de la\n" +
+                "Energia Steagul Roșu” (din ziarul ,,Drum Nou”). În anul 1970, Ion Țiriac a\n" +
+                "câștigat împreună cu Ilie Năstase turneul de la Roland Garros. Apoi,\n" +
+                "avându-l partener tot pe Năstase, a jucat trei finale de Cupa Davis, toate\n" +
+                "cu Statele Unite ale Americii (1969, 1970 și 1972).",
+                "1971", 4],
+            "en": ["Ilie Năstase and Ion Țiriac \nJuly 1971",
+                "Ion Țiriac was born a few hundred metres from the tennis courts at Olimpia,\n" +
+                "on Cerbului Street. In November 1957, the tennis tournament of the first\n" +
+                "eight players of Romania\'s youth team was held on the court under\n" +
+                "Tâmpa. \"The surprise of the tournament was young Țiriac from Energia\n" +
+                "Steagul Roșu\" (from the newspaper \"Drum Nou\"). In 1970, Ion\n" +
+                "Țiriac won the Roland Garros tournament together with Ilie Năstase. Then,\n" +
+                "also with Nastase as his partner, he played three Davis Cup finals, all\n" +
+                "against the United States of America (1969, 1970 and 1972).",
+                "1971", 4]
+        }
+    ]);
+
     puzzle30Images.push([loadImage('puzzle30Img/puzzles/1/image.png'),
         {
             "ro": ["Zi de patinaj.\n" +
@@ -429,16 +506,32 @@ function preload() {
     puzzle12Thumbs.push(loadImage('puzzle12Img/puzzles/2/thumb.jpg'));
     puzzle12Thumbs.push(loadImage('puzzle12Img/puzzles/3/thumb.jpg'));
 
+    puzzle20Thumbs.push(loadImage('puzzle20Img/puzzles/1/thumb.png'));
+    puzzle20Thumbs.push(loadImage('puzzle20Img/puzzles/2/thumb.png'));
+    puzzle20Thumbs.push(loadImage('puzzle20Img/puzzles/3/thumb.png'));
+
     puzzle30Thumbs.push(loadImage('puzzle30Img/puzzles/1/thumb.png'));
     puzzle30Thumbs.push(loadImage('puzzle30Img/puzzles/2/thumb.png'));
     puzzle30Thumbs.push(loadImage('puzzle30Img/puzzles/3/thumb.png'));
 
-    puzLevel12_ro = loadImage('puzzle12Img/level_12_ro.png');
-    puzLevel30_ro = loadImage('puzzle30Img/level_30_ro.png');
-    puzLevel12_en = loadImage('puzzle12Img/level_12_en.png');
-    puzLevel30_en = loadImage('puzzle30Img/level_30_en.png');
+    puzLevel12_ro_active = loadImage('puzzle_general/img/dlvl-12-a-ro.png');
+    puzLevel12_ro_inactive = loadImage('puzzle_general/img/dlvl-12-i-ro.png');
+    puzLevel20_ro_active = loadImage('puzzle_general/img/dlvl-20-a-ro.png');
+    puzLevel20_ro_inactive = loadImage('puzzle_general/img/dlvl-20-i-ro.png');
+    puzLevel30_ro_active = loadImage('puzzle_general/img/dlvl-30-a-ro.png');
+    puzLevel30_ro_inactive = loadImage('puzzle_general/img/dlvl-30-i-ro.png');
 
-    activeGame = "tl";
+    puzLevel12_en_active = loadImage('puzzle_general/img/dlvl-12-a-en.png');
+    puzLevel12_en_inactive = loadImage('puzzle_general/img/dlvl-12-i-en.png');
+    puzLevel20_en_active = loadImage('puzzle_general/img/dlvl-20-a-en.png');
+    puzLevel20_en_inactive = loadImage('puzzle_general/img/dlvl-20-i-en.png');
+    puzLevel30_en_active = loadImage('puzzle_general/img/dlvl-30-a-en.png');
+    puzLevel30_en_inactive = loadImage('puzzle_general/img/dlvl-30-i-en.png');
+
+    puzButtonBg_ro = loadImage('puzzle_general/img/dlvl-bg-label-ro.png');
+    puzButtonBg_en = loadImage('puzzle_general/img/dlvl-bg-label-en.png');
+
+    activeGame = "puz20";
 }
 
 function setup() {
@@ -453,6 +546,10 @@ function setup() {
     if (activeGame === "puz12"){
         initializePuz12GameProps();
         initializePuzzle12();
+    }
+    if (activeGame === "puz20"){
+        initializePuz20GameProps();
+        initializePuzzle20();
     }
     if (activeGame === "puz30"){
         initializePuz30GameProps();
@@ -474,7 +571,7 @@ function draw() {
     if (activeGame === "tl"){
         drawTimeline();
     }
-    if (activeGame === "puz12" || activeGame === "puz30"){
+    if (activeGame === "puz12" || activeGame === "puz20" || activeGame === "puz30"){
         drawPuzzle();
     }
     if (activeGame === "col"){
@@ -487,9 +584,9 @@ function draw() {
     // decrease idle timer
     idleTimer -= 1;
     if (idleTimer < 0) {
-        let newGame = random(["mem", "tl", "puz12", "puz30", "col"]);
+        let newGame = random(["mem", "tl", "puz12", "puz20", "puz30", "col"]);
         while(newGame === activeGame){
-            newGame = random(["mem", "tl", "puz12", "puz30", "col"]);
+            newGame = random(["mem", "tl", "puz12", "puz30", "puz20", "col"]);
         }
         activeGame = newGame;
         resetCurrentGame();
@@ -779,7 +876,7 @@ function resetCurrentGame() {
         setup();
         tl.isInitialized = true;
     }
-    if (activeGame === "puz12" || activeGame === "puz30") {
+    if (activeGame === "puz12" || activeGame === "puz20" || activeGame === "puz30") {
         puz.isInitialized = false;
         setup();
         puz.isInitialized = true;
@@ -1681,21 +1778,21 @@ function initCollagePieces() {
     col.pieces.push(new CollagePiece(3, 910, 2250, 78, 123));
     col.pieces.push(new CollagePiece(4, 900, 2000, 69, 106));
     col.pieces.push(new CollagePiece(18, 800, 2200, 66, 111));
-    col.pieces.push(new CollagePiece(21, 600, 2300, 66, 111));
+    col.pieces.push(new CollagePiece(21, 600, 2300, 64, 103));
 
     // // GROUP 2
     col.pieces.push(new CollagePiece(5, 1200, 2200, 130, 336));
     col.pieces.push(new CollagePiece(6, 1300, 2100, 213, 296));
     col.pieces.push(new CollagePiece(7, 1400, 2150, 148, 383));
     col.pieces.push(new CollagePiece(8, 1500, 2150, 351, 405));
-    col.pieces.push(new CollagePiece(20, 1630, 2200, 351, 405));
+    col.pieces.push(new CollagePiece(20, 1630, 2200, 147, 289));
 
     // // GROUP 3
     col.pieces.push(new CollagePiece(9, 1200, 2600, 72, 74));
     col.pieces.push(new CollagePiece(10, 1300, 2700, 85, 184));
     col.pieces.push(new CollagePiece(11, 1400, 2900, 51, 44));
     col.pieces.push(new CollagePiece(12, 1460, 2680, 218, 297));
-    col.pieces.push(new CollagePiece(23, 1600, 2620, 164, 205));
+    col.pieces.push(new CollagePiece(23, 1600, 2620, 58, 88));
 
 
     // // GROUP 4
@@ -1825,7 +1922,9 @@ function initializePuz30GameProps() {
         selectedCard: undefined,
 
         nextButton: undefined,
-        levelButton: undefined,
+        level1Button: undefined,
+        level2Button: undefined,
+        level3Button: undefined,
 
         // other puzzles buttons
         otherPuzzlesButtons: [],
@@ -1984,6 +2083,90 @@ function initializePuz12GameProps() {
 
 }
 
+function initializePuz20GameProps() {
+    puz = {
+        propertiesIdentifier: "puz20",
+        placeholders: [],
+        cards: [],
+
+        selectedCard: undefined,
+
+        nextButton: undefined,
+
+        // other puzzles buttons
+        otherPuzzlesButtons: [],
+
+        PUZZLE_PIECE_SIZE: 230,
+        PUZZLE_AREA_TOP_OFFSET: 1200,
+
+        // card sizes
+        CARD_WIDTH: undefined,
+        CARD_HEIGHT: undefined,
+
+        // position for the initial placeholders starting the game
+        POSY_INITIAL_CARD: undefined,
+        POSX_INITIAL_CARD: undefined,
+        // position for the initial puzzle deck
+        POSX_INITIAL_PUZZLE: undefined,
+        POSY_INITIAL_PUZZLE: undefined,
+
+        // position for the deck, how far to enter the canvas.
+        POSY_INITIAL_DECK: undefined,
+
+        // this controls the limits within which cards can move on posX
+        EASE_IN_FACTOR_DISPERSE_LEFT_LIMIT: -900,
+        EASE_IN_FACTOR_DISPERSE_RIGHT_LIMIT: 900,
+
+        // this controls the limits within which cards can move on posY
+        POSY_OFFSET_DISPERSE_LEFT_LIMIT: -40,
+        POSY_OFFSET_DISPERSE_RIGHT_LIMIT: 40,
+
+        gameState: {
+            // id of the current puzzle image.
+            puzzleImageId: 1,
+            isGameOver: false,
+            puzzleRootPath: "puzzle20Img/puzzles",
+            allIconsDispersed: false,
+            thumbsAlpha: -1,
+        },
+
+        finalPuzzleImage: {
+            img: undefined, // final whole image after the puzzle is solved.
+            opacity: 0,
+        },
+
+        cardPopUpProperties: {
+            dynamicRadius: 0,
+            targetRadius: 30,
+            currentSize: 0,
+            elasticity: 0.07,
+            velocity: 2,
+            position: 0,
+            inc: 3,
+            displayPopUp: false,
+            showPropertiesInitialized: false,
+            hidePropertiesInitialized: false,
+            popupWidth: 900,
+            popupHeight: 700,
+            popupPosx: 1080,
+            popupPosy: 2500,
+            currentTitle: "title",
+            // 72 chars per line for description.
+            currentDescription: "description description description description description description " +
+                "\nnew line new line2" +
+                "\nnew line new line3" +
+                "\nnew line new line4" +
+                "\nnew line new line5" +
+                "\nnew line new line6",
+            currentYear: "9999",
+            sportId: 1,
+            sportImage: undefined,
+        },
+
+    }
+
+}
+
 function initializePuzzle30() {
     createCanvas(SCREEN_WIDTH, SCREEN_HEIGHT);
 
@@ -1995,12 +2178,7 @@ function initializePuzzle30() {
     // puz12.POSY_INITIAL_DECK = 3300;
 
     puz.POSX_INITIAL_PUZZLE = width/2;
-    if (activeGame === "puz12"){
-        puz.POSY_INITIAL_PUZZLE = height/2 + 400;
-    }
-    if (activeGame === "puz30") {
-        puz.POSY_INITIAL_PUZZLE = height/2 + 1000;
-    }
+    puz.POSY_INITIAL_PUZZLE = height/2 + 1000;
 
     puz.finalPuzzleImage.img = puzzle30Images[puz.gameState.puzzleImageId - 1][0]; // load the final image based on the id.
 
@@ -2273,10 +2451,14 @@ function initializePuzzle30() {
 
     if (language === LANG_RO) {
         puz.nextButton = new Button(width/2, height/2 + 1400, 600, 128, puzzleNextButton_ro);
-        puz.levelButton = new Button(width - 300, height / 2 + 200, 300, 200, puzLevel30_ro);
+        puz.level1Button = new Button(width - 310, height / 2 + 130, 70, 70, puzLevel12_ro_inactive);
+        puz.level2Button = new Button(width - 310, height / 2 + 200, 70, 70, puzLevel20_ro_inactive);
+        puz.level3Button = new Button(width - 310, height / 2 + 280, 78, 78, puzLevel30_ro_active);
     } else if (language === LANG_EN) {
         puz.nextButton = new Button(width/2, height/2 + 1400, 600, 128, puzzleNextButton_en);
-        puz.levelButton = new Button(width - 300, height / 2 + 200, 300, 200, puzLevel30_en);
+        puz.level1Button = new Button(width - 310, height / 2 + 130, 70, 70, puzLevel12_en_inactive);
+        puz.level2Button = new Button(width - 310, height / 2 + 200, 70, 70, puzLevel20_en_inactive);
+        puz.level3Button = new Button(width - 310, height / 2 + 280, 78, 78, puzLevel30_en_active);
     }
 
     initializeThumbnails();
@@ -2295,6 +2477,8 @@ function initializePuzzle12() {
     puz.POSX_INITIAL_PUZZLE = width/2;
     puz.POSY_INITIAL_PUZZLE = height/2 + 400;
 
+
+    print(puz.gameState.puzzleImageId - 1);
     puz.finalPuzzleImage.img = puzzle12Images[puz.gameState.puzzleImageId - 1][0]; // load the final image based on the id.
 
     // initialize placeholders.
@@ -2418,10 +2602,230 @@ function initializePuzzle12() {
 
     if (language === LANG_RO) {
         puz.nextButton = new Button(width/2, height/2 + 780, 600, 128, puzzleNextButton_ro);
-        puz.levelButton = new Button(width - 540, height / 2 - 250, 300, 200, puzLevel12_ro);
+        puz.level1Button = new Button(width - 540, height / 2 - 328, 70, 70, puzLevel12_ro_active);
+        puz.level2Button = new Button(width - 540, height / 2 - 250, 70, 70, puzLevel20_ro_inactive);
+        puz.level3Button = new Button(width - 540, height / 2 - 185, 78, 78, puzLevel30_ro_inactive);
     } else if (language === LANG_EN) {
         puz.nextButton = new Button(width/2, height/2 + 780, 600, 128, puzzleNextButton_en);
-        puz.levelButton = new Button(width - 540, height / 2 - 250, 300, 200, puzLevel12_en);
+        puz.level1Button = new Button(width - 540, height / 2 - 328, 70, 70, puzLevel12_en_active);
+        puz.level2Button = new Button(width - 540, height / 2 - 250, 70, 70, puzLevel20_en_inactive);
+        puz.level3Button = new Button(width - 540, height / 2 - 185, 78, 78, puzLevel30_en_inactive);
+    }
+
+    initializeThumbnails();
+}
+
+function initializePuzzle20() {
+    createCanvas(SCREEN_WIDTH, SCREEN_HEIGHT);
+
+    puz.CARD_WIDTH = puz.PUZZLE_PIECE_SIZE;
+    puz.CARD_HEIGHT = puz.PUZZLE_PIECE_SIZE;
+
+    // puz12.POSX_INITIAL_CARD = width/2;
+    // puz12.POSY_INITIAL_CARD = 1300;
+    // puz12.POSY_INITIAL_DECK = 3300;
+
+    puz.POSX_INITIAL_PUZZLE = width/2;
+    puz.POSY_INITIAL_PUZZLE = height/2 + 600;
+
+    print(puz.gameState.puzzleImageId - 1);
+    puz.finalPuzzleImage.img = puzzle20Images[puz.gameState.puzzleImageId - 1][0]; // load the final image based on the id.
+
+    // initialize placeholders.
+    puz.placeholders.push(new Placeholder(1,
+        this.width/2 + puz.PUZZLE_PIECE_SIZE/2 - puz.PUZZLE_PIECE_SIZE * 3,
+        puz.PUZZLE_AREA_TOP_OFFSET,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        1, undefined, undefined, puz));
+    puz.placeholders.push(new Placeholder(2,
+        this.width/2 + puz.PUZZLE_PIECE_SIZE/2 - puz.PUZZLE_PIECE_SIZE * 2,
+        puz.PUZZLE_AREA_TOP_OFFSET,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        2, undefined, undefined, puz));
+    puz.placeholders.push(new Placeholder(3,
+        this.width/2 + puz.PUZZLE_PIECE_SIZE/2 - puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_AREA_TOP_OFFSET,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        3, undefined, undefined, puz));
+    puz.placeholders.push(new Placeholder(4,
+        this.width/2  + puz.PUZZLE_PIECE_SIZE/2,
+        puz.PUZZLE_AREA_TOP_OFFSET,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        4, undefined, undefined, puz));
+    puz.placeholders.push(new Placeholder(5,
+        this.width/2 + puz.PUZZLE_PIECE_SIZE/2 + puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_AREA_TOP_OFFSET,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        5, undefined, undefined, puz));
+
+    puz.placeholders.push(new Placeholder(6,
+        this.width/2 + puz.PUZZLE_PIECE_SIZE/2 - puz.PUZZLE_PIECE_SIZE * 3,
+        puz.PUZZLE_AREA_TOP_OFFSET + puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        6, undefined, undefined, puz));
+    puz.placeholders.push(new Placeholder(7,
+        this.width/2 + puz.PUZZLE_PIECE_SIZE/2 - puz.PUZZLE_PIECE_SIZE * 2,
+        puz.PUZZLE_AREA_TOP_OFFSET + puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        7, undefined, undefined, puz));
+    puz.placeholders.push(new Placeholder(8,
+        this.width/2 + puz.PUZZLE_PIECE_SIZE/2 - puz.PUZZLE_PIECE_SIZE ,
+        puz.PUZZLE_AREA_TOP_OFFSET + puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        8, undefined, undefined, puz));
+    puz.placeholders.push(new Placeholder(9,
+        this.width/2  + puz.PUZZLE_PIECE_SIZE/2,
+        puz.PUZZLE_AREA_TOP_OFFSET + puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        9, undefined, undefined, puz));
+    puz.placeholders.push(new Placeholder(10,
+        this.width/2 + puz.PUZZLE_PIECE_SIZE/2 + puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_AREA_TOP_OFFSET + puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        10, undefined, undefined, puz));
+
+    puz.placeholders.push(new Placeholder(11,
+        this.width/2 + puz.PUZZLE_PIECE_SIZE/2 - puz.PUZZLE_PIECE_SIZE * 3,
+        puz.PUZZLE_AREA_TOP_OFFSET + puz.PUZZLE_PIECE_SIZE * 2,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        11, undefined, undefined, puz));
+    puz.placeholders.push(new Placeholder(12,
+        this.width/2 + puz.PUZZLE_PIECE_SIZE/2 - puz.PUZZLE_PIECE_SIZE * 2,
+        puz.PUZZLE_AREA_TOP_OFFSET + puz.PUZZLE_PIECE_SIZE * 2,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        12, undefined, undefined, puz));
+    puz.placeholders.push(new Placeholder(13,
+        this.width/2 + puz.PUZZLE_PIECE_SIZE/2 - puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_AREA_TOP_OFFSET + puz.PUZZLE_PIECE_SIZE * 2,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        13, undefined, undefined, puz));
+    puz.placeholders.push(new Placeholder(14,
+        this.width/2  + puz.PUZZLE_PIECE_SIZE/2,
+        puz.PUZZLE_AREA_TOP_OFFSET + puz.PUZZLE_PIECE_SIZE * 2,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        14, undefined, undefined, puz));
+    puz.placeholders.push(new Placeholder(15,
+        this.width/2 + puz.PUZZLE_PIECE_SIZE/2 + puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_AREA_TOP_OFFSET + puz.PUZZLE_PIECE_SIZE * 2,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        15, undefined, undefined, puz));
+
+    puz.placeholders.push(new Placeholder(16,
+        this.width/2 + puz.PUZZLE_PIECE_SIZE/2 - puz.PUZZLE_PIECE_SIZE * 3,
+        puz.PUZZLE_AREA_TOP_OFFSET + puz.PUZZLE_PIECE_SIZE * 3,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        16, undefined, undefined, puz));
+    puz.placeholders.push(new Placeholder(17,
+        this.width/2 + puz.PUZZLE_PIECE_SIZE/2 - puz.PUZZLE_PIECE_SIZE * 2,
+        puz.PUZZLE_AREA_TOP_OFFSET + puz.PUZZLE_PIECE_SIZE * 3,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        17, undefined, undefined, puz));
+    puz.placeholders.push(new Placeholder(18,
+        this.width/2 + puz.PUZZLE_PIECE_SIZE/2 - puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_AREA_TOP_OFFSET + puz.PUZZLE_PIECE_SIZE * 3,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        18, undefined, undefined, puz));
+    puz.placeholders.push(new Placeholder(19,
+        this.width/2  + puz.PUZZLE_PIECE_SIZE/2,
+        puz.PUZZLE_AREA_TOP_OFFSET + puz.PUZZLE_PIECE_SIZE * 3,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        19, undefined, undefined, puz));
+    puz.placeholders.push(new Placeholder(20,
+        this.width/2 + puz.PUZZLE_PIECE_SIZE/2 + puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_AREA_TOP_OFFSET + puz.PUZZLE_PIECE_SIZE * 3,
+        puz.PUZZLE_PIECE_SIZE,
+        puz.PUZZLE_PIECE_SIZE,
+        20, undefined, undefined, puz));
+
+    // initialize cards.
+    // puz12.POSX_INITIAL_CARD = width/2;
+    // puz12.POSY_INITIAL_CARD = 1300;
+    // puz12.POSY_INITIAL_DECK = 1300;
+
+    puz.cards.push(initPuzzleCard(1, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
+    puz.cards.push(initPuzzleCard(2, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
+    puz.cards.push(initPuzzleCard(3, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
+    puz.cards.push(initPuzzleCard(4, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
+    puz.cards.push(initPuzzleCard(5, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
+
+    puz.cards.push(initPuzzleCard(6, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
+    puz.cards.push(initPuzzleCard(7, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
+    puz.cards.push(initPuzzleCard(8, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
+    puz.cards.push(initPuzzleCard(9, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
+    puz.cards.push(initPuzzleCard(10, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
+
+    puz.cards.push(initPuzzleCard(11, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
+    puz.cards.push(initPuzzleCard(12, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
+    puz.cards.push(initPuzzleCard(13, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
+    puz.cards.push(initPuzzleCard(14, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
+    puz.cards.push(initPuzzleCard(15, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
+
+    puz.cards.push(initPuzzleCard(16, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
+    puz.cards.push(initPuzzleCard(17, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
+    puz.cards.push(initPuzzleCard(18, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
+    puz.cards.push(initPuzzleCard(19, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
+    puz.cards.push(initPuzzleCard(20, puz.POSX_INITIAL_PUZZLE, puz.POSY_INITIAL_PUZZLE,
+        random(-1, 1), random(-1, 1), puz));
+
+    // initialize buttons
+    puz.otherPuzzlesButtons.push(new Button(width - 1930, height/2 - 430, 300, 200, undefined));
+    puz.otherPuzzlesButtons.push(new Button(width - 1930, height/2 - 650, 300, 200, undefined));
+
+    // initialize puzzle info pop-up details.
+    puz.cardPopUpProperties.currentTitle = puzzle30Images[puz.gameState.puzzleImageId - 1][1][language][0];
+    puz.cardPopUpProperties.currentDescription = puzzle30Images[puz.gameState.puzzleImageId - 1][1][language][1];
+    puz.cardPopUpProperties.currentYear = puzzle30Images[puz.gameState.puzzleImageId - 1][1][language][2];
+    puz.cardPopUpProperties.sportId = puzzle30Images[puz.gameState.puzzleImageId - 1][1][language][3];
+    puz.cardPopUpProperties.sportImage = loadImage("memoryImg/icons/" + puz.cardPopUpProperties.sportId + ".png");
+
+    if (language === LANG_RO) {
+        puz.nextButton = new Button(width/2, height/2 + 1400, 600, 128, puzzleNextButton_ro);
+        puz.level1Button = new Button(width - 540, height / 2 - 100, 70, 70, puzLevel12_ro_inactive);
+        puz.level2Button = new Button(width - 540, height / 2 - 25, 70, 70, puzLevel20_ro_active);
+        puz.level3Button = new Button(width - 540, height / 2 + 50, 78, 78, puzLevel30_ro_inactive);
+    } else if (language === LANG_EN) {
+        puz.nextButton = new Button(width/2, height/2 + 1400, 600, 128, puzzleNextButton_en);
+        puz.level1Button = new Button(width - 540, height / 2 - 100, 70, 70, puzLevel12_en_inactive);
+        puz.level2Button = new Button(width - 540, height / 2 - 25, 70, 70, puzLevel20_en_active);
+        puz.level3Button = new Button(width - 540, height / 2 + 50, 78, 78, puzLevel30_en_inactive);
     }
 
     initializeThumbnails();
@@ -2439,7 +2843,7 @@ function drawPuzzle() {
     drawPlaceholders();
     drawCards();
 
-    if (activeGame === "puz12") {
+    if (activeGame === "puz12" || activeGame === "puz20") {
         drawPuzzlePreview();
     }
     drawThumbPuzzles();
@@ -2456,13 +2860,17 @@ function drawPuzzle() {
         let newActivePuzzleId = puz.gameState.puzzleImageId + 1;
         if (activeGame === "puz12") {
             initializePuz12GameProps();
+        } else if (activeGame === "puz20") {
+            initializePuz20GameProps();
         } else if (activeGame === "puz30") {
             initializePuz30GameProps();
         }
-        puz.gameState.puzzleImageId = newActivePuzzleId > 4 ? 1 : newActivePuzzleId;
+        puz.gameState.puzzleImageId = newActivePuzzleId > 3 ? 1 : newActivePuzzleId;
         puz.isInitialized = false;
-        if (activeGame === "puz12"){
+        if (activeGame === "puz12") {
             initializePuzzle12();
+        } else if (activeGame === "puz20") {
+            initializePuzzle20();
         } else if (activeGame === "puz30") {
             initializePuzzle30();
         }
@@ -2487,9 +2895,9 @@ function drawPuzzle() {
 
     textFont(fontNotoLight);
     textStyle(NORMAL);
-    let text2 = 'Poți alege nivelul de dificultate: cu 12 sau 30 de piese.';
+    let text2 = 'Poți alege nivelul de dificultate: cu 12, 20 sau 30 de piese.';
     if (language === LANG_EN) {
-        text2 = 'You can choose the difficulty level: with 12 or 30 pieces.';
+        text2 = 'You can choose the difficulty level: with 12, 20 or 30 pieces.';
     }
     text(text2, width/2, 450);
 
@@ -2507,6 +2915,9 @@ function drawPuzzle() {
     if (activeGame === "puz12") {
         noStroke();
         text(choose_new_text, 460 + left_offset, height/2 - 800);
+    } else if (activeGame === "puz20") {
+        noStroke();
+        text(choose_new_text, 230 + left_offset, height/2 - 800);
     } else if (activeGame === "puz30") {
         noStroke();
         text(choose_new_text, 230 + left_offset, height/2 - 800);
@@ -2514,24 +2925,61 @@ function drawPuzzle() {
 }
 
 function drawLevelButton() {
-    puz.levelButton.isVisible = true;
-    puz.levelButton.draw();
+    // draw buttons background
+    let puzButtonBgPosx = 0;
+    let puzButtonBgPosy = 0;
+    if (activeGame === "puz12") {
+        puzButtonBgPosx = width - 540;
+        puzButtonBgPosy = height / 2 - 270;
+    } else if (activeGame === "puz20"){
+        puzButtonBgPosx = width - 540;
+        puzButtonBgPosy = height / 2 - 40;
+    } else if (activeGame === "puz30") {
+        puzButtonBgPosx = width - 310;
+        puzButtonBgPosy = height / 2 + 190;
+    }
+    push();
+    imageMode(CENTER);
+    if (language === LANG_RO) {
+        image(puzButtonBg_ro, puzButtonBgPosx, puzButtonBgPosy);
+    } else if (language === LANG_EN) {
+        image(puzButtonBg_en, puzButtonBgPosx, puzButtonBgPosy);
+    }
+    pop();
 
-    if (puz.levelButton.isClicked(mouseX, mouseY) && puz.selectedCard === undefined) {
+
+    puz.level1Button.isVisible = true;
+    puz.level2Button.isVisible = true;
+    puz.level3Button.isVisible = true;
+    puz.level1Button.draw();
+    puz.level2Button.draw();
+    puz.level3Button.draw();
+
+    if (puz.level1Button.isClicked(mouseX, mouseY) && puz.selectedCard === undefined) {
         puz.isInitialized = false;
-        if (activeGame === "puz12") {
-            activeGame = "puz30";
-            let currentPuzzleId = puz.gameState.puzzleImageId;
-            initializePuz30GameProps();
-            puz.gameState.puzzleImageId = currentPuzzleId;
-            initializePuzzle30();
-        } else if (activeGame === "puz30") {
-            activeGame = "puz12";
-            let currentPuzzleId = puz.gameState.puzzleImageId;
-            initializePuz12GameProps();
-            puz.gameState.puzzleImageId = currentPuzzleId;
-            initializePuzzle12();
-        }
+        activeGame = "puz12";
+        let currentPuzzleId = puz.gameState.puzzleImageId;
+        initializePuz12GameProps();
+        puz.gameState.puzzleImageId = currentPuzzleId;
+        initializePuzzle12();
+        puz.isInitialized = true;
+        print("times played: " + getItem(activeGame));
+    } else if (puz.level2Button.isClicked(mouseX, mouseY) && puz.selectedCard === undefined) {
+        puz.isInitialized = false;
+        activeGame = "puz20";
+        let currentPuzzleId = puz.gameState.puzzleImageId;
+        initializePuz20GameProps();
+        puz.gameState.puzzleImageId = currentPuzzleId;
+        initializePuzzle20();
+        puz.isInitialized = true;
+        print("times played: " + getItem(activeGame));
+    } else if (puz.level3Button.isClicked(mouseX, mouseY) && puz.selectedCard === undefined) {
+        puz.isInitialized = false;
+        activeGame = "puz30";
+        let currentPuzzleId = puz.gameState.puzzleImageId;
+        initializePuz30GameProps();
+        puz.gameState.puzzleImageId = currentPuzzleId;
+        initializePuzzle30();
         puz.isInitialized = true;
         print("times played: " + getItem(activeGame));
     }
@@ -2544,6 +2992,8 @@ function initializeThumbnails() {
 
             if (activeGame === "puz12") {
                 puz.otherPuzzlesButtons[localIndex].img = puzzle12Thumbs[i - 1];
+            } else if (activeGame === "puz20") {
+                puz.otherPuzzlesButtons[localIndex].img = puzzle20Thumbs[i - 1];
             } else if (activeGame === "puz30") {
                 puz.otherPuzzlesButtons[localIndex].img = puzzle30Thumbs[i - 1];
             }
@@ -2572,6 +3022,8 @@ function drawThumbPuzzles() {
             // 'manually' reset puzzle game cu inject puzzle button id.
             if (activeGame === "puz12") {
                 initializePuz12GameProps();
+            } else if (activeGame === "puz20") {
+                initializePuz20GameProps();
             } else if (activeGame === "puz30") {
                 initializePuz30GameProps();
             }
@@ -2579,6 +3031,8 @@ function drawThumbPuzzles() {
             puz.isInitialized = false;
             if (activeGame === "puz12"){
                 initializePuzzle12();
+            } else if (activeGame === "puz20") {
+                initializePuzzle20();
             } else if (activeGame === "puz30") {
                 initializePuzzle30();
             }
@@ -2589,12 +3043,19 @@ function drawThumbPuzzles() {
 
 function drawPuzzlePreview() {
     push();
-    scale(0.5);
     if (puz.gameState.thumbsAlpha < 1) {
         puz.gameState.thumbsAlpha += 0.005;
     }
-    tint(255, puz.gameState.thumbsAlpha * 255);
-    image(puz.finalPuzzleImage.img, this.width + 1000, this.height/2 + 270);
+    if (activeGame === "puz12") {
+        scale(0.5);
+        tint(255, puz.gameState.thumbsAlpha * 255);
+        image(puz.finalPuzzleImage.img, this.width + 1000, this.height/2 + 270);
+    } else if (activeGame === "puz20") {
+        scale(0.4);
+        tint(255, puz.gameState.thumbsAlpha * 255);
+        image(puz.finalPuzzleImage.img, this.width + 1800, this.height/2 + 800);
+    }
+
     pop();
 }
 
@@ -2653,6 +3114,9 @@ function checkEndOfTheGame() {
         if (activeGame === "puz12") {
             image(puz.finalPuzzleImage.img, this.width/2 - puz.PUZZLE_PIECE_SIZE * 2,
                 puz.PUZZLE_AREA_TOP_OFFSET - puz.PUZZLE_PIECE_SIZE/2);
+        } else if (activeGame === "puz20") {
+            image(puz.finalPuzzleImage.img, this.width/2 - puz.PUZZLE_PIECE_SIZE * 3,
+                puz.PUZZLE_AREA_TOP_OFFSET - puz.PUZZLE_PIECE_SIZE/2);
         } else if (activeGame === "puz30") {
             image(puz.finalPuzzleImage.img, this.width/2 - puz.PUZZLE_PIECE_SIZE * 3,
                 puz.PUZZLE_AREA_TOP_OFFSET - puz.PUZZLE_PIECE_SIZE/2);
@@ -2706,7 +3170,7 @@ function checkPuzzlePlaceholderCards() {
 
 // desktop support
 function mousePressed() {
-    fullscreen(true);
+    // fullscreen(true);
     idleTimer = IDLE_TIMEOUT_INTERACTION;
     if (activeGame === mem.propertiesIdentifier) {
         checkInfoPopUpClosed(mem);
@@ -2731,7 +3195,7 @@ function mousePressed() {
 }
 
 function touchEnded() {
-    fullscreen(true);
+    // fullscreen(true);
     idleTimer = IDLE_TIMEOUT_INTERACTION;
     if (activeGame === tl.propertiesIdentifier) {
         for (let i = 0; i < tl.cards.length; i++) {
@@ -2748,13 +3212,13 @@ function touchEnded() {
 }
 
 function mouseReleased() {
-    fullscreen(true);
+    // fullscreen(true);
     idleTimer = IDLE_TIMEOUT_INTERACTION;
     touchEnded();
 }
 
 function touchMoved(){
-    fullscreen(true);
+    // fullscreen(true);
     idleTimer = IDLE_TIMEOUT_INTERACTION;
     touchStarted();
     if (isAnySelectedCard()) {
@@ -2775,13 +3239,13 @@ function touchMoved(){
 }
 
 function mouseDragged() {
-    fullscreen(true);
+    // fullscreen(true);
     idleTimer = IDLE_TIMEOUT_INTERACTION;
     touchMoved();
 }
 
 function touchStarted() {
-    fullscreen(true);
+    // fullscreen(true);
     idleTimer = IDLE_TIMEOUT_INTERACTION;
 
     setTouchTargets();
