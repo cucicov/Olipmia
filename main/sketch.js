@@ -3170,7 +3170,7 @@ function checkPuzzlePlaceholderCards() {
 
 // desktop support
 function mousePressed() {
-    // fullscreen(true);
+    fullscreen(true);
     idleTimer = IDLE_TIMEOUT_INTERACTION;
     if (activeGame === mem.propertiesIdentifier) {
         checkInfoPopUpClosed(mem);
@@ -3195,7 +3195,7 @@ function mousePressed() {
 }
 
 function touchEnded() {
-    // fullscreen(true);
+    fullscreen(true);
     idleTimer = IDLE_TIMEOUT_INTERACTION;
     if (activeGame === tl.propertiesIdentifier) {
         for (let i = 0; i < tl.cards.length; i++) {
@@ -3212,13 +3212,13 @@ function touchEnded() {
 }
 
 function mouseReleased() {
-    // fullscreen(true);
+    fullscreen(true);
     idleTimer = IDLE_TIMEOUT_INTERACTION;
     touchEnded();
 }
 
 function touchMoved(){
-    // fullscreen(true);
+    fullscreen(true);
     idleTimer = IDLE_TIMEOUT_INTERACTION;
     touchStarted();
     if (isAnySelectedCard()) {
@@ -3239,13 +3239,13 @@ function touchMoved(){
 }
 
 function mouseDragged() {
-    // fullscreen(true);
+    fullscreen(true);
     idleTimer = IDLE_TIMEOUT_INTERACTION;
     touchMoved();
 }
 
 function touchStarted() {
-    // fullscreen(true);
+    fullscreen(true);
     idleTimer = IDLE_TIMEOUT_INTERACTION;
 
     setTouchTargets();
